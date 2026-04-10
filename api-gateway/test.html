@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>API Gateway Tester</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #0f172a; color: #e2e8f0; padding: 24px; }
+    h1 { font-size: 1.25rem; color: #38bdf8; margin-bottom: 4px; }
+    p.sub { font-size: .8rem; color: #64748b; margin-bottom: 24px; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+
+    .card {
+      background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 16px;
+    }
+    .card h2 { font-size: .8rem; font-weight: 600; color: #94a3b8; text-transform: uppercase;
+      letter-spacing: .05em; margin-bottom: 12px; }
+
+    label { display: block; font-size: .78rem; color: #94a3b8; margin-bottom: 4px; margin-top: 10px; }
+    input, select, textarea {
+      width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 6px;
+      color: #e2e8f0; font-size: .82rem; padding: 7px 10px; outline: none;
+    }
+    input:focus, select:focus, textarea:focus { border-color: #38bdf8; }
+    textarea { resize: vertical; min-height: 60px; font-family: monospace; }
+
+    button {
+      margin-top: 12px; width: 100%; padding: 8px; border: none; border-radius: 6px;
+      background: #0ea5e9; color: #fff; font-size: .85rem; font-weight: 600; cursor: pointer;
+    }
+    button:hover { background: #38bdf8; }
+    button:active { background: #0284c7; }
+
+    .result {
+      margin-top: 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px;
+      padding: 10px; font-family: monospace; font-size: .75rem; white-space: pre-wrap;
+      word-break: break-all; max-height: 180px; overflow-y: auto; display: none;
+    }
+    .result.ok   { border-color: #22c55e; color: #86efac; }
+    .result.warn { border-color: #f59e0b; color: #fcd34d; }
+    .result.err  { border-color: #ef4444; color: #fca5a5; }
+
+    .badge {
+      display: inline-block; font-size: .7rem; font-weight: 700; padding: 2px 7px;
+      border-radius: 999px; margin-left: 6px; vertical-align: middle;
+    }
+    .s2 { background:#166534; color:#86efac; }
+    .s4 { background:#7c2d12; color:#fca5a5; }
+    .s5 { background:#1e1b4b; color:#a5b4fc; }
+
+    #tokenBox { background:#1e293b; border:1px solid #334155; border-radius:10px; padding:16px; margin-bottom:20px; }
+    #tokenBox h2 { font-size:.8rem; font-weight:600; color:#94a3b8; text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px; }
+    #tokenDisplay { font-family:monospace; font-size:.72rem; color:#fbbf24; word-break:break-all; margin-top:8px; }
+
+    .ratelimit-info { font-size:.72rem; color:#64748b; margin-top:6px; }
+  </style>
+</head>
+<body>
+
+<h1>API Gateway Tester</h1>
+<p class="sub">Gateway: <span id="gwUrl"></span></p>
+
+<!-- ── Config ──────────────────────────────────────────────────── -->
+<div id="tokenBox">
+  <h2>Config</h2>
+  <label>Gateway Base URL</label>
+  <input id="cfgBase" value="http://localhost:4000" />
+
+  <label>JWT Secret (must match gateway .env)</label>
+  <input id="cfgSecret" value="your_jwt_secret_here" />
+
+  <label>userId to embed in token</label>
+  <input id="cfgUserId" value="user-123" />
+
+  <label>role to embed in token</label>
+  <select id="cfgRole">
+    <option>student</option>
+    <option>ec_member</option>
+    <option>admin</option>
+  </select>
+
+  <button onclick="generateToken()">Generate &amp; Sign Token</button>
+  <div id="tokenDisplay">— no token yet —</div>
+</div>
+
+<!-- ── Test cards ───────────────────────────────────────────────── -->
+<div class="grid">
+
+  <!-- Health -->
+  <div class="card">
+    <h2>Health Check</h2>
+    <p style="font-size:.78rem;color:#64748b">GET /health — always public, no rate limit</p>
+    <button onclick="run('health')">Send</button>
+    <div class="result" id="r-health"></div>
+  </div>
+
+  <!-- Auth me — protected -->
+  <div class="card">
+    <h2>GET /api/auth/me <span class="badge s2">protected</span></h2>
+    <p style="font-size:.78rem;color:#64748b">Expects a valid Bearer token → 200 (or 503 if MS1 down)<br>No token → 401</p>
+    <label><input type="checkbox" id="me-notoken"> Send WITHOUT token (expect 401)</label>
+    <button onclick="run('me')">Send</button>
+    <div class="result" id="r-me"></div>
+  </div>
+
+  <!-- Login — public + rate limited -->
+  <div class="card">
+    <h2>POST /api/auth/login <span class="badge s4">rate-limited</span></h2>
+    <label>Body (JSON)</label>
+    <textarea id="login-body">{"email":"test@example.com","password":"secret"}</textarea>
+    <button onclick="run('login')">Send</button>
+    <p class="ratelimit-info">Strict limit: 10 req / 15 min per IP → 429 on breach</p>
+    <div class="result" id="r-login"></div>
+  </div>
+
+  <!-- Register — public -->
+  <div class="card">
+    <h2>POST /api/auth/register <span class="badge s5">public</span></h2>
+    <label>Body (JSON)</label>
+    <textarea id="reg-body">{"name":"Alice","email":"alice@example.com","password":"secret"}</textarea>
+    <button onclick="run('register')">Send</button>
+    <div class="result" id="r-register"></div>
+  </div>
+
+  <!-- Elections list — public -->
+  <div class="card">
+    <h2>GET /api/elections <span class="badge s5">public</span></h2>
+    <p style="font-size:.78rem;color:#64748b">MS2 handles its own auth split</p>
+    <button onclick="run('elections-get')">Send</button>
+    <div class="result" id="r-elections-get"></div>
+  </div>
+
+  <!-- Elections vote — protected + vote rate limit -->
+  <div class="card">
+    <h2>POST /api/elections/vote <span class="badge s2">protected</span> <span class="badge s4">vote-limited</span></h2>
+    <label>Body (JSON)</label>
+    <textarea id="vote-body">{"candidateId":"cand-42"}</textarea>
+    <button onclick="run('vote')">Send</button>
+    <p class="ratelimit-info">20 req / min keyed on x-user-id (not IP)</p>
+    <div class="result" id="r-vote"></div>
+  </div>
+
+  <!-- Events list — public -->
+  <div class="card">
+    <h2>GET /api/events <span class="badge s5">public</span></h2>
+    <button onclick="run('events-get')">Send</button>
+    <div class="result" id="r-events-get"></div>
+  </div>
+
+  <!-- Notices — public -->
+  <div class="card">
+    <h2>GET /api/notices <span class="badge s5">public</span></h2>
+    <button onclick="run('notices-get')">Send</button>
+    <div class="result" id="r-notices-get"></div>
+  </div>
+
+  <!-- Finance — protected -->
+  <div class="card">
+    <h2>GET /api/finance <span class="badge s2">protected</span></h2>
+    <button onclick="run('finance-get')">Send</button>
+    <div class="result" id="r-finance-get"></div>
+  </div>
+
+  <!-- Logs — protected -->
+  <div class="card">
+    <h2>GET /api/logs <span class="badge s2">protected</span></h2>
+    <button onclick="run('logs-get')">Send</button>
+    <div class="result" id="r-logs-get"></div>
+  </div>
+
+  <!-- Rate limit hammer -->
+  <div class="card">
+    <h2>Rate Limit Hammer <span class="badge s4">429 test</span></h2>
+    <p style="font-size:.78rem;color:#64748b">Fires 12 login requests back-to-back. Requests 11 and 12 should return 429.</p>
+    <button onclick="hammer()">Fire 12 × POST /api/auth/login</button>
+    <div class="result" id="r-hammer"></div>
+  </div>
+
+  <!-- Custom request -->
+  <div class="card">
+    <h2>Custom Request</h2>
+    <label>Method</label>
+    <select id="custom-method">
+      <option>GET</option><option>POST</option><option>PATCH</option><option>DELETE</option>
+    </select>
+    <label>Path (e.g. /api/users/123)</label>
+    <input id="custom-path" value="/api/users/123" />
+    <label><input type="checkbox" id="custom-auth" checked> Include Bearer token</label>
+    <label>Body (JSON, optional)</label>
+    <textarea id="custom-body"></textarea>
+    <button onclick="run('custom')">Send</button>
+    <div class="result" id="r-custom"></div>
+  </div>
+
+</div>
+
+<script>
+// ── tiny JWT signer (HS256, no external lib) ─────────────────────────────────
+function b64url(str) {
+  return btoa(str).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+}
+function b64urlBytes(buf) {
+  let b = '';
+  new Uint8Array(buf).forEach(x => b += String.fromCharCode(x));
+  return b64url(b);
+}
+async function signJWT(payload, secret) {
+  const header  = b64url(JSON.stringify({ alg:'HS256', typ:'JWT' }));
+  const body    = b64url(JSON.stringify(payload));
+  const msg     = `${header}.${body}`;
+  const key = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(secret),
+    { name:'HMAC', hash:'SHA-256' }, false, ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(msg));
+  return `${msg}.${b64urlBytes(sig)}`;
+}
+
+let currentToken = '';
+
+async function generateToken() {
+  const secret  = document.getElementById('cfgSecret').value.trim();
+  const userId  = document.getElementById('cfgUserId').value.trim();
+  const role    = document.getElementById('cfgRole').value;
+  const payload = { userId, role, iat: Math.floor(Date.now()/1000), exp: Math.floor(Date.now()/1000) + 3600 };
+  currentToken  = await signJWT(payload, secret);
+  document.getElementById('tokenDisplay').textContent = currentToken;
+  document.getElementById('gwUrl').textContent = document.getElementById('cfgBase').value;
+}
+
+// ── display helper ────────────────────────────────────────────────────────────
+function show(id, status, text) {
+  const el = document.getElementById('r-' + id);
+  el.style.display = 'block';
+  el.className = 'result ' + (status >= 500 ? 'err' : status >= 400 ? 'warn' : 'ok');
+  el.textContent = `HTTP ${status}\n\n${text}`;
+}
+
+function base() { return document.getElementById('cfgBase').value.replace(/\/$/, ''); }
+function authHeader() { return currentToken ? { 'Authorization': `Bearer ${currentToken}` } : {}; }
+
+// ── individual tests ──────────────────────────────────────────────────────────
+async function run(id) {
+  try {
+    let res, text;
+    switch (id) {
+
+      case 'health':
+        res  = await fetch(`${base()}/health`);
+        text = await res.text();
+        show(id, res.status, fmt(text));
+        break;
+
+      case 'me': {
+        const noToken = document.getElementById('me-notoken').checked;
+        res  = await fetch(`${base()}/api/auth/me`, { headers: noToken ? {} : authHeader() });
+        text = await res.text();
+        show(id, res.status, fmt(text));
+        break;
+      }
+
+      case 'login': {
+        const body = document.getElementById('login-body').value;
+        res  = await fetch(`${base()}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body,
+        });
+        text = await res.text();
+        show(id, res.status, fmt(text));
+        break;
+      }
+
+      case 'register': {
+        const body = document.getElementById('reg-body').value;
+        res  = await fetch(`${base()}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body,
+        });
+        text = await res.text();
+        show(id, res.status, fmt(text));
+        break;
+      }
+
+      case 'elections-get':
+        res  = await fetch(`${base()}/api/elections`);
+        text = await res.text();
+        show(id, res.status, fmt(text));
+        break;
+
+      case 'vote': {
+        const body = document.getElementById('vote-body').value;
+        res  = await fetch(`${base()}/api/elections/vote`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeader() },
+          body,
+        });
+        text = await res.text();
+        show(id, res.status, fmt(text));
+        break;
+      }
+
+      case 'events-get':
+        res  = await fetch(`${base()}/api/events`);
+        text = await res.text();
+        show(id, res.status, fmt(text));
+        break;
+
+      case 'notices-get':
+        res  = await fetch(`${base()}/api/notices`);
+        text = await res.text();
+        show(id, res.status, fmt(text));
+        break;
+
+      case 'finance-get':
+        res  = await fetch(`${base()}/api/finance`, { headers: authHeader() });
+        text = await res.text();
+        show(id, res.status, fmt(text));
+        break;
+
+      case 'logs-get':
+        res  = await fetch(`${base()}/api/logs`, { headers: authHeader() });
+        text = await res.text();
+        show(id, res.status, fmt(text));
+        break;
+
+      case 'custom': {
+        const method  = document.getElementById('custom-method').value;
+        const path    = document.getElementById('custom-path').value;
+        const withAuth= document.getElementById('custom-auth').checked;
+        const rawBody = document.getElementById('custom-body').value.trim();
+        const opts    = {
+          method,
+          headers: {
+            ...(rawBody ? { 'Content-Type': 'application/json' } : {}),
+            ...(withAuth ? authHeader() : {}),
+          },
+          ...(rawBody ? { body: rawBody } : {}),
+        };
+        res  = await fetch(`${base()}${path}`, opts);
+        text = await res.text();
+        show(id, res.status, fmt(text));
+        break;
+      }
+    }
+  } catch (e) {
+    show(id, 0, `Network error — is the gateway running?\n${e.message}`);
+  }
+}
+
+// ── rate limit hammer ─────────────────────────────────────────────────────────
+async function hammer() {
+  const el = document.getElementById('r-hammer');
+  el.style.display = 'block';
+  el.className = 'result';
+  el.textContent = 'Firing…\n';
+
+  const results = await Promise.all(
+    Array.from({ length: 12 }, (_, i) =>
+      fetch(`${base()}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{"email":"x@x.com","password":"x"}',
+      }).then(r => `req ${String(i+1).padStart(2,' ')} → HTTP ${r.status}`)
+       .catch(e => `req ${i+1} → ERROR ${e.message}`)
+    )
+  );
+
+  el.textContent = results.join('\n');
+  const hit429 = results.some(r => r.includes('429'));
+  el.className = 'result ' + (hit429 ? 'ok' : 'warn');
+  if (hit429) el.textContent += '\n\n✓ Rate limiter fired correctly.';
+  else        el.textContent += '\n\n⚠ No 429 seen — limiter may not have tripped yet (window resets every 15 min).';
+}
+
+// ── JSON pretty-print ────────────────────────────────────────────────────────
+function fmt(text) {
+  try { return JSON.stringify(JSON.parse(text), null, 2); } catch { return text; }
+}
+
+// Init
+generateToken();
+</script>
+</body>
+</html>
