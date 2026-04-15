@@ -1,0 +1,23 @@
+{
+  "name": "ms3-event-notice-media",
+  "version": "1.0.0",
+  "description": "MS3 - Event, Notice & Media Service for CSEDU Club Management System",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": ["microservice", "events", "notices", "media"],
+  "author": "Formula1 Team - Md. Al Habib",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.11.3",
+    "dotenv": "^16.3.1",
+    "joi": "^17.11.0",
+    "multer": "^1.4.5-lts.1",
+    "bullmq": "^4.15.0",
+    "ioredis": "^5.3.2"
+  }
+}
