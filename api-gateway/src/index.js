@@ -18,8 +18,8 @@ const allowedOrigins = config.frontendOrigin.split(',').map(o => o.trim());
 app.use(
   cors({
     origin: (origin, cb) => {
-      // allow non-browser requests (curl, Postman) and listed origins
-      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+      // allow non-browser requests (curl, Postman), file:// (origin="null"), and listed origins
+      if (!origin || origin === 'null' || allowedOrigins.includes(origin)) return cb(null, true);
       cb(new Error(`CORS: origin ${origin} not allowed`));
     },
     credentials: true,
