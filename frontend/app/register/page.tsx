@@ -17,12 +17,22 @@ export default function RegisterPage() {
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const data = {
+    const registration_no = formData.get('registration_no') as string;
+    const batch_year = formData.get('batch_year') as string;
+    
+    const data: any = {
       email: formData.get('email') as string,
       password: formData.get('password') as string,
       name: formData.get('name') as string,
-      registration_no: formData.get('registration_no') as string,
     };
+
+    if (registration_no) {
+      data.registration_no = registration_no;
+    }
+    
+    if (batch_year) {
+      data.batch_year = parseInt(batch_year, 10);
+    }
 
     try {
       await authService.register(data);
@@ -91,7 +101,7 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <label htmlFor="registration_no" className="block text-sm font-medium text-text-secondary">
-                Student ID
+                Student ID <span className="text-text-muted text-xs">(optional for Administrator)</span>
               </label>
               <div className="relative">
                 <Hash className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={18} />
@@ -99,9 +109,26 @@ export default function RegisterPage() {
                   id="registration_no"
                   name="registration_no"
                   type="text"
-                  required
                   className="w-full bg-bg-tertiary border border-border-default pl-11 pr-4 py-3 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-primary transition-colors"
                   placeholder="2021-1-60-001"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="batch_year" className="block text-sm font-medium text-text-secondary">
+                Batch Year <span className="text-text-muted text-xs">(optional for Administrator)</span>
+              </label>
+              <div className="relative">
+                <Hash className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={18} />
+                <input
+                  id="batch_year"
+                  name="batch_year"
+                  type="number"
+                  min="2000"
+                  max="2099"
+                  className="w-full bg-bg-tertiary border border-border-default pl-11 pr-4 py-3 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-primary transition-colors"
+                  placeholder="2021"
                 />
               </div>
             </div>

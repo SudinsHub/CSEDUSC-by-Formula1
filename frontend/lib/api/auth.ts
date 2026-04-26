@@ -5,6 +5,7 @@ export interface User {
   email: string;
   name: string;
   role: 'student' | 'ec_member' | 'admin';
+  registration_no?: string;
   batch_year?: number;
   status?: string;
   created_at?: string;
@@ -20,7 +21,8 @@ export interface RegisterData {
   email: string;
   password: string;
   name: string;
-  registration_no: string;
+  registration_no?: string;
+  batch_year?: number;
   role?: string;
 }
 

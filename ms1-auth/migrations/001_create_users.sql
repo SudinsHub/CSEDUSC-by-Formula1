@@ -2,15 +2,16 @@ CREATE TYPE user_role AS ENUM ('GeneralStudent', 'ECMember', 'Administrator');
 CREATE TYPE user_status AS ENUM ('PENDING', 'ACTIVE', 'REJECTED', 'REVOKED');
 
 CREATE TABLE users (
-  user_id       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name          VARCHAR(100) NOT NULL,
-  email         VARCHAR(150) UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL,
-  role          user_role NOT NULL DEFAULT 'GeneralStudent',
-  status        user_status NOT NULL DEFAULT 'PENDING',
-  batch_year    INTEGER NOT NULL,
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  user_id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name            VARCHAR(100) NOT NULL,
+  email           VARCHAR(150) UNIQUE NOT NULL,
+  password_hash   TEXT NOT NULL,
+  role            user_role NOT NULL DEFAULT 'GeneralStudent',
+  status          user_status NOT NULL DEFAULT 'PENDING',
+  registration_no VARCHAR(50),
+  batch_year      INTEGER,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE password_reset_tokens (

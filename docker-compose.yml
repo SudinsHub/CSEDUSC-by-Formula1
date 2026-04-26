@@ -146,7 +146,7 @@ services:
       dockerfile: Dockerfile
     container_name: csedu-api-gateway
     environment:
-      PORT: 4000
+      PORT: 4005
       JWT_SECRET: ${JWT_SECRET:-csedusc_by_formula1}
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3000,http://localhost:5173}
       MS1_URL: http://ms1-auth:3001
@@ -171,9 +171,9 @@ services:
       dockerfile: Dockerfile
     container_name: csedu-frontend
     environment:
-      NEXT_PUBLIC_API_BASE_URL: http://localhost:4000
+      NEXT_PUBLIC_API_BASE_URL:  https://api.csedusc.luminestlife.com
     ports:
-      - "3000:3000"
+      - "3005:3000"
     depends_on:
       - api-gateway
     networks:

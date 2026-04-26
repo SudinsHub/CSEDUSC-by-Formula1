@@ -34,7 +34,7 @@ const issueTokens = (userId, role) => {
 
 // ── Service methods ───────────────────────────────────────────────────────────
 
-export const register = async ({ name, email, password, batch_year }) => {
+export const register = async ({ name, email, password, registration_no, batch_year }) => {
   const existing = await query('SELECT user_id FROM users WHERE email = $1', [email]);
   if (existing.rows.length > 0) {
     const err = new Error('Email already registered');
@@ -45,15 +45,15 @@ export const register = async ({ name, email, password, batch_year }) => {
   const password_hash = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
   await query(
-    `INSERT INTO users (name, email, password_hash, batch_year)
-     VALUES ($1, $2, $3, $4)`,
-    [name, email, password_hash, batch_year]
+    `INSERT INTO users (name, email, password_hash, registration_no, batch_year)
+     VALUES ($1, $2, $3, $4, $5)`,
+    [name, email, password_hash, registration_no || null, batch_year || null]
   );
 };
 
 export const login = async ({ email, password }) => {
   const result = await query(
-    'SELECT user_id, name, email, password_hash, role, status, batch_year FROM users WHERE email = $1',
+    'SELECT user_id, name, email, password_hash, role, status, registration_no, batch_year FROM users WHERE email = $1',
     [email]
   );
 
@@ -89,6 +89,7 @@ export const login = async ({ email, password }) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      registration_no: user.registration_no,
       batch_year: user.batch_year,
     },
   };
@@ -96,7 +97,7 @@ export const login = async ({ email, password }) => {
 
 export const getMe = async (userId) => {
   const result = await query(
-    'SELECT user_id, name, email, role, status, batch_year, created_at FROM users WHERE user_id = $1',
+    'SELECT user_id, name, email, role, status, registration_no, batch_year, created_at FROM users WHERE user_id = $1',
     [userId]
   );
 
@@ -113,6 +114,7 @@ export const getMe = async (userId) => {
     email: user.email,
     role: user.role,
     status: user.status,
+    registration_no: user.registration_no,
     batch_year: user.batch_year,
     created_at: user.created_at,
   };

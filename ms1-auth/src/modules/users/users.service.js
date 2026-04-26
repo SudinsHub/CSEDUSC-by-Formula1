@@ -26,7 +26,7 @@ export const listUsers = async ({ status, role, page, limit }) => {
   params.push(limit, offset);
 
   const usersResult = await query(
-    `SELECT user_id, name, email, role, status, batch_year, created_at, updated_at
+    `SELECT user_id, name, email, role, status, registration_no, batch_year, created_at, updated_at
      FROM users ${where}
      ORDER BY created_at DESC
      LIMIT $${params.length - 1} OFFSET $${params.length}`,
@@ -38,7 +38,7 @@ export const listUsers = async ({ status, role, page, limit }) => {
 
 export const getUserById = async (userId) => {
   const result = await query(
-    'SELECT user_id, name, email, role, status, batch_year, created_at, updated_at FROM users WHERE user_id = $1',
+    'SELECT user_id, name, email, role, status, registration_no, batch_year, created_at, updated_at FROM users WHERE user_id = $1',
     [userId]
   );
 
@@ -56,7 +56,7 @@ export const updateUserStatus = async (userId, status) => {
   const result = await query(
     `UPDATE users SET status = $1, updated_at = NOW()
      WHERE user_id = $2
-     RETURNING user_id, name, email, role, status, batch_year, updated_at`,
+     RETURNING user_id, name, email, role, status, registration_no, batch_year, updated_at`,
     [status, userId]
   );
 
@@ -74,7 +74,7 @@ export const updateUserRole = async (userId, role) => {
   const result = await query(
     `UPDATE users SET role = $1, updated_at = NOW()
      WHERE user_id = $2
-     RETURNING user_id, name, email, role, status, batch_year, updated_at`,
+     RETURNING user_id, name, email, role, status, registration_no, batch_year, updated_at`,
     [role, userId]
   );
 
