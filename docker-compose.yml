@@ -154,7 +154,7 @@ services:
       MS3_URL: http://ms3-content:3003
       MS4_URL: http://ms4-finance:3004
     ports:
-      - "4000:4000"
+      - "4005:4000"
     depends_on:
       - ms1-auth
       - ms2-election
