@@ -5,6 +5,9 @@ import { notificationQueue } from '../queues/notificationQueue.js';
 import { auditQueue } from '../queues/auditQueue.js';
 
 export function startSchedulerWorker() {
+  // Parse Redis URL
+  const redisUrl = new URL(config.redisUrl);
+  
   const worker = new Worker(
     'election-scheduler',
     async (job) => {
@@ -18,7 +21,8 @@ export function startSchedulerWorker() {
     },
     {
       connection: {
-        url: config.redisUrl,
+        host: redisUrl.hostname,
+        port: parseInt(redisUrl.port) || 6379,
       },
     }
   );

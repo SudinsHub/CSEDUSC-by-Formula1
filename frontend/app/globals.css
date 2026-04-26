@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Syne:wght@400;600;700;800&display=swap');
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Academic Tech Palette - Inspired by terminal/IDE themes */
+    --bg-primary: 12 12 16;
+    --bg-secondary: 20 20 26;
+    --bg-tertiary: 28 28 36;
+    --bg-elevated: 36 36 46;
+    
+    --text-primary: 240 248 255;
+    --text-secondary: 180 188 200;
+    --text-muted: 120 128 140;
+    
+    --accent-primary: 0 255 170;
+    --accent-secondary: 255 100 100;
+    --accent-tertiary: 100 150 255;
+    --accent-warning: 255 200 50;
+    
+    --border-subtle: 45 45 55;
+    --border-default: 60 60 75;
+    --border-strong: 80 80 100;
+    
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+    
+    --glow-accent: 0 0 20px rgba(0, 255, 170, 0.3);
+  }
+  
+  * {
+    border-color: rgb(var(--border-default));
+  }
+  
+  html {
+    background-color: rgb(var(--bg-primary));
+  }
+  
+  body {
+    background-color: rgb(var(--bg-primary));
+    color: rgb(var(--text-primary));
+    font-family: 'JetBrains Mono', monospace;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+}
+
+@theme {
+  --font-sans: 'Syne', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  --color-bg-primary: rgb(var(--bg-primary));
+  --color-bg-secondary: rgb(var(--bg-secondary));
+  --color-bg-tertiary: rgb(var(--bg-tertiary));
+  --color-bg-elevated: rgb(var(--bg-elevated));
+  
+  --color-text-primary: rgb(var(--text-primary));
+  --color-text-secondary: rgb(var(--text-secondary));
+  --color-text-muted: rgb(var(--text-muted));
+  
+  --color-accent-primary: rgb(var(--accent-primary));
+  --color-accent-secondary: rgb(var(--accent-secondary));
+  --color-accent-tertiary: rgb(var(--accent-tertiary));
+  --color-accent-warning: rgb(var(--accent-warning));
+  
+  --color-border-subtle: rgb(var(--border-subtle));
+  --color-border-default: rgb(var(--border-default));
+  --color-border-strong: rgb(var(--border-strong));
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .glow-accent {
+    box-shadow: var(--glow-accent);
+  }
+  
+  .grid-pattern {
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  
+  .gradient-mesh {
+    background: 
+      radial-gradient(at 0% 0%, rgba(0, 255, 170, 0.08) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(100, 150, 255, 0.08) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(255, 100, 100, 0.08) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(255, 200, 50, 0.08) 0px, transparent 50%);
+  }
+  
+  .animate-glow {
+    animation: glow 3s ease-in-out infinite alternate;
+  }
+  
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 10px rgba(0, 255, 170, 0.2);
+    }
+    to {
+      box-shadow: 0 0 20px rgba(0, 255, 170, 0.4);
+    }
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+}

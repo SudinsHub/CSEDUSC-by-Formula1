@@ -1,0 +1,193 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: csedu-postgres
+    environment:
+      POSTGRES_USER: formula1
+      POSTGRES_PASSWORD: formula1
+      POSTGRES_DB: csedu_sc
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - csedu-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U formula1 -d csedu_sc"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache & Queue
+  redis:
+    image: redis:7-alpine
+    container_name: csedu-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - csedu-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MS1 - Authentication & User Management
+  ms1-auth:
+    build:
+      context: ./ms1-auth
+      dockerfile: Dockerfile
+    container_name: csedu-ms1-auth
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgresql://formula1:formula1@postgres:5432/csedu_sc
+      JWT_SECRET: ${JWT_SECRET:-csedusc_by_formula1}
+      JWT_ACCESS_EXPIRES: 15m
+      JWT_REFRESH_EXPIRES: 7d
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-your_email@gmail.com}
+      SMTP_PASS: ${SMTP_PASS:-your_app_password}
+      SMTP_FROM: "CSEDU Club <no-reply@csedu.ac.bd>"
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - csedu-network
+    restart: unless-stopped
+
+  # MS2 - Election Management
+  ms2-election:
+    build:
+      context: ./ms2-election
+      dockerfile: Dockerfile
+    container_name: csedu-ms2-election
+    environment:
+      PORT: 3002
+      DATABASE_URL: postgresql://formula1:formula1@postgres:5432/csedu_sc
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: ${NODE_ENV:-development}
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - csedu-network
+    restart: unless-stopped
+
+  # MS3 - Events & Notices
+  ms3-content:
+    build:
+      context: ./ms3
+      dockerfile: Dockerfile
+    container_name: csedu-ms3-content
+    environment:
+      PORT: 3003
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: postgresql://formula1:formula1@postgres:5432/csedu_sc
+      REDIS_URL: redis://redis:6379
+      UPLOAD_DIR: /var/uploads
+      UPLOAD_MAX_SIZE_MB: 10
+      ALLOWED_MIME_TYPES: image/jpeg,image/png,image/gif,video/mp4,application/pdf
+    ports:
+      - "3003:3003"
+    volumes:
+      - uploads_data:/var/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - csedu-network
+    restart: unless-stopped
+
+  # MS4 - Finance, Notifications & Logs
+  ms4-finance:
+    build:
+      context: ./ms4-finance-notification-log
+      dockerfile: Dockerfile
+    container_name: csedu-ms4-finance
+    environment:
+      PORT: 3004
+      DATABASE_URL: postgresql://formula1:formula1@postgres:5432/csedu_sc
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: ${NODE_ENV:-development}
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-your_email@gmail.com}
+      SMTP_PASS: ${SMTP_PASS:-your_app_password}
+      SMTP_FROM: "CSEDU Club <noreply@cseduclub.com>"
+    ports:
+      - "3004:3004"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - csedu-network
+    restart: unless-stopped
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: csedu-api-gateway
+    environment:
+      PORT: 4000
+      JWT_SECRET: ${JWT_SECRET:-csedusc_by_formula1}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3000,http://localhost:5173}
+      MS1_URL: http://ms1-auth:3001
+      MS2_URL: http://ms2-election:3002
+      MS3_URL: http://ms3-content:3003
+      MS4_URL: http://ms4-finance:3004
+    ports:
+      - "4000:4000"
+    depends_on:
+      - ms1-auth
+      - ms2-election
+      - ms3-content
+      - ms4-finance
+    networks:
+      - csedu-network
+    restart: unless-stopped
+
+  # Frontend - Next.js Application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: csedu-frontend
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:4000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-gateway
+    networks:
+      - csedu-network
+    restart: unless-stopped
+
+networks:
+  csedu-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  uploads_data:
+    driver: local

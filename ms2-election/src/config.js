@@ -16,3 +16,9 @@ export const config = {
   redisUrl: process.env.REDIS_URL,
   nodeEnv: process.env.NODE_ENV || 'development',
 };
+
+console.log('Config loaded:', {
+  port: config.port,
+  redisUrl: config.redisUrl,
+  databaseUrl: config.databaseUrl ? 'SET' : 'NOT SET'
+});

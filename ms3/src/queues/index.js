@@ -2,8 +2,10 @@ import { Queue } from 'bullmq';
 import { config } from '../config.js';
 
 // Parse Redis URL
+const redisUrl = new URL(config.redisUrl);
 const redisConnection = {
-  url: config.redisUrl,
+  host: redisUrl.hostname,
+  port: parseInt(redisUrl.port) || 6379,
 };
 
 // Notification queue - for sending emails
