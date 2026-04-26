@@ -15,7 +15,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Set build-time environment variable
-ARG NEXT_PUBLIC_API_BASE_URL=http://localhost:4005
+ARG NEXT_PUBLIC_API_BASE_URL=http://apicsedu.luminestlife.com
 ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
 
 RUN npm run build
