@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: formula1
       POSTGRES_DB: csedu_sc
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
@@ -171,7 +171,7 @@ services:
       dockerfile: Dockerfile
     container_name: csedu-frontend
     environment:
-      NEXT_PUBLIC_API_BASE_URL:  https://apicsedusc.luminestlife.com
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:4005
     ports:
       - "3005:3000"
     depends_on:
