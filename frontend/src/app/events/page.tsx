@@ -1,18 +1,23 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { CalendarDays, MapPin, Search } from 'lucide-react';
-import Link from 'next/link';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
 import { useState } from 'react';
+import { CalendarDays, MapPin, Search, Plus } from 'lucide-react';
+import Link from 'next/link';
+import toast from 'react-hot-toast';
 import api from '@/lib/api';
-import { formatDate, statusColor, cn } from '@/lib/utils';
+import { formatDate, getErrorMessage, cn } from '@/lib/utils';
 import Badge from '@/components/ui/Badge';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
+import Modal from '@/components/ui/Modal';
 import DashboardSidebar from '@/components/layout/DashboardSidebar';
 import Navbar from '@/components/layout/Navbar';
-import type { Event } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import type { Event } from '@/types';
+
+type EventForm = { title: string; description: string; event_date: string; location: string; volunteers_needed: string };
 
 function EventCard({ ev }: { ev: Event }) {
   return (
@@ -21,9 +26,7 @@ function EventCard({ ev }: { ev: Event }) {
         <h3 className="font-semibold text-navy-800 leading-snug flex-1">{ev.title}</h3>
         <Badge label={ev.status} status={ev.status} />
       </div>
-      {ev.description && (
-        <p className="text-sm text-gray-500 line-clamp-2">{ev.description}</p>
-      )}
+      {ev.description && <p className="text-sm text-gray-500 line-clamp-2">{ev.description}</p>}
       <div className="flex flex-wrap gap-3 text-xs text-gray-500">
         <span className="flex items-center gap-1">
           <CalendarDays className="w-3.5 h-3.5" /> {formatDate(ev.event_date)}
@@ -39,13 +42,28 @@ function EventCard({ ev }: { ev: Event }) {
 }
 
 export default function EventsPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isEcMember } = useAuth();
+  const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<string>('all');
+  const [modal, setModal] = useState(false);
+  const form = useForm<EventForm>();
 
   const { data: events, isLoading } = useQuery({
     queryKey: ['events'],
     queryFn: () => api.get<Event[]>('/api/events').then((r) => r.data),
+  });
+
+  const createEvent = useMutation({
+    mutationFn: (d: EventForm) =>
+      api.post('/api/events', { title: d.title, description: d.description, event_date: d.event_date, location: d.location, volunteers_needed: Number(d.volunteers_needed) || 0 }),
+    onSuccess: () => {
+      toast.success('Event created!');
+      setModal(false);
+      form.reset();
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+    },
+    onError: (e) => toast.error(getErrorMessage(e)),
   });
 
   const filtered = (events ?? []).filter((e) => {
@@ -54,39 +72,68 @@ export default function EventsPage() {
     return matchSearch && matchFilter;
   });
 
+  const createModal = (
+    <Modal open={modal} onClose={() => setModal(false)} title="Create Event" size="lg">
+      <form onSubmit={form.handleSubmit((d) => createEvent.mutate(d))} className="space-y-4">
+        <div>
+          <label className="label">Event title</label>
+          <input className="input" placeholder="Annual Alumni Reunion 2026" {...form.register('title', { required: true })} />
+        </div>
+        <div>
+          <label className="label">Description</label>
+          <textarea className="input min-h-20 resize-none" placeholder="Event details…" {...form.register('description')} />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="label">Event date & time</label>
+            <input type="datetime-local" className="input" {...form.register('event_date', { required: true })} />
+          </div>
+          <div>
+            <label className="label">Location</label>
+            <input className="input" placeholder="DU Campus, TSC" {...form.register('location')} />
+          </div>
+          <div>
+            <label className="label">Volunteers needed</label>
+            <input type="number" className="input" placeholder="0" min="0" {...form.register('volunteers_needed')} />
+          </div>
+        </div>
+        <div className="flex gap-3 pt-2">
+          <button type="button" onClick={() => setModal(false)} className="flex-1 btn-outline">Cancel</button>
+          <button type="submit" disabled={createEvent.isPending} className="flex-1 btn-gold">
+            {createEvent.isPending ? 'Creating…' : 'Create Event'}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+
   const content = (
     <main className="flex-1 p-6 max-w-5xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-navy-800 flex items-center gap-2">
-          <CalendarDays className="w-6 h-6" /> Events
-        </h1>
-        <p className="text-gray-500 text-sm mt-1">Explore and register for club events.</p>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-navy-800 flex items-center gap-2">
+            <CalendarDays className="w-6 h-6" /> Events
+          </h1>
+          <p className="text-gray-500 text-sm mt-1">Explore and register for club events.</p>
+        </div>
+        {isEcMember && (
+          <button onClick={() => setModal(true)} className="btn-gold flex items-center gap-2">
+            <Plus className="w-4 h-4" /> Create Event
+          </button>
+        )}
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-6">
         <div className="relative flex-1 min-w-48">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search events..."
-            className="input pl-9"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+          <input type="text" placeholder="Search events…" className="input pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <div className="flex gap-2 flex-wrap">
           {['all', 'upcoming', 'ongoing', 'completed', 'cancelled'].map((s) => (
-            <button
-              key={s}
-              onClick={() => setFilter(s)}
-              className={cn(
-                'px-3 py-2 text-sm font-medium rounded-lg border transition-all capitalize',
-                filter === s
-                  ? 'bg-navy-800 text-gold-400 border-navy-800'
-                  : 'border-gray-200 text-gray-600 hover:border-navy-400'
-              )}
-            >
+            <button key={s} onClick={() => setFilter(s)}
+              className={cn('px-3 py-2 text-sm font-medium rounded-lg border transition-all capitalize',
+                filter === s ? 'bg-navy-800 text-gold-400 border-navy-800' : 'border-gray-200 text-gray-600 hover:border-navy-400'
+              )}>
               {s}
             </button>
           ))}
@@ -98,8 +145,13 @@ export default function EventsPage() {
           {filtered.map((ev) => <EventCard key={ev.event_id} ev={ev} />)}
         </div>
       ) : (
-        <EmptyState icon={CalendarDays} title="No events found" description="Try adjusting your search or filter." />
+        <EmptyState
+          icon={CalendarDays}
+          title="No events found"
+          description={isEcMember && filter === 'all' && !search ? 'Create the first event using the button above.' : 'Try adjusting your search or filter.'}
+        />
       )}
+      {createModal}
     </main>
   );
 

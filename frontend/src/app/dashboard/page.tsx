@@ -1,14 +1,24 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { Vote, CalendarDays, Bell, Wallet, Users, TrendingUp, Clock, CheckCircle } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { Vote, CalendarDays, Bell, Wallet, Users, Plus } from 'lucide-react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
-import { formatDate, formatDateTime, statusColor, cn } from '@/lib/utils';
+import { formatDate, formatDateTime, getErrorMessage, cn } from '@/lib/utils';
 import Badge from '@/components/ui/Badge';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import Modal from '@/components/ui/Modal';
 import type { Election, Event, Notice } from '@/types';
+
+function fmt(e: unknown) { return getErrorMessage(e); }
+
+type ElectionForm = { title: string; phase: string; start_time: string; end_time: string; rules: string };
+type EventForm = { title: string; description: string; event_date: string; location: string; volunteers_needed: string };
+type NoticeForm = { title: string; content: string; priority: string; expiry_date: string };
 
 function StatCard({ icon: Icon, label, value, href, color }: {
   icon: React.ElementType; label: string; value: string | number;
@@ -27,8 +37,34 @@ function StatCard({ icon: Icon, label, value, href, color }: {
   );
 }
 
+function QuickAction({ icon: Icon, label, color, onClick }: {
+  icon: React.ElementType; label: string; color: string; onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="card p-4 flex items-center gap-3 hover:border-gold-300 transition-all group text-left w-full"
+    >
+      <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0', color)}>
+        <Icon className="w-4 h-4" />
+      </div>
+      <span className="text-sm font-medium text-gray-700 group-hover:text-navy-800">{label}</span>
+      <Plus className="w-4 h-4 text-gray-400 ml-auto group-hover:text-gold-500" />
+    </button>
+  );
+}
+
 export default function DashboardPage() {
   const { user, isAdmin, isEcMember } = useAuth();
+  const queryClient = useQueryClient();
+
+  const [electionModal, setElectionModal] = useState(false);
+  const [eventModal, setEventModal] = useState(false);
+  const [noticeModal, setNoticeModal] = useState(false);
+
+  const elForm = useForm<ElectionForm>();
+  const evForm = useForm<EventForm>();
+  const noForm = useForm<NoticeForm>();
 
   const { data: elections, isLoading: elLoading } = useQuery({
     queryKey: ['elections'],
@@ -45,7 +81,26 @@ export default function DashboardPage() {
     queryFn: () => api.get<Notice[]>('/api/notices').then((r) => r.data),
   });
 
-  const activeElection = elections?.find((e) => e.status === 'active');
+  const createElection = useMutation({
+    mutationFn: (d: ElectionForm) =>
+      api.post('/api/elections', { title: d.title, phase: Number(d.phase), start_time: d.start_time, end_time: d.end_time, rules: d.rules }),
+    onSuccess: () => { toast.success('Election created!'); setElectionModal(false); elForm.reset(); queryClient.invalidateQueries({ queryKey: ['elections'] }); },
+    onError: (e) => toast.error(fmt(e)),
+  });
+
+  const createEvent = useMutation({
+    mutationFn: (d: EventForm) =>
+      api.post('/api/events', { title: d.title, description: d.description, event_date: d.event_date, location: d.location, volunteers_needed: Number(d.volunteers_needed) || 0 }),
+    onSuccess: () => { toast.success('Event created!'); setEventModal(false); evForm.reset(); queryClient.invalidateQueries({ queryKey: ['events'] }); },
+    onError: (e) => toast.error(fmt(e)),
+  });
+
+  const createNotice = useMutation({
+    mutationFn: (d: NoticeForm) => api.post('/api/notices', d),
+    onSuccess: () => { toast.success('Notice published!'); setNoticeModal(false); noForm.reset(); queryClient.invalidateQueries({ queryKey: ['notices'] }); },
+    onError: (e) => toast.error(fmt(e)),
+  });
+
   const upcomingEvents = events?.filter((e) => e.status === 'upcoming') ?? [];
   const recentNotices = notices?.slice(0, 3) ?? [];
 
@@ -62,7 +117,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard icon={Vote} label="Elections" value={elections?.length ?? '—'} href="/elections" color="bg-blue-50 text-blue-600" />
         <StatCard icon={CalendarDays} label="Upcoming Events" value={upcomingEvents.length} href="/events" color="bg-green-50 text-green-600" />
         <StatCard icon={Bell} label="Active Notices" value={notices?.length ?? '—'} href="/notices" color="bg-orange-50 text-orange-600" />
@@ -74,14 +129,36 @@ export default function DashboardPage() {
         )}
       </div>
 
+      {/* Quick Actions for EC/Admin */}
+      {isEcMember && (
+        <div className="mb-8">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Quick Actions</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <QuickAction icon={Vote} label="Create Election" color="bg-blue-50 text-blue-600" onClick={() => setElectionModal(true)} />
+            <QuickAction icon={CalendarDays} label="Create Event" color="bg-green-50 text-green-600" onClick={() => setEventModal(true)} />
+            <QuickAction icon={Bell} label="Publish Notice" color="bg-orange-50 text-orange-600" onClick={() => setNoticeModal(true)} />
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Active Election */}
+        {/* Elections */}
         <div className="lg:col-span-2 card p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-navy-800 flex items-center gap-2">
               <Vote className="w-5 h-5 text-blue-500" /> Elections
             </h2>
-            <Link href="/elections" className="text-xs text-gold-600 hover:text-gold-700 font-medium">View all →</Link>
+            <div className="flex items-center gap-3">
+              {isEcMember && (
+                <button
+                  onClick={() => setElectionModal(true)}
+                  className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
+                >
+                  <Plus className="w-3.5 h-3.5" /> New
+                </button>
+              )}
+              <Link href="/elections" className="text-xs text-gold-600 hover:text-gold-700 font-medium">View all →</Link>
+            </div>
           </div>
           {elLoading ? <LoadingSpinner /> : elections && elections.length > 0 ? (
             <div className="space-y-3">
@@ -102,17 +179,34 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-500 py-4 text-center">No elections found.</p>
+            <div className="text-center py-6">
+              <p className="text-sm text-gray-500 mb-3">No elections found.</p>
+              {isEcMember && (
+                <button onClick={() => setElectionModal(true)} className="text-xs font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1 mx-auto">
+                  <Plus className="w-3.5 h-3.5" /> Create the first election
+                </button>
+              )}
+            </div>
           )}
         </div>
 
-        {/* Recent Notices */}
+        {/* Notices */}
         <div className="card p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-navy-800 flex items-center gap-2">
               <Bell className="w-5 h-5 text-orange-500" /> Notices
             </h2>
-            <Link href="/notices" className="text-xs text-gold-600 hover:text-gold-700 font-medium">View all →</Link>
+            <div className="flex items-center gap-3">
+              {isEcMember && (
+                <button
+                  onClick={() => setNoticeModal(true)}
+                  className="flex items-center gap-1 text-xs font-medium text-orange-600 hover:text-orange-700"
+                >
+                  <Plus className="w-3.5 h-3.5" /> New
+                </button>
+              )}
+              <Link href="/notices" className="text-xs text-gold-600 hover:text-gold-700 font-medium">View all →</Link>
+            </div>
           </div>
           {noLoading ? <LoadingSpinner /> : recentNotices.length > 0 ? (
             <div className="space-y-3">
@@ -127,7 +221,14 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-500 py-4 text-center">No notices.</p>
+            <div className="text-center py-6">
+              <p className="text-sm text-gray-500 mb-3">No notices.</p>
+              {isEcMember && (
+                <button onClick={() => setNoticeModal(true)} className="text-xs font-medium text-orange-600 hover:text-orange-700 flex items-center gap-1 mx-auto">
+                  <Plus className="w-3.5 h-3.5" /> Publish a notice
+                </button>
+              )}
+            </div>
           )}
         </div>
 
@@ -137,7 +238,17 @@ export default function DashboardPage() {
             <h2 className="font-semibold text-navy-800 flex items-center gap-2">
               <CalendarDays className="w-5 h-5 text-green-500" /> Upcoming Events
             </h2>
-            <Link href="/events" className="text-xs text-gold-600 hover:text-gold-700 font-medium">View all →</Link>
+            <div className="flex items-center gap-3">
+              {isEcMember && (
+                <button
+                  onClick={() => setEventModal(true)}
+                  className="flex items-center gap-1 text-xs font-medium text-green-600 hover:text-green-700"
+                >
+                  <Plus className="w-3.5 h-3.5" /> New
+                </button>
+              )}
+              <Link href="/events" className="text-xs text-gold-600 hover:text-gold-700 font-medium">View all →</Link>
+            </div>
           </div>
           {evLoading ? <LoadingSpinner /> : upcomingEvents.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -155,10 +266,120 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-500 py-4 text-center">No upcoming events.</p>
+            <div className="text-center py-6">
+              <p className="text-sm text-gray-500 mb-3">No upcoming events.</p>
+              {isEcMember && (
+                <button onClick={() => setEventModal(true)} className="text-xs font-medium text-green-600 hover:text-green-700 flex items-center gap-1 mx-auto">
+                  <Plus className="w-3.5 h-3.5" /> Create an event
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>
+
+      {/* Create Election Modal */}
+      <Modal open={electionModal} onClose={() => setElectionModal(false)} title="Create Election" size="lg">
+        <form onSubmit={elForm.handleSubmit((d) => createElection.mutate(d))} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <label className="label">Election title</label>
+              <input className="input" placeholder="EC Election Phase 3 - 2026" {...elForm.register('title', { required: true })} />
+            </div>
+            <div>
+              <label className="label">Phase</label>
+              <input type="number" className="input" placeholder="1" min="1" {...elForm.register('phase', { required: true })} />
+            </div>
+            <div>
+              <label className="label">Rules (optional)</label>
+              <input className="input" placeholder="One vote per member" {...elForm.register('rules')} />
+            </div>
+            <div>
+              <label className="label">Start time</label>
+              <input type="datetime-local" className="input" {...elForm.register('start_time', { required: true })} />
+            </div>
+            <div>
+              <label className="label">End time</label>
+              <input type="datetime-local" className="input" {...elForm.register('end_time', { required: true })} />
+            </div>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={() => setElectionModal(false)} className="flex-1 btn-outline">Cancel</button>
+            <button type="submit" disabled={createElection.isPending} className="flex-1 btn-gold">
+              {createElection.isPending ? 'Creating…' : 'Create Election'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Create Event Modal */}
+      <Modal open={eventModal} onClose={() => setEventModal(false)} title="Create Event" size="lg">
+        <form onSubmit={evForm.handleSubmit((d) => createEvent.mutate(d))} className="space-y-4">
+          <div>
+            <label className="label">Event title</label>
+            <input className="input" placeholder="Annual Alumni Reunion 2026" {...evForm.register('title', { required: true })} />
+          </div>
+          <div>
+            <label className="label">Description</label>
+            <textarea className="input min-h-20 resize-none" placeholder="Event details…" {...evForm.register('description')} />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="label">Event date & time</label>
+              <input type="datetime-local" className="input" {...evForm.register('event_date', { required: true })} />
+            </div>
+            <div>
+              <label className="label">Location</label>
+              <input className="input" placeholder="DU Campus, TSC" {...evForm.register('location')} />
+            </div>
+            <div>
+              <label className="label">Volunteers needed</label>
+              <input type="number" className="input" placeholder="0" min="0" {...evForm.register('volunteers_needed')} />
+            </div>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={() => setEventModal(false)} className="flex-1 btn-outline">Cancel</button>
+            <button type="submit" disabled={createEvent.isPending} className="flex-1 btn-gold">
+              {createEvent.isPending ? 'Creating…' : 'Create Event'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Publish Notice Modal */}
+      <Modal open={noticeModal} onClose={() => setNoticeModal(false)} title="Publish Notice" size="md">
+        <form onSubmit={noForm.handleSubmit((d) => createNotice.mutate(d))} className="space-y-4">
+          <div>
+            <label className="label">Title</label>
+            <input className="input" placeholder="Important announcement" {...noForm.register('title', { required: true })} />
+          </div>
+          <div>
+            <label className="label">Content</label>
+            <textarea className="input min-h-24 resize-none" placeholder="Notice content…" {...noForm.register('content', { required: true })} />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="label">Priority</label>
+              <select className="input" {...noForm.register('priority', { required: true })}>
+                <option value="low">Low</option>
+                <option value="normal">Normal</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </div>
+            <div>
+              <label className="label">Expiry date (optional)</label>
+              <input type="date" className="input" {...noForm.register('expiry_date')} />
+            </div>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={() => setNoticeModal(false)} className="flex-1 btn-outline">Cancel</button>
+            <button type="submit" disabled={createNotice.isPending} className="flex-1 btn-gold">
+              {createNotice.isPending ? 'Publishing…' : 'Publish Notice'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

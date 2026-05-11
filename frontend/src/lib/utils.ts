@@ -27,9 +27,9 @@ export function formatCurrency(amount: number | string): string {
 
 export function roleBadge(role: string): string {
   const map: Record<string, string> = {
-    admin: 'Admin',
-    ec_member: 'EC Member',
-    student: 'Student',
+    Administrator: 'Admin',
+    ECMember: 'EC Member',
+    GeneralStudent: 'Student',
   };
   return map[role] ?? role;
 }
@@ -63,5 +63,5 @@ export function statusColor(status: string): string {
     high: 'bg-orange-100 text-orange-800',
     urgent: 'bg-red-100 text-red-800',
   };
-  return map[status] ?? 'bg-gray-100 text-gray-700';
+  return map[status.toLowerCase()] ?? 'bg-gray-100 text-gray-700';
 }

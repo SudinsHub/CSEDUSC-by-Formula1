@@ -57,8 +57,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout,
     refresh,
     isAuthenticated: !!user,
-    isAdmin: user?.role === 'admin',
-    isEcMember: user?.role === 'ec_member' || user?.role === 'admin',
+    isAdmin: user?.role === 'Administrator',
+    isEcMember: user?.role === 'ECMember' || user?.role === 'Administrator',
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

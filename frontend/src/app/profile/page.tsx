@@ -36,8 +36,8 @@ export default function ProfilePage() {
             <div>
               <h2 className="text-xl font-bold text-navy-800">{user.name}</h2>
               <div className="flex items-center gap-2 mt-1">
-                <Badge label={roleBadge(user.role)} status={user.role === 'admin' ? 'approved' : 'normal'} />
-                <Badge label={user.status} status={user.status} />
+                <Badge label={roleBadge(user.role)} status={user.role === 'Administrator' ? 'approved' : 'normal'} />
+                <Badge label={user.status.charAt(0) + user.status.slice(1).toLowerCase()} status={user.status} />
               </div>
             </div>
           </div>
@@ -78,7 +78,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {user.status === 'pending' && (
+        {user.status === 'PENDING' && (
           <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-sm text-yellow-800">
             Your account is pending admin approval. You will be notified once approved.
           </div>

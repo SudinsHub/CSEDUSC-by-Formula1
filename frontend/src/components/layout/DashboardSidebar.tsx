@@ -4,21 +4,20 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Vote, CalendarDays, Bell, Wallet,
-  Users, FileText, LogOut, ChevronLeft, ChevronRight, Shield
+  Users, FileText, LogOut, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
 const navItems = [
-  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['student', 'ec_member', 'admin'] },
-  { label: 'Elections', href: '/elections', icon: Vote, roles: ['student', 'ec_member', 'admin'] },
-  { label: 'Events', href: '/events', icon: CalendarDays, roles: ['student', 'ec_member', 'admin'] },
-  { label: 'Notices', href: '/notices', icon: Bell, roles: ['student', 'ec_member', 'admin'] },
-  { label: 'Finance', href: '/finance', icon: Wallet, roles: ['ec_member', 'admin'] },
-  { label: 'Users', href: '/admin/users', icon: Users, roles: ['admin', 'ec_member'] },
-  { label: 'Logs', href: '/admin/logs', icon: FileText, roles: ['admin'] },
-  { label: 'Admin', href: '/admin', icon: Shield, roles: ['admin'] },
+  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['GeneralStudent', 'ECMember', 'Administrator'] },
+  { label: 'Elections', href: '/elections', icon: Vote, roles: ['GeneralStudent', 'ECMember', 'Administrator'] },
+  { label: 'Events', href: '/events', icon: CalendarDays, roles: ['GeneralStudent', 'ECMember', 'Administrator'] },
+  { label: 'Notices', href: '/notices', icon: Bell, roles: ['GeneralStudent', 'ECMember', 'Administrator'] },
+  { label: 'Finance', href: '/finance', icon: Wallet, roles: ['ECMember', 'Administrator'] },
+  { label: 'Users', href: '/admin/users', icon: Users, roles: ['ECMember', 'Administrator'] },
+  { label: 'Logs', href: '/admin/logs', icon: FileText, roles: ['Administrator'] },
 ];
 
 export default function DashboardSidebar() {
@@ -58,7 +57,7 @@ export default function DashboardSidebar() {
       {!collapsed && user && (
         <div className="px-4 py-3 border-b border-navy-700">
           <p className="text-sm font-medium text-white truncate">{user.name}</p>
-          <p className="text-xs text-gray-400 truncate">{user.role.replace('_', ' ')}</p>
+          <p className="text-xs text-gray-400 truncate">{user.role === 'GeneralStudent' ? 'Student' : user.role === 'ECMember' ? 'EC Member' : 'Administrator'}</p>
         </div>
       )}
 

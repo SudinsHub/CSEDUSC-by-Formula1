@@ -1,5 +1,5 @@
-export type UserRole = 'student' | 'ec_member' | 'admin';
-export type UserStatus = 'pending' | 'approved' | 'rejected' | 'revoked';
+export type UserRole = 'GeneralStudent' | 'ECMember' | 'Administrator';
+export type UserStatus = 'PENDING' | 'ACTIVE' | 'REJECTED' | 'REVOKED';
 
 export interface User {
   userId: string;

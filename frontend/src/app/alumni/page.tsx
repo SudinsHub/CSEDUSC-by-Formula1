@@ -13,17 +13,19 @@ import { roleBadge } from '@/lib/utils';
 import api from '@/lib/api';
 import type { User } from '@/types';
 
+interface UsersResponse { users: User[]; total: number; page: number; limit: number; }
+
 export default function AlumniPage() {
   const { isAuthenticated, isEcMember, isAdmin } = useAuth();
   const [search, setSearch] = useState('');
 
-  const { data: users, isLoading } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => api.get<User[]>('/api/users').then((r) => r.data),
+  const { data, isLoading } = useQuery({
+    queryKey: ['users', 'active'],
+    queryFn: () => api.get<UsersResponse>('/api/users?status=ACTIVE&limit=100').then((r) => r.data),
     enabled: isEcMember || isAdmin,
   });
 
-  const filtered = (users ?? []).filter((u) =>
+  const filtered = (data?.users ?? []).filter((u) =>
     u.name.toLowerCase().includes(search.toLowerCase()) ||
     u.email.toLowerCase().includes(search.toLowerCase())
   );
@@ -52,7 +54,7 @@ export default function AlumniPage() {
         <LoadingSpinner />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.filter((u) => u.status === 'approved').map((u) => (
+          {filtered.map((u) => (
             <div key={u.userId} className="card p-4 flex items-center gap-3">
               <div className="w-10 h-10 bg-navy-800 rounded-full flex items-center justify-center text-gold-400 font-bold flex-shrink-0">
                 {u.name.charAt(0).toUpperCase()}
