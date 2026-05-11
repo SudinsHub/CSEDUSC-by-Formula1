@@ -325,7 +325,7 @@ const response = await apiClient.post('/api/auth/register', {
   email: 'student@example.com',
   password: 'SecurePass123!',
   name: 'John Doe',
-  studentId: '2021-1-60-001',
+  registrationNo: '2021-1-60-001',
   role: 'student'
 });
 // Response: { message: 'User registered successfully', userId: 'u-123' }

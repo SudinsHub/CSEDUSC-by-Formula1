@@ -14,7 +14,7 @@ interface RegisterForm {
   email: string;
   password: string;
   confirmPassword: string;
-  studentId: string;
+  registrationNo: string;
   batchYear: string;
 }
 
@@ -29,7 +29,7 @@ export default function RegisterPage() {
         name: data.name,
         email: data.email,
         password: data.password,
-        studentId: data.studentId,
+        registrationNo: data.registrationNo,
         batchYear: parseInt(data.batchYear),
         role: 'student',
       });
@@ -84,12 +84,12 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="label">Student ID</label>
+                <label className="label">Registration No</label>
                 <input
                   type="text"
                   className="input"
                   placeholder="2021-1-60-001"
-                  {...register('studentId')}
+                  {...register('registrationNo')}
                 />
               </div>
               <div>

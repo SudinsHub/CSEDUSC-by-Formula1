@@ -50,12 +50,12 @@ export default function ProfilePage() {
                 <p className="font-medium text-gray-800">{user.email}</p>
               </div>
             </div>
-            {user.studentId && (
+            {user.registrationNo && (
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <GraduationCap className="w-4 h-4 text-gold-500" />
                 <div>
-                  <p className="text-xs text-gray-400">Student ID</p>
-                  <p className="font-medium text-gray-800">{user.studentId}</p>
+                  <p className="text-xs text-gray-400">Registration No</p>
+                  <p className="font-medium text-gray-800">{user.registrationNo}</p>
                 </div>
               </div>
             )}

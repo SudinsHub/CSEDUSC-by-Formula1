@@ -7,7 +7,7 @@ export interface User {
   email: string;
   role: UserRole;
   status: UserStatus;
-  studentId?: string;
+  registrationNo?: string;
   batchYear?: number;
   createdAt?: string;
 }

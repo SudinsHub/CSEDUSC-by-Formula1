@@ -28,13 +28,13 @@ if (-not $postgresStatus) {
 Write-Host "Enter administrator details:" -ForegroundColor Yellow
 Write-Host ""
 
-$ADMIN_NAME = Read-Host "Syed Naimul Islam"
+$ADMIN_NAME = Read-Host "Name"
 if ([string]::IsNullOrWhiteSpace($ADMIN_NAME)) {
     Write-Host "[ERROR] Name cannot be empty" -ForegroundColor Red
     exit 1
 }
 
-$ADMIN_EMAIL = Read-Host "syednaimul-2021711213@cs.du.ac.bd"
+$ADMIN_EMAIL = Read-Host "Academic Email"
 if ([string]::IsNullOrWhiteSpace($ADMIN_EMAIL)) {
     Write-Host "[ERROR] Email cannot be empty" -ForegroundColor Red
     exit 1
@@ -46,7 +46,7 @@ if ($ADMIN_EMAIL -notmatch '@(cs|cse)\.du\.ac\.bd$') {
     exit 1
 }
 
-$ADMIN_PASSWORD = Read-Host "csedusc_by_formula1" -AsSecureString
+$ADMIN_PASSWORD = Read-Host "Password" -AsSecureString
 $ADMIN_PASSWORD_PLAIN = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
     [Runtime.InteropServices.Marshal]::SecureStringToBSTR($ADMIN_PASSWORD)
 )
@@ -56,7 +56,7 @@ if ($ADMIN_PASSWORD_PLAIN.Length -lt 8) {
     exit 1
 }
 
-$BATCH_YEAR = Read-Host "2021"
+$BATCH_YEAR = Read-Host "Batch Year (4 digits)"
 if ([string]::IsNullOrWhiteSpace($BATCH_YEAR)) {
     Write-Host "[ERROR] Batch year cannot be empty" -ForegroundColor Red
     exit 1
