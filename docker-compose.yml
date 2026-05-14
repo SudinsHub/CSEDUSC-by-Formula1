@@ -148,7 +148,7 @@ services:
     environment:
       PORT: 4000
       JWT_SECRET: ${JWT_SECRET:-csedusc_by_formula1}
-      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3005,http://localhost:3000,http://localhost:5173}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3005,http://localhost:3000,https://csedusc.luminestlife.com}
       MS1_URL: http://ms1-auth:3001
       MS2_URL: http://ms2-election:3002
       MS3_URL: http://ms3-content:3003
@@ -171,7 +171,8 @@ services:
       dockerfile: Dockerfile
     container_name: csedu-frontend
     environment:
-      NEXT_PUBLIC_API_BASE_URL: http://localhost:4005
+      # NEXT_PUBLIC_API_BASE_URL: http://localhost:4005
+      NEXT_PUBLIC_API_BASE_URL: https://apicsedusc.luminestlife.com
     ports:
       - "3005:3000"
     depends_on:

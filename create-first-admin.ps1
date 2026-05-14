@@ -74,7 +74,7 @@ Write-Host "Creating administrator account..." -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 
 # Check if email already exists
-$checkQuery = "SELECT email FROM users WHERE email = '$ADMIN_EMAIL';"
+$checkQuery = "SELECT email FROM auth.users WHERE email = '$ADMIN_EMAIL';"
 $existingUser = docker compose exec -T postgres psql -U formula1 -d csedu_sc -t -c $checkQuery 2>$null | ForEach-Object { $_.Trim() }
 
 if ($existingUser) {
@@ -87,7 +87,7 @@ if ($existingUser) {
     }
     
     Write-Host "Deleting existing user..." -ForegroundColor Yellow
-    $deleteQuery = "DELETE FROM users WHERE email = '$ADMIN_EMAIL';"
+    $deleteQuery = "DELETE FROM auth.users WHERE email = '$ADMIN_EMAIL';"
     docker compose exec -T postgres psql -U formula1 -d csedu_sc -c $deleteQuery | Out-Null
     Write-Host "[OK] Existing user deleted" -ForegroundColor Green
 }
@@ -114,7 +114,7 @@ if ([string]::IsNullOrWhiteSpace($PASSWORD_HASH)) {
 Write-Host "Inserting administrator into database..." -ForegroundColor Yellow
 
 $insertQuery = @"
-INSERT INTO users (name, email, password_hash, role, status, batch_year)
+INSERT INTO auth.users (name, email, password_hash, role, status, batch_year)
 VALUES (
   '$ADMIN_NAME',
   '$ADMIN_EMAIL',
@@ -148,7 +148,7 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host ""
     
     # Get the user ID
-    $userIdQuery = "SELECT user_id FROM users WHERE email = '$ADMIN_EMAIL';"
+    $userIdQuery = "SELECT user_id FROM auth.users WHERE email = '$ADMIN_EMAIL';"
     $USER_ID = docker compose exec -T postgres psql -U formula1 -d csedu_sc -t -c $userIdQuery | ForEach-Object { $_.Trim() }
     Write-Host "User ID: $USER_ID" -ForegroundColor White
     Write-Host ""

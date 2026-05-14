@@ -16,7 +16,14 @@ import DashboardSidebar from '@/components/layout/DashboardSidebar';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Election } from '@/types';
 
-type ElectionForm = { title: string; phase: string; start_time: string; end_time: string; rules: string };
+type ElectionForm = {
+  title: string;
+  phase: string;
+  startTime: string;
+  endTime: string;
+  rules: string;
+  maxVotesPerUser: number;
+};
 
 function ElectionCard({ el }: { el: Election }) {
   const isActive = el.status === 'active';
@@ -61,7 +68,11 @@ export default function ElectionsPage() {
   const { isEcMember } = useAuth();
   const queryClient = useQueryClient();
   const [modal, setModal] = useState(false);
-  const form = useForm<ElectionForm>();
+  const form = useForm<ElectionForm>({
+    defaultValues: {
+      maxVotesPerUser: 1,
+    },
+  });
 
   const { data: elections, isLoading } = useQuery({
     queryKey: ['elections'],
@@ -70,7 +81,14 @@ export default function ElectionsPage() {
 
   const createElection = useMutation({
     mutationFn: (d: ElectionForm) =>
-      api.post('/api/elections', { title: d.title, phase: Number(d.phase), start_time: d.start_time, end_time: d.end_time, rules: d.rules }),
+      api.post('/api/elections', {
+        title: d.title,
+        phase: Number(d.phase),
+        startTime: d.startTime,
+        endTime: d.endTime,
+        rules: d.rules,
+        maxVotesPerUser: Number(d.maxVotesPerUser),
+      }),
     onSuccess: () => {
       toast.success('Election created!');
       setModal(false);
@@ -143,19 +161,23 @@ export default function ElectionsPage() {
               </div>
               <div>
                 <label className="label">Phase</label>
-                <input type="number" className="input" placeholder="1" min="1" {...form.register('phase', { required: true })} />
+                <input type="number" className="input" placeholder="1" min="1" max="2" {...form.register('phase', { required: true })} />
               </div>
               <div>
+                <label className="label">Max Votes Per User</label>
+                <input type="number" className="input" placeholder="1" min="1" {...form.register('maxVotesPerUser', { required: true })} />
+              </div>
+              <div className="col-span-2">
                 <label className="label">Rules (optional)</label>
                 <input className="input" placeholder="One vote per member" {...form.register('rules')} />
               </div>
               <div>
                 <label className="label">Start time</label>
-                <input type="datetime-local" className="input" {...form.register('start_time', { required: true })} />
+                <input type="datetime-local" className="input" {...form.register('startTime', { required: true })} />
               </div>
               <div>
                 <label className="label">End time</label>
-                <input type="datetime-local" className="input" {...form.register('end_time', { required: true })} />
+                <input type="datetime-local" className="input" {...form.register('endTime', { required: true })} />
               </div>
             </div>
             <div className="flex gap-3 pt-2">

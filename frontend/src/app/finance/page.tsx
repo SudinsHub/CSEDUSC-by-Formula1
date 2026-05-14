@@ -16,9 +16,9 @@ import DashboardSidebar from '@/components/layout/DashboardSidebar';
 import type { Budget } from '@/types';
 
 interface BudgetForm {
-  title: string;
-  total_amount: string;
-  description: string;
+  eventId: string;
+  totalAmount: string;
+  lineItems: string;
 }
 
 function fmt(err: unknown) { return getErrorMessage(err as { message?: string }); }
@@ -38,11 +38,25 @@ export default function FinancePage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: BudgetForm) =>
-      api.post('/api/budgets', {
-        total_amount: parseFloat(data.total_amount),
-        line_items: { description: data.description, title: data.title },
-      }),
+    mutationFn: (data: BudgetForm) => {
+      // Parse line items from textarea (format: "category:amount, category:amount")
+      const lineItems = data.lineItems
+        .split(',')
+        .map((item) => {
+          const [category, cost] = item.trim().split(':');
+          return {
+            category: category?.trim() || '',
+            estimatedCost: parseFloat(cost?.trim() || '0'),
+          };
+        })
+        .filter((item) => item.category && item.estimatedCost > 0);
+
+      return api.post('/api/budgets', {
+        eventId: parseInt(data.eventId, 10),
+        totalAmount: parseFloat(data.totalAmount),
+        lineItems,
+      });
+    },
     onSuccess: () => {
       toast.success('Budget proposal submitted!');
       setCreateOpen(false);
@@ -172,20 +186,22 @@ export default function FinancePage() {
         <Modal open={createOpen} onClose={() => setCreateOpen(false)} title="New Budget Proposal">
           <form onSubmit={handleSubmit((d) => createMutation.mutate(d))} className="space-y-4">
             <div>
-              <label className="label">Budget title / purpose</label>
-              <input type="text" className="input" placeholder="e.g. Annual Reunion 2026" {...register('title', { required: 'Required' })} />
-              {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>}
+              <label className="label">Event ID</label>
+              <input type="number" className="input" placeholder="1" min="1" {...register('eventId', { required: 'Required' })} />
+              {errors.eventId && <p className="text-red-500 text-xs mt-1">{errors.eventId.message}</p>}
             </div>
             <div>
               <label className="label">Total amount (BDT)</label>
               <input type="number" className="input" placeholder="50000" min="0" step="0.01"
-                {...register('total_amount', { required: 'Required', min: { value: 0, message: 'Must be positive' } })} />
-              {errors.total_amount && <p className="text-red-500 text-xs mt-1">{errors.total_amount.message}</p>}
+                {...register('totalAmount', { required: 'Required', min: { value: 0, message: 'Must be positive' } })} />
+              {errors.totalAmount && <p className="text-red-500 text-xs mt-1">{errors.totalAmount.message}</p>}
             </div>
             <div>
-              <label className="label">Description / breakdown</label>
-              <textarea className="input min-h-24 resize-none" placeholder="Venue: 20000, Food: 15000, ..."
-                {...register('description')} />
+              <label className="label">Line Items (format: category:amount, category:amount)</label>
+              <textarea className="input min-h-24 resize-none" placeholder="Venue:20000, Food:15000, Decorations:5000"
+                {...register('lineItems', { required: 'Required' })} />
+              {errors.lineItems && <p className="text-red-500 text-xs mt-1">{errors.lineItems.message}</p>}
+              <p className="text-xs text-gray-500 mt-1">Enter each item as category:amount, separated by commas</p>
             </div>
             <div className="flex gap-3 pt-2">
               <button type="button" onClick={() => setCreateOpen(false)} className="flex-1 btn-outline">Cancel</button>

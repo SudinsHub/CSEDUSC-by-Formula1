@@ -88,7 +88,7 @@ async function handleElectionAnnounced(payload) {
   const { electionId, title, startTime, endTime, eligibleRoles } = payload;
   
   // Fetch eligible voters from auth schema
-  const rolesArray = eligibleRoles || ['student', 'ec_member', 'admin'];
+  const rolesArray = eligibleRoles || ['GeneralStudent', 'ECMember', 'Administrator'];
   const placeholders = rolesArray.map((_, i) => `$${i + 1}`).join(',');
   
   const result = await pool.query(

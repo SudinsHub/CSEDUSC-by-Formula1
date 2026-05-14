@@ -63,7 +63,9 @@ foreach ($migration in $migrations) {
         $sqlContent = Get-Content $migration.File -Raw
         
         # Execute the migration
-        $sqlContent | docker compose exec -T postgres psql -U formula1 -d csedu_sc 2>&1 | Out-Null
+        # We avoid 2>&1 because PowerShell treats stderr as exceptions if $ErrorActionPreference is Stop
+        # Instead, we just let it output to the console and check $LASTEXITCODE
+        $sqlContent | docker compose exec -T postgres psql -U formula1 -d csedu_sc
         
         if ($LASTEXITCODE -eq 0) {
             Write-Host "  [OK] Migration completed successfully" -ForegroundColor Green
@@ -96,7 +98,7 @@ if ($failCount -eq 0) {
     
     # Show created tables
     Write-Host "Created tables:" -ForegroundColor Cyan
-    docker compose exec -T postgres psql -U formula1 -d csedu_sc -c "\dt"
+    docker compose exec -T postgres psql -U formula1 -d csedu_sc -c "\dt *.*"
 } else {
     Write-Host "[WARNING] Some migrations failed. Please check the errors above." -ForegroundColor Yellow
     exit 1

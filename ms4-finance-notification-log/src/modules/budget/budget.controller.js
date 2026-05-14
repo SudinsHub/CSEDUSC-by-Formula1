@@ -7,8 +7,9 @@ export const budgetController = {
       const userRole = req.headers['x-user-role'];
 
       // Only EC members and admins can submit budgets
-      if (userRole !== 'ec_member' && userRole !== 'admin') {
-        return res.status(403).json({ error: 'Only EC members and admins can submit budget proposals' });
+      // 'GeneralStudent', 'ECMember', 'Administrator'
+      if (userRole !== 'ECMember' && userRole !== 'Administrator') {
+        return res.status(403).json({ error: `Only EC members and admins can submit budget proposals.` });
       }
 
       const budget = await budgetService.submit(req.body, userId);
@@ -54,8 +55,8 @@ export const budgetController = {
       const userId = parseInt(req.headers['x-user-id'], 10);
       const userRole = req.headers['x-user-role'];
       const budgetId = parseInt(req.params.id, 10);
-
-      if (userRole !== 'admin') {
+      
+      if (userRole !== 'Administrator') {
         return res.status(403).json({ error: 'Only admins can approve budgets' });
       }
 
@@ -80,7 +81,7 @@ export const budgetController = {
       const budgetId = parseInt(req.params.id, 10);
       const { comment } = req.body;
 
-      if (userRole !== 'admin') {
+      if (userRole !== 'Administrator') {
         return res.status(403).json({ error: 'Only admins can reject budgets' });
       }
 
@@ -105,7 +106,8 @@ export const budgetController = {
       const budgetId = parseInt(req.params.id, 10);
 
       // Only EC members and admins can record expenditures
-      if (userRole !== 'ec_member' && userRole !== 'admin') {
+
+      if (userRole !== 'ECMember' && userRole !== 'Administrator') {
         return res.status(403).json({ error: 'Only EC members and admins can record expenditures' });
       }
 

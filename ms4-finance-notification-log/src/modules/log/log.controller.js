@@ -6,7 +6,8 @@ export const logController = {
       const userRole = req.headers['x-user-role'];
 
       // Only admins can view activity logs
-      if (userRole !== 'admin') {
+
+      if (userRole !== 'Administrator') {
         return res.status(403).json({ error: 'Only admins can view activity logs' });
       }
 

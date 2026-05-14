@@ -19,7 +19,7 @@ function fmt(err: unknown) { return getErrorMessage(err as { message?: string })
 export default function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { user, isEcMember } = useAuth();
+  const { user, isEcMember, isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const [regModal, setRegModal] = useState(false);
   const [volModal, setVolModal] = useState(false);
@@ -32,7 +32,7 @@ export default function EventDetailPage() {
   const { data: registrations } = useQuery({
     queryKey: ['registrations', id],
     queryFn: () => api.get<EventRegistration[]>(`/api/events/${id}/registrations`).then((r) => r.data),
-    enabled: isEcMember,
+    enabled: isEcMember || isAdmin,
   });
 
   const registerMutation = useMutation({

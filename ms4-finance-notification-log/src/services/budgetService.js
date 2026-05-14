@@ -34,7 +34,9 @@ export const budgetService = {
     }
 
     // FR23: EC members can only view their own budget proposals
-    if (requesterRole === 'ec_member' && budget.proposed_by !== requesterId) {
+                // 'GeneralStudent', 'ECMember', 'Administrator'
+
+    if (requesterRole === 'ECMember' && budget.proposed_by !== requesterId) {
       throw new Error('Access denied: You can only view your own budget proposals');
     }
 

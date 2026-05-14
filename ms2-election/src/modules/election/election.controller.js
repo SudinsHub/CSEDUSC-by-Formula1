@@ -9,7 +9,7 @@ export const electionController = {
       const userId = req.headers['x-user-id'];
       const userRole = req.headers['x-user-role'];
 
-      if (userRole !== 'admin') {
+      if (userRole !== 'Administrator') {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -48,7 +48,7 @@ export const electionController = {
     try {
       const userRole = req.headers['x-user-role'];
 
-      if (userRole !== 'admin') {
+      if (userRole !== 'Administrator') {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -67,7 +67,7 @@ export const electionController = {
     try {
       const userRole = req.headers['x-user-role'];
 
-      if (userRole !== 'admin') {
+      if (userRole !== 'Administrator') {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -100,7 +100,7 @@ export const electionController = {
       const userId = req.headers['x-user-id'];
       const userRole = req.headers['x-user-role'];
 
-      if (!['student', 'ec_member', 'admin'].includes(userRole)) {
+      if (!['GeneralStudent', 'ECMember', 'Administrator'].includes(userRole)) {
         return res.status(403).json({ error: 'Student access required' });
       }
 

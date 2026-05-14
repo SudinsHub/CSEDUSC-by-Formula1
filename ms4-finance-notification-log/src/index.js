@@ -24,6 +24,15 @@ app.get('/health', (_req, res) => {
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/logs', logRoutes);
 
+// ── Error handling ────────────────────────────────────────────────────────────
+app.use((err, req, res, next) => {
+  console.error(`Unhandled error at ${req.method} ${req.originalUrl}:`, err);
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({ error: 'Invalid JSON body' });
+  }
+  res.status(err.status || 500).json({ error: err.message || 'Internal Server Error' });
+});
+
 // ── 404 fallback ──────────────────────────────────────────────────────────────
 app.use((_req, res) => {
   res.status(404).json({ error: 'Not found' });

@@ -22,10 +22,10 @@ CREATE TABLE IF NOT EXISTS finance.budgets (
   CONSTRAINT budgets_total_amount_check CHECK (total_amount >= 0)
 );
 
-CREATE INDEX idx_budgets_event_id ON finance.budgets(event_id);
-CREATE INDEX idx_budgets_proposed_by ON finance.budgets(proposed_by);
-CREATE INDEX idx_budgets_status ON finance.budgets(status);
-CREATE INDEX idx_budgets_submitted_at ON finance.budgets(submitted_at DESC);
+CREATE INDEX IF NOT EXISTS idx_budgets_event_id ON finance.budgets(event_id);
+CREATE INDEX IF NOT EXISTS idx_budgets_proposed_by ON finance.budgets(proposed_by);
+CREATE INDEX IF NOT EXISTS idx_budgets_status ON finance.budgets(status);
+CREATE INDEX IF NOT EXISTS idx_budgets_submitted_at ON finance.budgets(submitted_at DESC);
 
 -- ══════════════════════════════════════════════════════════════════════════════
 -- Table: finance.expenditures
@@ -42,8 +42,8 @@ CREATE TABLE IF NOT EXISTS finance.expenditures (
   CONSTRAINT expenditures_amount_check CHECK (amount >= 0)
 );
 
-CREATE INDEX idx_expenditures_budget_id ON finance.expenditures(budget_id);
-CREATE INDEX idx_expenditures_recorded_at ON finance.expenditures(recorded_at DESC);
+CREATE INDEX IF NOT EXISTS idx_expenditures_budget_id ON finance.expenditures(budget_id);
+CREATE INDEX IF NOT EXISTS idx_expenditures_recorded_at ON finance.expenditures(recorded_at DESC);
 
 -- ══════════════════════════════════════════════════════════════════════════════
 -- Table: finance.activity_logs
@@ -58,10 +58,10 @@ CREATE TABLE IF NOT EXISTS finance.activity_logs (
   logged_at         TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_activity_logs_actor_user_id ON finance.activity_logs(actor_user_id);
-CREATE INDEX idx_activity_logs_action_type ON finance.activity_logs(action_type);
-CREATE INDEX idx_activity_logs_target_entity ON finance.activity_logs(target_entity);
-CREATE INDEX idx_activity_logs_logged_at ON finance.activity_logs(logged_at DESC);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_actor_user_id ON finance.activity_logs(actor_user_id);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_action_type ON finance.activity_logs(action_type);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_target_entity ON finance.activity_logs(target_entity);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_logged_at ON finance.activity_logs(logged_at DESC);
 
 -- ══════════════════════════════════════════════════════════════════════════════
 -- Comments

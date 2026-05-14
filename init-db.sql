@@ -16,17 +16,17 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Grant permissions
 GRANT ALL PRIVILEGES ON DATABASE csedu_sc TO formula1;
 
--- Create schemas for each microservice (optional, for better organization)
-CREATE SCHEMA IF NOT EXISTS ms1_auth;
-CREATE SCHEMA IF NOT EXISTS ms2_election;
-CREATE SCHEMA IF NOT EXISTS ms3_content;
-CREATE SCHEMA IF NOT EXISTS ms4_finance;
+-- Create schemas for each microservice
+CREATE SCHEMA IF NOT EXISTS auth;
+CREATE SCHEMA IF NOT EXISTS election;
+CREATE SCHEMA IF NOT EXISTS content;
+CREATE SCHEMA IF NOT EXISTS finance;
 
 -- Grant schema permissions
-GRANT ALL ON SCHEMA ms1_auth TO formula1;
-GRANT ALL ON SCHEMA ms2_election TO formula1;
-GRANT ALL ON SCHEMA ms3_content TO formula1;
-GRANT ALL ON SCHEMA ms4_finance TO formula1;
+GRANT ALL ON SCHEMA auth TO formula1;
+GRANT ALL ON SCHEMA election TO formula1;
+GRANT ALL ON SCHEMA content TO formula1;
+GRANT ALL ON SCHEMA finance TO formula1;
 
 -- Log initialization
 SELECT 'Database initialized successfully' AS status;
