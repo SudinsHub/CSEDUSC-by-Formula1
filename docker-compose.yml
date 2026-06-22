@@ -7,8 +7,8 @@ services:
       POSTGRES_USER: formula1
       POSTGRES_PASSWORD: formula1
       POSTGRES_DB: csedu_sc
-    ports:
-      - "5433:5432"
+    expose:
+      - "5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
@@ -24,8 +24,8 @@ services:
   redis:
     image: redis:7-alpine
     container_name: csedu-redis
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
     volumes:
       - redis_data:/data
     networks:
