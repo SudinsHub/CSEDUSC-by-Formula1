@@ -12,7 +12,7 @@ import Badge from '@/components/ui/Badge';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Modal from '@/components/ui/Modal';
 import DashboardSidebar from '@/components/layout/DashboardSidebar';
-import type { Election, Candidate, ElectionResult } from '@/types';
+import type { Election, Candidate, ElectionResult, User } from '@/types';
 
 function formatErrorMessage(err: unknown): string {
   return getErrorMessage(err as { message?: string });
@@ -21,10 +21,14 @@ function formatErrorMessage(err: unknown): string {
 export default function ElectionDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const [selectedCandidate, setSelectedCandidate] = useState<number | null>(null);
   const [voteModalOpen, setVoteModalOpen] = useState(false);
+  const [candidateModalOpen, setCandidateModalOpen] = useState(false);
+  const [candidateUserId, setCandidateUserId] = useState<string>('');
+  const [candidateBio, setCandidateBio] = useState('');
+  const [candidatePost, setCandidatePost] = useState('');
 
   const { data: election, isLoading } = useQuery({
     queryKey: ['election', id],
@@ -38,8 +42,41 @@ export default function ElectionDetailPage() {
 
   const { data: results } = useQuery({
     queryKey: ['results', id],
-    queryFn: () => api.get<ElectionResult[]>(`/api/elections/${id}/results`).then((r) => r.data),
+    queryFn: () => api.get<{ election: any; results: any[] }>(`/api/elections/${id}/results`)
+      .then((r) => {
+        const rawResults = r.data?.results || [];
+        return rawResults.map((item: any) => ({
+          candidate_id: item.candidate_id,
+          candidate_name: item.name,
+          post: item.post,
+          votes: Number(item.vote_count || 0),
+        })) as ElectionResult[];
+      }),
     enabled: election?.status === 'closed',
+  });
+
+  const { data: users } = useQuery({
+    queryKey: ['activeUsers'],
+    queryFn: () => api.get<{ users: User[] }>('/api/users?status=ACTIVE&limit=100').then((r) => r.data.users),
+    enabled: isAdmin && candidateModalOpen,
+  });
+
+  const selectableUsers = users?.filter(
+    (u) => !candidates?.some((c) => c.user_id === Number(u.userId))
+  ) ?? [];
+
+  const addCandidateMutation = useMutation({
+    mutationFn: (d: { userId: number; bio: string; post: string }) =>
+      api.post(`/api/elections/${id}/candidates`, d),
+    onSuccess: () => {
+      toast.success('Candidate added successfully!');
+      setCandidateModalOpen(false);
+      setCandidateUserId('');
+      setCandidateBio('');
+      setCandidatePost('');
+      queryClient.invalidateQueries({ queryKey: ['candidates', id] });
+    },
+    onError: (err) => toast.error(formatErrorMessage(err)),
   });
 
   const voteMutation = useMutation({
@@ -139,9 +176,19 @@ export default function ElectionDetailPage() {
 
         {/* Candidates */}
         <div className="card p-6">
-          <h2 className="font-semibold text-navy-800 flex items-center gap-2 mb-4">
-            <Users className="w-5 h-5 text-blue-500" /> Candidates ({candidates?.length ?? 0})
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-navy-800 flex items-center gap-2">
+              <Users className="w-5 h-5 text-blue-500" /> Candidates ({candidates?.length ?? 0})
+            </h2>
+            {isAdmin && election.status !== 'closed' && (
+              <button
+                onClick={() => setCandidateModalOpen(true)}
+                className="btn-gold flex items-center gap-2 py-1.5 px-4 text-sm"
+              >
+                Add Candidate
+              </button>
+            )}
+          </div>
 
           {!candidates?.length ? (
             <p className="text-sm text-gray-500 text-center py-6">No candidates registered yet.</p>
@@ -162,7 +209,7 @@ export default function ElectionDetailPage() {
                       {(c.user_id || c.candidate_id).toString().slice(0, 2)}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-800">{c.bio?.split(' ').slice(0, 3).join(' ') || `Candidate ${c.candidate_id}`}</p>
+                      <p className="font-medium text-gray-800">{c.name || `Candidate ${c.candidate_id}`}</p>
                       {c.post && <p className="text-xs text-gold-600 font-medium">{c.post}</p>}
                     </div>
                     {selectedCandidate === c.candidate_id && (
@@ -190,7 +237,13 @@ export default function ElectionDetailPage() {
         <Modal open={voteModalOpen} onClose={() => setVoteModalOpen(false)} title="Confirm Your Vote" size="sm">
           <p className="text-gray-600 mb-6">
             You are about to cast your vote for{' '}
-            <strong>{candidates?.find((c) => c.candidate_id === selectedCandidate)?.post ?? `Candidate ${selectedCandidate}`}</strong>.
+            <strong>
+              {candidates?.find((c) => c.candidate_id === selectedCandidate)?.name || `Candidate ${selectedCandidate}`}
+            </strong>{' '}
+            running for the post of{' '}
+            <strong>
+              {candidates?.find((c) => c.candidate_id === selectedCandidate)?.post || 'Candidate'}
+            </strong>.
             This action cannot be undone.
           </p>
           <div className="flex gap-3">
@@ -203,6 +256,82 @@ export default function ElectionDetailPage() {
               {voteMutation.isPending ? 'Recording...' : 'Confirm Vote'}
             </button>
           </div>
+        </Modal>
+
+        {/* Add candidate modal */}
+        <Modal open={candidateModalOpen} onClose={() => setCandidateModalOpen(false)} title="Add Candidate to Election" size="md">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!candidateUserId || !candidateBio || !candidatePost) {
+                toast.error('Please fill all fields');
+                return;
+              }
+              addCandidateMutation.mutate({
+                userId: Number(candidateUserId),
+                bio: candidateBio,
+                post: candidatePost,
+              });
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="label">Select User</label>
+              <select
+                className="input"
+                value={candidateUserId}
+                onChange={(e) => setCandidateUserId(e.target.value)}
+                required
+              >
+                <option value="">-- Choose User --</option>
+                {selectableUsers.map((u) => (
+                  <option key={u.userId} value={u.userId}>
+                    {u.name} ({u.email})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="label">Contesting Post</label>
+              <input
+                type="text"
+                className="input"
+                placeholder="e.g., General Secretary"
+                value={candidatePost}
+                onChange={(e) => setCandidatePost(e.target.value)}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="label">Candidate Biography</label>
+              <textarea
+                className="input min-h-24 resize-none"
+                placeholder="Describe candidate experience, goals..."
+                value={candidateBio}
+                onChange={(e) => setCandidateBio(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setCandidateModalOpen(false)}
+                className="flex-1 btn-outline"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={addCandidateMutation.isPending}
+                className="flex-1 btn-gold"
+              >
+                {addCandidateMutation.isPending ? 'Adding...' : 'Add Candidate'}
+              </button>
+            </div>
+          </form>
         </Modal>
       </main>
     </div>

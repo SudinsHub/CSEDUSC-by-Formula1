@@ -65,7 +65,7 @@ function ElectionCard({ el }: { el: Election }) {
 }
 
 export default function ElectionsPage() {
-  const { isEcMember } = useAuth();
+  const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const [modal, setModal] = useState(false);
   const form = useForm<ElectionForm>({
@@ -113,7 +113,7 @@ export default function ElectionsPage() {
             </h1>
             <p className="text-gray-500 text-sm mt-1">View and participate in CSEDU Students&apos; Club elections.</p>
           </div>
-          {isEcMember && (
+          {isAdmin && (
             <button onClick={() => setModal(true)} className="btn-gold flex items-center gap-2">
               <Plus className="w-4 h-4" /> Create Election
             </button>
@@ -146,7 +146,7 @@ export default function ElectionsPage() {
               <EmptyState
                 icon={Vote}
                 title="No elections yet"
-                description={isEcMember ? 'Create the first election using the button above.' : 'Elections will appear here when created by admins.'}
+                description={isAdmin ? 'Create the first election using the button above.' : 'Elections will appear here when created by admins.'}
               />
             )}
           </div>

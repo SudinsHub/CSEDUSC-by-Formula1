@@ -73,16 +73,18 @@ export default function AdminPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          <button onClick={() => setElectionModal(true)} className="card p-6 text-left hover:border-gold-300 transition-all group">
-            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-3 group-hover:bg-blue-100">
-              <Vote className="w-6 h-6 text-blue-600" />
-            </div>
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold text-navy-800">Create Election</h3>
-              <Plus className="w-4 h-4 text-blue-500" />
-            </div>
-            <p className="text-sm text-gray-500">Schedule a new election with candidates and voting window.</p>
-          </button>
+          {isAdmin && (
+            <button onClick={() => setElectionModal(true)} className="card p-6 text-left hover:border-gold-300 transition-all group">
+              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-3 group-hover:bg-blue-100">
+                <Vote className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-semibold text-navy-800">Create Election</h3>
+                <Plus className="w-4 h-4 text-blue-500" />
+              </div>
+              <p className="text-sm text-gray-500">Schedule a new election with candidates and voting window.</p>
+            </button>
+          )}
 
           <button onClick={() => setEventModal(true)} className="card p-6 text-left hover:border-gold-300 transition-all group">
             <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mb-3 group-hover:bg-green-100">
