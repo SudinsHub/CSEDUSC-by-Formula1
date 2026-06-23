@@ -49,10 +49,10 @@ for migration in "${migrations[@]}"; do
     
     if docker compose exec -T postgres psql -U formula1 -d csedu_sc < "$file" > /dev/null 2>&1; then
         echo "  ✓ Migration completed successfully"
-        ((success_count++))
+        success_count=$((success_count + 1))
     else
         echo "  ❌ Migration failed"
-        ((fail_count++))
+        fail_count=$((fail_count + 1))
     fi
     
     echo ""
