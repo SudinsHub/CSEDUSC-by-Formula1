@@ -30,6 +30,7 @@ echo ""
 declare -a migrations=(
     "ms1-auth/migrations/001_create_users.sql:MS1 (Auth & Users)"
     "ms2-election/migrations/001_create_election_schema.sql:MS2 (Elections)"
+    "ms2-election/migrations/002_update_election_phases.sql:MS2 (Election Phases)"
     "ms3/migrations/001_create_content_schema.sql:MS3 (Events & Notices)"
     "ms4-finance-notification-log/migrations/001_create_finance_schema.sql:MS4 (Finance & Logs)"
 )
@@ -49,10 +50,10 @@ for migration in "${migrations[@]}"; do
     
     if docker compose exec -T postgres psql -U formula1 -d csedu_sc < "$file" > /dev/null 2>&1; then
         echo "  ✓ Migration completed successfully"
-        ((success_count++))
+        success_count=$((success_count + 1))
     else
         echo "  ❌ Migration failed"
-        ((fail_count++))
+        fail_count=$((fail_count + 1))
     fi
     
     echo ""

@@ -49,7 +49,7 @@ async function handleOpen(electionId) {
     electionId: election.election_id,
     title: election.title,
     startTime: election.start_time,
-    eligibleRoles: ['student', 'ec_member', 'admin'],
+    eligibleRoles: ['GeneralStudent', 'ECMember', 'Administrator'],
   });
 
   console.log(`Election ${electionId} opened`);

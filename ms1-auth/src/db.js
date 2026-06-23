@@ -3,7 +3,10 @@ import { config } from './config.js';
 
 const { Pool } = pg;
 
-const pool = new Pool({ connectionString: config.databaseUrl });
+const pool = new Pool({ 
+  connectionString: config.databaseUrl,
+  options: '-c search_path=auth,public',
+});
 
 pool.on('error', (err) => {
   console.error('Unexpected PostgreSQL pool error:', err);

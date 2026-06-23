@@ -10,12 +10,12 @@ export const registerSchema = z.object({
       { message: 'Email must be a @cs.du.ac.bd or @cse.du.ac.bd address' }
     ),
   password: z.string().min(8, 'Password must be at least 8 characters'),
-  registration_no: z.string().optional(),
-  batch_year: z
+  registrationNo: z.string().optional(),
+  batchYear: z
     .number()
     .int()
-    .gte(1000, 'batch_year must be a 4-digit year')
-    .lte(9999, 'batch_year must be a 4-digit year')
+    .gte(1000, 'batchYear must be a 4-digit year')
+    .lte(9999, 'batchYear must be a 4-digit year')
     .optional(),
 });
 

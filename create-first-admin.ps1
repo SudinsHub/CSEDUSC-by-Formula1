@@ -28,13 +28,13 @@ if (-not $postgresStatus) {
 Write-Host "Enter administrator details:" -ForegroundColor Yellow
 Write-Host ""
 
-$ADMIN_NAME = Read-Host "Syed Naimul Islam"
+$ADMIN_NAME = Read-Host "Name"
 if ([string]::IsNullOrWhiteSpace($ADMIN_NAME)) {
     Write-Host "[ERROR] Name cannot be empty" -ForegroundColor Red
     exit 1
 }
 
-$ADMIN_EMAIL = Read-Host "syednaimul-2021711213@cs.du.ac.bd"
+$ADMIN_EMAIL = Read-Host "Academic Email"
 if ([string]::IsNullOrWhiteSpace($ADMIN_EMAIL)) {
     Write-Host "[ERROR] Email cannot be empty" -ForegroundColor Red
     exit 1
@@ -46,7 +46,7 @@ if ($ADMIN_EMAIL -notmatch '@(cs|cse)\.du\.ac\.bd$') {
     exit 1
 }
 
-$ADMIN_PASSWORD = Read-Host "csedusc_by_formula1" -AsSecureString
+$ADMIN_PASSWORD = Read-Host "Password" -AsSecureString
 $ADMIN_PASSWORD_PLAIN = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
     [Runtime.InteropServices.Marshal]::SecureStringToBSTR($ADMIN_PASSWORD)
 )
@@ -56,7 +56,7 @@ if ($ADMIN_PASSWORD_PLAIN.Length -lt 8) {
     exit 1
 }
 
-$BATCH_YEAR = Read-Host "2021"
+$BATCH_YEAR = Read-Host "Batch Year (4 digits)"
 if ([string]::IsNullOrWhiteSpace($BATCH_YEAR)) {
     Write-Host "[ERROR] Batch year cannot be empty" -ForegroundColor Red
     exit 1
@@ -74,7 +74,7 @@ Write-Host "Creating administrator account..." -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 
 # Check if email already exists
-$checkQuery = "SELECT email FROM users WHERE email = '$ADMIN_EMAIL';"
+$checkQuery = "SELECT email FROM auth.users WHERE email = '$ADMIN_EMAIL';"
 $existingUser = docker compose exec -T postgres psql -U formula1 -d csedu_sc -t -c $checkQuery 2>$null | ForEach-Object { $_.Trim() }
 
 if ($existingUser) {
@@ -87,7 +87,7 @@ if ($existingUser) {
     }
     
     Write-Host "Deleting existing user..." -ForegroundColor Yellow
-    $deleteQuery = "DELETE FROM users WHERE email = '$ADMIN_EMAIL';"
+    $deleteQuery = "DELETE FROM auth.users WHERE email = '$ADMIN_EMAIL';"
     docker compose exec -T postgres psql -U formula1 -d csedu_sc -c $deleteQuery | Out-Null
     Write-Host "[OK] Existing user deleted" -ForegroundColor Green
 }
@@ -114,7 +114,7 @@ if ([string]::IsNullOrWhiteSpace($PASSWORD_HASH)) {
 Write-Host "Inserting administrator into database..." -ForegroundColor Yellow
 
 $insertQuery = @"
-INSERT INTO users (name, email, password_hash, role, status, batch_year)
+INSERT INTO auth.users (name, email, password_hash, role, status, batch_year)
 VALUES (
   '$ADMIN_NAME',
   '$ADMIN_EMAIL',
@@ -148,7 +148,7 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host ""
     
     # Get the user ID
-    $userIdQuery = "SELECT user_id FROM users WHERE email = '$ADMIN_EMAIL';"
+    $userIdQuery = "SELECT user_id FROM auth.users WHERE email = '$ADMIN_EMAIL';"
     $USER_ID = docker compose exec -T postgres psql -U formula1 -d csedu_sc -t -c $userIdQuery | ForEach-Object { $_.Trim() }
     Write-Host "User ID: $USER_ID" -ForegroundColor White
     Write-Host ""

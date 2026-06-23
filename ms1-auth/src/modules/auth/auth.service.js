@@ -34,7 +34,7 @@ const issueTokens = (userId, role) => {
 
 // ── Service methods ───────────────────────────────────────────────────────────
 
-export const register = async ({ name, email, password, registration_no, batch_year }) => {
+export const register = async ({ name, email, password, registrationNo, batchYear }) => {
   const existing = await query('SELECT user_id FROM users WHERE email = $1', [email]);
   if (existing.rows.length > 0) {
     const err = new Error('Email already registered');
@@ -47,7 +47,7 @@ export const register = async ({ name, email, password, registration_no, batch_y
   await query(
     `INSERT INTO users (name, email, password_hash, registration_no, batch_year)
      VALUES ($1, $2, $3, $4, $5)`,
-    [name, email, password_hash, registration_no || null, batch_year || null]
+    [name, email, password_hash, registrationNo, batchYear]
   );
 };
 
@@ -89,8 +89,8 @@ export const login = async ({ email, password }) => {
       name: user.name,
       email: user.email,
       role: user.role,
-      registration_no: user.registration_no,
-      batch_year: user.batch_year,
+      registrationNo: user.registration_no,
+      batchYear: user.batch_year,
     },
   };
 };
@@ -114,9 +114,9 @@ export const getMe = async (userId) => {
     email: user.email,
     role: user.role,
     status: user.status,
-    registration_no: user.registration_no,
-    batch_year: user.batch_year,
-    created_at: user.created_at,
+    registrationNo: user.registration_no,
+    batchYear: user.batch_year,
+    createdAt: user.created_at,
   };
 };
 

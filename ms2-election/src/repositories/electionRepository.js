@@ -2,13 +2,26 @@ import pool from '../db.js';
 
 export const electionRepository = {
   async insert(data) {
-    const { title, phase, status, rules, maxVotesPerUser, startTime, endTime, createdBy } = data;
+    const { title, phase, status, rules, maxVotesPerUser, startTime, endTime, createdBy, batchStartYear, batchEndYear, representativesPerBatch, designations } = data;
     const result = await pool.query(
       `INSERT INTO election.elections 
-       (title, phase, status, rules, max_votes_per_user, start_time, end_time, created_by, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+       (title, phase, status, rules, max_votes_per_user, start_time, end_time, created_by, batch_start_year, batch_end_year, representatives_per_batch, designations, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
        RETURNING *`,
-      [title, phase, status, rules, maxVotesPerUser, startTime, endTime, createdBy]
+      [
+        title,
+        phase,
+        status,
+        rules,
+        maxVotesPerUser,
+        startTime,
+        endTime,
+        createdBy,
+        batchStartYear,
+        batchEndYear,
+        representativesPerBatch !== undefined ? representativesPerBatch : 5,
+        JSON.stringify(designations || [])
+      ]
     );
     return result.rows[0];
   },
@@ -41,6 +54,10 @@ export const electionRepository = {
       fields.push(`phase = $${paramCount++}`);
       values.push(data.phase);
     }
+    if (data.status !== undefined) {
+      fields.push(`status = $${paramCount++}`);
+      values.push(data.status);
+    }
     if (data.rules !== undefined) {
       fields.push(`rules = $${paramCount++}`);
       values.push(data.rules);
@@ -56,6 +73,22 @@ export const electionRepository = {
     if (data.endTime !== undefined) {
       fields.push(`end_time = $${paramCount++}`);
       values.push(data.endTime);
+    }
+    if (data.batchStartYear !== undefined) {
+      fields.push(`batch_start_year = $${paramCount++}`);
+      values.push(data.batchStartYear);
+    }
+    if (data.batchEndYear !== undefined) {
+      fields.push(`batch_end_year = $${paramCount++}`);
+      values.push(data.batchEndYear);
+    }
+    if (data.representativesPerBatch !== undefined) {
+      fields.push(`representatives_per_batch = $${paramCount++}`);
+      values.push(data.representativesPerBatch);
+    }
+    if (data.designations !== undefined) {
+      fields.push(`designations = $${paramCount++}`);
+      values.push(JSON.stringify(data.designations));
     }
 
     if (fields.length === 0) {
@@ -74,6 +107,14 @@ export const electionRepository = {
     const result = await pool.query(
       `UPDATE election.elections SET status = $1 WHERE election_id = $2 RETURNING *`,
       [status, id]
+    );
+    return result.rows[0];
+  },
+
+  async delete(id) {
+    const result = await pool.query(
+      `DELETE FROM election.elections WHERE election_id = $1 RETURNING *`,
+      [id]
     );
     return result.rows[0];
   },

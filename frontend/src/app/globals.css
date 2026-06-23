@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@layer base {
+  :root {
+    --navy: #1B2F56;
+    --gold: #C9A227;
+    --gold-light: #E8C84A;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    @apply text-gray-900 bg-white;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-navy-800 hover:bg-navy-700 text-gold-400 border border-gold-500 font-semibold px-6 py-2.5 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-gold {
+    @apply bg-gold-500 hover:bg-gold-600 text-navy-900 font-semibold px-6 py-2.5 rounded-lg transition-all duration-200 disabled:opacity-50;
+  }
+  .btn-outline {
+    @apply border border-navy-700 text-navy-800 hover:bg-navy-50 font-medium px-6 py-2.5 rounded-lg transition-all duration-200;
+  }
+  .btn-ghost {
+    @apply text-gray-600 hover:text-navy-800 hover:bg-gray-100 font-medium px-4 py-2 rounded-lg transition-all duration-200;
+  }
+  .card {
+    @apply bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200;
+  }
+  .input {
+    @apply w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-400 focus:border-transparent text-gray-900 placeholder-gray-400 bg-white;
+  }
+  .label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+  .section-title {
+    @apply text-3xl font-bold text-navy-800;
+  }
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+}

@@ -70,7 +70,7 @@ echo "Creating administrator account..."
 echo "=========================================="
 
 # Check if email already exists
-EXISTING_USER=$(docker compose exec -T postgres psql -U formula1 -d csedu_sc -t -c "SELECT email FROM users WHERE email = '$ADMIN_EMAIL';" 2>/dev/null | xargs)
+EXISTING_USER=$(docker compose exec -T postgres psql -U formula1 -d csedu_sc -t -c "SELECT email FROM auth.users WHERE email = '$ADMIN_EMAIL';" 2>/dev/null | xargs)
 
 if [ ! -z "$EXISTING_USER" ]; then
     echo "❌ Error: A user with email '$ADMIN_EMAIL' already exists."
@@ -82,7 +82,7 @@ if [ ! -z "$EXISTING_USER" ]; then
     fi
     
     echo "Deleting existing user..."
-    docker compose exec -T postgres psql -U formula1 -d csedu_sc -c "DELETE FROM users WHERE email = '$ADMIN_EMAIL';" > /dev/null
+    docker compose exec -T postgres psql -U formula1 -d csedu_sc -c "DELETE FROM auth.users WHERE email = '$ADMIN_EMAIL';" > /dev/null
     echo "✓ Existing user deleted"
 fi
 
@@ -103,7 +103,7 @@ fi
 # Insert admin user into database
 echo "Inserting administrator into database..."
 docker compose exec -T postgres psql -U formula1 -d csedu_sc > /dev/null 2>&1 <<EOF
-INSERT INTO users (name, email, password_hash, role, status, batch_year)
+INSERT INTO auth.users (name, email, password_hash, role, status, batch_year)
 VALUES (
   '$ADMIN_NAME',
   '$ADMIN_EMAIL',
@@ -135,7 +135,7 @@ if [ $? -eq 0 ]; then
     echo ""
     
     # Get the user ID
-    USER_ID=$(docker compose exec -T postgres psql -U formula1 -d csedu_sc -t -c "SELECT user_id FROM users WHERE email = '$ADMIN_EMAIL';" | xargs)
+    USER_ID=$(docker compose exec -T postgres psql -U formula1 -d csedu_sc -t -c "SELECT user_id FROM auth.users WHERE email = '$ADMIN_EMAIL';" | xargs)
     echo "User ID: $USER_ID"
     echo ""
 else
