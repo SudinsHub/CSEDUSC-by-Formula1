@@ -45,6 +45,10 @@ export const electionService = {
     return await electionRepository.update(electionId, data);
   },
 
+  async delete(electionId) {
+    return await electionRepository.delete(electionId);
+  },
+
   async checkAndTriggerStatusUpdate(election, now) {
     const startTime = new Date(election.start_time);
     const endTime = new Date(election.end_time);

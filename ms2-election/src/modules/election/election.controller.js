@@ -136,4 +136,59 @@ export const electionController = {
       res.status(500).json({ error: 'Internal server error' });
     }
   },
+
+  async delete(req, res) {
+    try {
+      const userRole = req.headers['x-user-role'];
+      if (userRole !== 'Administrator') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const election = await electionService.delete(parseInt(req.params.id));
+      if (!election) {
+        return res.status(404).json({ error: 'Election not found' });
+      }
+      res.json({ message: 'Election deleted successfully', election });
+    } catch (err) {
+      console.error('Error deleting election:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+  async removeCandidate(req, res) {
+    try {
+      const userRole = req.headers['x-user-role'];
+      if (userRole !== 'Administrator') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const candidate = await candidateService.removeCandidate(parseInt(req.params.candidateId));
+      if (!candidate) {
+        return res.status(404).json({ error: 'Candidate not found' });
+      }
+      res.json({ message: 'Candidate removed successfully', candidate });
+    } catch (err) {
+      console.error('Error removing candidate:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+  async updateCandidate(req, res) {
+    try {
+      const userRole = req.headers['x-user-role'];
+      if (userRole !== 'Administrator') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const { bio, post } = req.body;
+      const candidate = await candidateService.updateCandidate(parseInt(req.params.candidateId), { bio, post });
+      if (!candidate) {
+        return res.status(404).json({ error: 'Candidate not found' });
+      }
+      res.json(candidate);
+    } catch (err) {
+      console.error('Error updating candidate:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
 };

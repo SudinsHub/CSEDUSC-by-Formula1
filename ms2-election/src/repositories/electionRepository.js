@@ -77,4 +77,12 @@ export const electionRepository = {
     );
     return result.rows[0];
   },
+
+  async delete(id) {
+    const result = await pool.query(
+      `DELETE FROM election.elections WHERE election_id = $1 RETURNING *`,
+      [id]
+    );
+    return result.rows[0];
+  },
 };

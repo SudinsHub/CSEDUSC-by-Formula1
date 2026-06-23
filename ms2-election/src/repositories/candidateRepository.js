@@ -32,4 +32,38 @@ export const candidateRepository = {
     );
     return result.rows[0];
   },
+
+  async delete(candidateId) {
+    const result = await pool.query(
+      `DELETE FROM election.candidates WHERE candidate_id = $1 RETURNING *`,
+      [candidateId]
+    );
+    return result.rows[0];
+  },
+
+  async update(candidateId, data) {
+    const fields = [];
+    const values = [];
+    let paramCount = 1;
+
+    if (data.bio !== undefined) {
+      fields.push(`bio = $${paramCount++}`);
+      values.push(data.bio);
+    }
+    if (data.post !== undefined) {
+      fields.push(`post = $${paramCount++}`);
+      values.push(data.post);
+    }
+
+    if (fields.length === 0) {
+      return null;
+    }
+
+    values.push(candidateId);
+    const result = await pool.query(
+      `UPDATE election.candidates SET ${fields.join(', ')} WHERE candidate_id = $${paramCount} RETURNING *`,
+      values
+    );
+    return result.rows[0];
+  },
 };

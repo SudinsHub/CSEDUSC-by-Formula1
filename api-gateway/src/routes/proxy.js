@@ -74,6 +74,8 @@ router.post(
 );
 router.patch('/api/elections',       verifyJWT, createProxyMiddleware(proxyOptions(config.ms2Url)));
 router.patch('/api/elections/*path', verifyJWT, createProxyMiddleware(proxyOptions(config.ms2Url)));
+router.delete('/api/elections',      verifyJWT, createProxyMiddleware(proxyOptions(config.ms2Url)));
+router.delete('/api/elections/*path',verifyJWT, createProxyMiddleware(proxyOptions(config.ms2Url)));
 
 // ---------------------------------------------------------------------------
 // MS3 — Events & Notices  (http://localhost:3003)

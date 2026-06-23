@@ -34,3 +34,15 @@ export const castVoteSchema = [
 export const electionIdSchema = [
   param('id').isInt().withMessage('Election ID must be an integer'),
 ];
+
+export const updateCandidateSchema = [
+  param('id').isInt().withMessage('Election ID must be an integer'),
+  param('candidateId').isInt().withMessage('Candidate ID must be an integer'),
+  body('bio').optional().isString().trim().withMessage('Bio must be a string'),
+  body('post').optional().isString().trim().isLength({ min: 1, max: 100 }).withMessage('Post must be a string (max 100 chars)'),
+];
+
+export const candidateIdSchema = [
+  param('id').isInt().withMessage('Election ID must be an integer'),
+  param('candidateId').isInt().withMessage('Candidate ID must be an integer'),
+];

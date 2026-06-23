@@ -14,4 +14,12 @@ export const candidateService = {
   async listCandidates(electionId) {
     return await candidateRepository.findByElection(electionId);
   },
+
+  async removeCandidate(candidateId) {
+    return await candidateRepository.delete(candidateId);
+  },
+
+  async updateCandidate(candidateId, data) {
+    return await candidateRepository.update(candidateId, data);
+  },
 };
