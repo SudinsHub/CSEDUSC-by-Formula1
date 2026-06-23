@@ -134,10 +134,17 @@ export default function ElectionDetailPage() {
           </div>
 
           {election.status === 'active' && (
-            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 text-green-700 text-sm">
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              Voting is currently open. Select a candidate and cast your vote.
-            </div>
+            election.hasVoted ? (
+              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-2 text-yellow-800 text-sm">
+                <span className="w-2 h-2 bg-yellow-500 rounded-full" />
+                You have already cast your vote in this election.
+              </div>
+            ) : (
+              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 text-green-700 text-sm">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                Voting is currently open. Select a candidate and cast your vote.
+              </div>
+            )
           )}
         </div>
 
@@ -194,37 +201,44 @@ export default function ElectionDetailPage() {
             <p className="text-sm text-gray-500 text-center py-6">No candidates registered yet.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {candidates.map((c) => (
-                <div
-                  key={c.candidate_id}
-                  onClick={() => election.status === 'active' && setSelectedCandidate(c.candidate_id)}
-                  className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    selectedCandidate === c.candidate_id
-                      ? 'border-gold-500 bg-gold-50'
-                      : 'border-gray-200 hover:border-gold-300 hover:bg-gold-50/30'
-                  } ${election.status !== 'active' ? 'cursor-default' : ''}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-navy-100 rounded-full flex items-center justify-center text-navy-700 font-bold flex-shrink-0">
-                      {(c.user_id || c.candidate_id).toString().slice(0, 2)}
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-800">{c.name || `Candidate ${c.candidate_id}`}</p>
-                      {c.post && <p className="text-xs text-gold-600 font-medium">{c.post}</p>}
-                    </div>
-                    {selectedCandidate === c.candidate_id && (
-                      <div className="ml-auto w-5 h-5 bg-gold-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs">✓</span>
+              {candidates.map((c) => {
+                const canSelect = election.status === 'active' && !election.hasVoted;
+                return (
+                  <div
+                    key={c.candidate_id}
+                    onClick={() => canSelect && setSelectedCandidate(c.candidate_id)}
+                    className={`p-4 rounded-xl border-2 transition-all ${
+                      selectedCandidate === c.candidate_id
+                        ? 'border-gold-500 bg-gold-50'
+                        : 'border-gray-200 hover:border-gold-300 hover:bg-gold-50/30'
+                    } ${!canSelect ? 'cursor-default' : 'cursor-pointer'}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-navy-100 rounded-full flex items-center justify-center text-navy-700 font-bold flex-shrink-0">
+                        {(c.user_id || c.candidate_id).toString().slice(0, 2)}
                       </div>
-                    )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-800 truncate">{c.name || `Candidate ${c.candidate_id}`}</p>
+                        {c.post && <p className="text-xs text-gold-600 font-medium truncate">{c.post}</p>}
+                      </div>
+                      <div className="flex-shrink-0 ml-auto">
+                        {selectedCandidate === c.candidate_id ? (
+                          <div className="w-5 h-5 bg-gold-500 rounded-full flex items-center justify-center border-2 border-gold-500">
+                            <span className="text-white text-xs">✓</span>
+                          </div>
+                        ) : (
+                          <div className={`w-5 h-5 rounded-full border-2 bg-white ${canSelect ? 'border-gray-300' : 'border-gray-200 bg-gray-50'}`} />
+                        )}
+                      </div>
+                    </div>
+                    {c.bio && <p className="text-sm text-gray-500 mt-2 line-clamp-2">{c.bio}</p>}
                   </div>
-                  {c.bio && <p className="text-sm text-gray-500 mt-2 line-clamp-2">{c.bio}</p>}
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
-          {election.status === 'active' && selectedCandidate && (
+          {election.status === 'active' && !election.hasVoted && selectedCandidate && (
             <div className="mt-6 flex justify-end">
               <button onClick={() => setVoteModalOpen(true)} className="btn-gold flex items-center gap-2 px-8">
                 <Vote className="w-4 h-4" /> Cast Vote

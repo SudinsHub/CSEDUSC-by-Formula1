@@ -33,7 +33,11 @@ export const electionController = {
 
   async getById(req, res) {
     try {
-      const election = await electionService.getById(parseInt(req.params.id));
+      const userId = req.headers['x-user-id'];
+      const election = await electionService.getById(
+        parseInt(req.params.id),
+        userId ? parseInt(userId, 10) : null
+      );
       if (!election) {
         return res.status(404).json({ error: 'Election not found' });
       }

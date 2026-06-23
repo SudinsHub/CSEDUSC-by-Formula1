@@ -30,6 +30,7 @@ export interface Election {
   end_time: string;
   created_by: number;
   created_at: string;
+  hasVoted?: boolean;
 }
 
 export interface Candidate {

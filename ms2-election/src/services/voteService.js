@@ -69,4 +69,13 @@ export const voteService = {
       client.release();
     }
   },
+
+  async hasVoted(electionId, userId) {
+    const result = await pool.query(
+      `SELECT log_id FROM election.vote_cast_log
+       WHERE election_id = $1 AND voter_user_id = $2`,
+      [electionId, userId]
+    );
+    return result.rows.length > 0;
+  },
 };
