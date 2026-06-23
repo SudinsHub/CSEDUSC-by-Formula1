@@ -170,9 +170,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: csedu-frontend
-    environment:
+    # environment:
       # NEXT_PUBLIC_API_BASE_URL: http://localhost:4005
-      NEXT_PUBLIC_API_BASE_URL: https://apicsedusc.luminestlife.com
+      # NEXT_PUBLIC_API_BASE_URL: https://apicsedusc.luminestlife.com
     ports:
       - "127.0.0.1:8083:3000"
     depends_on:
