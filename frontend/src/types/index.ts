@@ -19,6 +19,11 @@ export interface AuthTokens {
 
 export type ElectionStatus = 'scheduled' | 'active' | 'closed';
 
+export interface Designation {
+  name: string;
+  elect_count: number;
+}
+
 export interface Election {
   election_id: number;
   title: string;
@@ -31,6 +36,10 @@ export interface Election {
   created_by: number;
   created_at: string;
   hasVoted?: boolean;
+  batch_start_year?: number;
+  batch_end_year?: number;
+  representatives_per_batch?: number;
+  designations?: Designation[];
 }
 
 export interface Candidate {
@@ -40,6 +49,11 @@ export interface Candidate {
   name?: string;
   bio?: string;
   post?: string;
+  phase?: number;
+  status?: 'pending' | 'approved' | 'rejected';
+  is_elected?: boolean;
+  email?: string;
+  batch_year?: number;
   created_at: string;
 }
 
@@ -48,6 +62,7 @@ export interface ElectionResult {
   candidate_name?: string;
   post?: string;
   votes: number;
+  batch_year?: number;
 }
 
 export type EventStatus = 'upcoming' | 'ongoing' | 'completed' | 'cancelled';

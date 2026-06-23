@@ -38,6 +38,10 @@ $migrations = @(
         File = "ms2-election/migrations/001_create_election_schema.sql"
     },
     @{
+        Service = "MS2 (Election Phases)"
+        File = "ms2-election/migrations/002_update_election_phases.sql"
+    },
+    @{
         Service = "MS3 (Events & Notices)"
         File = "ms3/migrations/001_create_content_schema.sql"
     },

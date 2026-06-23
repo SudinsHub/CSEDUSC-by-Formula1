@@ -22,7 +22,9 @@ type ElectionForm = {
   startTime: string;
   endTime: string;
   rules: string;
-  maxVotesPerUser: number;
+  batchStartYear: string;
+  batchEndYear: string;
+  representativesPerBatch: string;
 };
 
 function ElectionCard({ el }: { el: Election }) {
@@ -70,7 +72,8 @@ export default function ElectionsPage() {
   const [modal, setModal] = useState(false);
   const form = useForm<ElectionForm>({
     defaultValues: {
-      maxVotesPerUser: 1,
+      phase: '1',
+      representativesPerBatch: '5',
     },
   });
 
@@ -87,7 +90,10 @@ export default function ElectionsPage() {
         startTime: d.startTime,
         endTime: d.endTime,
         rules: d.rules,
-        maxVotesPerUser: Number(d.maxVotesPerUser),
+        maxVotesPerUser: Number(d.representativesPerBatch) || 5,
+        batchStartYear: Number(d.batchStartYear),
+        batchEndYear: Number(d.batchEndYear),
+        representativesPerBatch: Number(d.representativesPerBatch) || 5,
       }),
     onSuccess: () => {
       toast.success('Election created!');
@@ -164,10 +170,6 @@ export default function ElectionsPage() {
                 <input type="number" className="input" placeholder="1" min="1" max="2" {...form.register('phase', { required: true })} />
               </div>
               <div>
-                <label className="label">Max Votes Per User</label>
-                <input type="number" className="input" placeholder="1" min="1" {...form.register('maxVotesPerUser', { required: true })} />
-              </div>
-              <div className="col-span-2">
                 <label className="label">Rules (optional)</label>
                 <input className="input" placeholder="One vote per member" {...form.register('rules')} />
               </div>
@@ -178,6 +180,18 @@ export default function ElectionsPage() {
               <div>
                 <label className="label">End time</label>
                 <input type="datetime-local" className="input" {...form.register('endTime', { required: true })} />
+              </div>
+              <div>
+                <label className="label">Batch start year</label>
+                <input type="number" className="input" placeholder="2021" min="2000" max="2100" {...form.register('batchStartYear', { required: true })} />
+              </div>
+              <div>
+                <label className="label">Batch end year</label>
+                <input type="number" className="input" placeholder="2025" min="2000" max="2100" {...form.register('batchEndYear', { required: true })} />
+              </div>
+              <div className="col-span-2">
+                <label className="label">Representatives per batch (n)</label>
+                <input type="number" className="input" placeholder="5" min="1" {...form.register('representativesPerBatch', { required: true })} />
               </div>
             </div>
             <div className="flex gap-3 pt-2">

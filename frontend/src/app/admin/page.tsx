@@ -22,17 +22,41 @@ export default function AdminPage() {
   const [eventModal, setEventModal] = useState(false);
   const [noticeModal, setNoticeModal] = useState(false);
 
-  type ElectionForm = { title: string; phase: string; start_time: string; end_time: string; rules: string };
+  type ElectionForm = {
+    title: string;
+    phase: string;
+    startTime: string;
+    endTime: string;
+    rules: string;
+    batchStartYear: string;
+    batchEndYear: string;
+    representativesPerBatch: string;
+  };
   type EventForm = { title: string; description: string; event_date: string; location: string; volunteers_needed: string };
   type NoticeForm = { title: string; content: string; priority: string; expiry_date: string };
 
-  const elForm = useForm<ElectionForm>();
+  const elForm = useForm<ElectionForm>({
+    defaultValues: {
+      phase: '1',
+      representativesPerBatch: '5',
+    }
+  });
   const evForm = useForm<EventForm>();
   const noForm = useForm<NoticeForm>();
 
   const createElection = useMutation({
     mutationFn: (d: ElectionForm) =>
-      api.post('/api/elections', { title: d.title, phase: Number(d.phase), start_time: d.start_time, end_time: d.end_time, rules: d.rules }),
+      api.post('/api/elections', {
+        title: d.title,
+        phase: Number(d.phase),
+        startTime: d.startTime,
+        endTime: d.endTime,
+        rules: d.rules,
+        maxVotesPerUser: Number(d.representativesPerBatch) || 5,
+        batchStartYear: Number(d.batchStartYear),
+        batchEndYear: Number(d.batchEndYear),
+        representativesPerBatch: Number(d.representativesPerBatch) || 5,
+      }),
     onSuccess: () => { toast.success('Election created!'); setElectionModal(false); elForm.reset(); queryClient.invalidateQueries({ queryKey: ['elections'] }); },
     onError: (e) => toast.error(fmt(e)),
   });
@@ -127,7 +151,7 @@ export default function AdminPage() {
               </div>
               <div>
                 <label className="label">Phase</label>
-                <input type="number" className="input" placeholder="1" min="1" {...elForm.register('phase', { required: true })} />
+                <input type="number" className="input" placeholder="1" min="1" max="2" {...elForm.register('phase', { required: true })} />
               </div>
               <div>
                 <label className="label">Rules (optional)</label>
@@ -135,11 +159,23 @@ export default function AdminPage() {
               </div>
               <div>
                 <label className="label">Start time</label>
-                <input type="datetime-local" className="input" {...elForm.register('start_time', { required: true })} />
+                <input type="datetime-local" className="input" {...elForm.register('startTime', { required: true })} />
               </div>
               <div>
                 <label className="label">End time</label>
-                <input type="datetime-local" className="input" {...elForm.register('end_time', { required: true })} />
+                <input type="datetime-local" className="input" {...elForm.register('endTime', { required: true })} />
+              </div>
+              <div>
+                <label className="label">Batch start year</label>
+                <input type="number" className="input" placeholder="2021" min="2000" max="2100" {...elForm.register('batchStartYear', { required: true })} />
+              </div>
+              <div>
+                <label className="label">Batch end year</label>
+                <input type="number" className="input" placeholder="2025" min="2000" max="2100" {...elForm.register('batchEndYear', { required: true })} />
+              </div>
+              <div className="col-span-2">
+                <label className="label">Representatives per batch (n)</label>
+                <input type="number" className="input" placeholder="5" min="1" {...elForm.register('representativesPerBatch', { required: true })} />
               </div>
             </div>
             <div className="flex gap-3 pt-2">

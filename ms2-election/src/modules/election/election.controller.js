@@ -91,7 +91,8 @@ export const electionController = {
 
   async listCandidates(req, res) {
     try {
-      const candidates = await candidateService.listCandidates(parseInt(req.params.id));
+      const phase = req.query.phase ? parseInt(req.query.phase, 10) : null;
+      const candidates = await candidateService.listCandidates(parseInt(req.params.id), phase);
       res.json(candidates);
     } catch (err) {
       console.error('Error listing candidates:', err);
@@ -108,11 +109,11 @@ export const electionController = {
         return res.status(403).json({ error: 'Student access required' });
       }
 
-      const { candidateId } = req.body;
+      const { candidateIds } = req.body;
       const result = await voteService.castVote(
         parseInt(req.params.id),
         parseInt(userId),
-        candidateId
+        candidateIds.map(Number)
       );
 
       res.status(result.status).json({ message: result.message });
@@ -124,7 +125,8 @@ export const electionController = {
 
   async getResults(req, res) {
     try {
-      const result = await resultService.getResults(parseInt(req.params.id));
+      const phase = req.query.phase ? parseInt(req.query.phase, 10) : null;
+      const result = await resultService.getResults(parseInt(req.params.id), phase);
       
       if (result.status !== 200) {
         return res.status(result.status).json({ message: result.message });
@@ -188,6 +190,70 @@ export const electionController = {
       res.json(candidate);
     } catch (err) {
       console.error('Error updating candidate:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+  async getPhase1Winners(req, res) {
+    try {
+      const winners = await electionService.getPhase1Winners(parseInt(req.params.id));
+      res.json(winners);
+    } catch (err) {
+      console.error('Error getting Phase 1 winners:', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+  async transitionToPhase2(req, res) {
+    try {
+      const userRole = req.headers['x-user-role'];
+      if (userRole !== 'Administrator') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const election = await electionService.transitionToPhase2(parseInt(req.params.id), req.body);
+      res.json(election);
+    } catch (err) {
+      console.error('Error transitioning to Phase 2:', err.message || err);
+      res.status(500).json({ error: err.message || 'Internal server error' });
+    }
+  },
+
+  async applyNominationOrDesignation(req, res) {
+    try {
+      const userId = req.headers['x-user-id'];
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized: User ID missing' });
+      }
+
+      const { bio, designation } = req.body;
+      const candidate = await candidateService.applyNominationOrDesignation(
+        parseInt(req.params.id),
+        parseInt(userId, 10),
+        bio,
+        designation
+      );
+      res.status(201).json(candidate);
+    } catch (err) {
+      console.error('Error applying for nomination/designation:', err.message || err);
+      res.status(500).json({ error: err.message || 'Internal server error' });
+    }
+  },
+
+  async updateCandidateStatus(req, res) {
+    try {
+      const userRole = req.headers['x-user-role'];
+      if (userRole !== 'Administrator') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const candidate = await candidateService.updateCandidateStatus(
+        parseInt(req.params.candidateId),
+        req.body.status
+      );
+      res.json(candidate);
+    } catch (err) {
+      console.error('Error updating candidate status:', err);
       res.status(500).json({ error: 'Internal server error' });
     }
   },
