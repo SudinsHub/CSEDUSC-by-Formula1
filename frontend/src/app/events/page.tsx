@@ -17,25 +17,55 @@ import Navbar from '@/components/layout/Navbar';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Event } from '@/types';
 
-type EventForm = { title: string; description: string; event_date: string; location: string; volunteers_needed: string };
+type EventForm = { 
+  title: string; 
+  description: string; 
+  event_date: string; 
+  location: string; 
+  volunteers_needed: string;
+  registration_fee: string;
+};
 
-function EventCard({ ev }: { ev: Event }) {
+interface ExtendedEvent extends Event {
+  banner_image_path?: string;
+  banner_image_id?: number | null;
+  registration_fee?: number;
+}
+
+function EventCard({ ev }: { ev: ExtendedEvent }) {
+  const bannerUrl = ev.banner_image_path 
+    ? `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4005'}/api/media/${ev.banner_image_id}/file`
+    : null;
+
   return (
-    <Link href={`/events/${ev.event_id}`} className="card p-5 flex flex-col gap-3 hover:border-gold-300">
+    <Link href={`/events/${ev.event_id}`} className="card p-5 flex flex-col gap-3 hover:border-gold-300 transition-all duration-200">
+      {bannerUrl && (
+        <div className="w-full h-32 rounded-lg overflow-hidden border border-gray-150 bg-gray-100 mb-1">
+          <img src={bannerUrl} alt={ev.title} className="w-full h-full object-cover" />
+        </div>
+      )}
       <div className="flex items-start justify-between gap-3">
         <h3 className="font-semibold text-navy-800 leading-snug flex-1">{ev.title}</h3>
         <Badge label={ev.status} status={ev.status} />
       </div>
       {ev.description && <p className="text-sm text-gray-500 line-clamp-2">{ev.description}</p>}
-      <div className="flex flex-wrap gap-3 text-xs text-gray-500">
-        <span className="flex items-center gap-1">
-          <CalendarDays className="w-3.5 h-3.5" /> {formatDate(ev.event_date)}
-        </span>
-        {ev.location && (
+      <div className="flex flex-wrap justify-between items-center text-xs text-gray-500 mt-2">
+        <div className="flex flex-wrap gap-3">
           <span className="flex items-center gap-1">
-            <MapPin className="w-3.5 h-3.5" /> {ev.location}
+            <CalendarDays className="w-3.5 h-3.5" /> {formatDate(ev.event_date)}
           </span>
-        )}
+          {ev.location && (
+            <span className="flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5" /> {ev.location}
+            </span>
+          )}
+        </div>
+        <span className={cn(
+          "font-semibold px-2 py-0.5 rounded",
+          ev.registration_fee && ev.registration_fee > 0 ? "text-gold-700 bg-gold-50" : "text-green-700 bg-green-50"
+        )}>
+          {ev.registration_fee && ev.registration_fee > 0 ? `৳ ${ev.registration_fee}` : 'Free'}
+        </span>
       </div>
     </Link>
   );
@@ -47,24 +77,60 @@ export default function EventsPage() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<string>('all');
   const [modal, setModal] = useState(false);
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const form = useForm<EventForm>();
 
   const { data: events, isLoading } = useQuery({
     queryKey: ['events'],
-    queryFn: () => api.get<Event[]>('/api/events').then((r) => r.data),
+    queryFn: () => api.get<ExtendedEvent[]>('/api/events').then((r) => r.data),
   });
 
   const createEvent = useMutation({
-    mutationFn: (d: EventForm) =>
-      api.post('/api/events', { title: d.title, description: d.description, event_date: d.event_date, location: d.location, volunteers_needed: Number(d.volunteers_needed) || 0 }),
+    mutationFn: (d: EventForm & { banner_image_id?: number | null }) =>
+      api.post('/api/events', { 
+        title: d.title, 
+        description: d.description, 
+        event_date: d.event_date, 
+        location: d.location, 
+        volunteers_needed: Number(d.volunteers_needed) || 0,
+        registration_fee: Number(d.registration_fee) || 0,
+        banner_image_id: d.banner_image_id || null
+      }),
     onSuccess: () => {
       toast.success('Event created!');
       setModal(false);
+      setBannerFile(null);
       form.reset();
       queryClient.invalidateQueries({ queryKey: ['events'] });
     },
     onError: (e) => toast.error(getErrorMessage(e)),
   });
+
+  const handleFormSubmit = async (d: EventForm) => {
+    setIsSubmitting(true);
+    try {
+      let bannerImageId: number | null = null;
+      
+      // First upload the banner image if present
+      if (bannerFile) {
+        const formData = new FormData();
+        formData.append('file', bannerFile);
+        
+        const uploadRes = await api.post<{ media_id: number }>('/api/media/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        bannerImageId = uploadRes.data.media_id;
+      }
+      
+      await createEvent.mutateAsync({ ...d, banner_image_id: bannerImageId });
+    } catch (err) {
+      console.error('[Event Creation Error]', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const filtered = (events ?? []).filter((e) => {
     const matchSearch = e.title.toLowerCase().includes(search.toLowerCase());
@@ -74,7 +140,7 @@ export default function EventsPage() {
 
   const createModal = (
     <Modal open={modal} onClose={() => setModal(false)} title="Create Event" size="lg">
-      <form onSubmit={form.handleSubmit((d) => createEvent.mutate(d))} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
         <div>
           <label className="label">Event title</label>
           <input className="input" placeholder="Annual Alumni Reunion 2026" {...form.register('title', { required: true })} />
@@ -96,11 +162,27 @@ export default function EventsPage() {
             <label className="label">Volunteers needed</label>
             <input type="number" className="input" placeholder="0" min="0" {...form.register('volunteers_needed')} />
           </div>
+          <div>
+            <label className="label">Registration Fee (TK)</label>
+            <input type="number" className="input" placeholder="0" min="0" {...form.register('registration_fee')} />
+          </div>
+        </div>
+        <div>
+          <label className="label">Banner Image (Optional)</label>
+          <input 
+            type="file" 
+            accept="image/*" 
+            className="input" 
+            onChange={(e) => setBannerFile(e.target.files?.[0] || null)} 
+          />
+          <p className="text-xs text-amber-600 mt-1 font-medium bg-amber-50 p-2 rounded border border-amber-150">
+            ⚠ Recommendation: Please upload a banner image maintaining a 3:1 aspect ratio (e.g., 1200x400 pixels) to ensure it fits perfectly without cropping.
+          </p>
         </div>
         <div className="flex gap-3 pt-2">
-          <button type="button" onClick={() => setModal(false)} className="flex-1 btn-outline">Cancel</button>
-          <button type="submit" disabled={createEvent.isPending} className="flex-1 btn-gold">
-            {createEvent.isPending ? 'Creating…' : 'Create Event'}
+          <button type="button" onClick={() => setModal(false)} className="flex-1 btn-outline" disabled={isSubmitting}>Cancel</button>
+          <button type="submit" disabled={isSubmitting} className="flex-1 btn-gold">
+            {isSubmitting ? 'Uploading & Creating…' : 'Create Event'}
           </button>
         </div>
       </form>

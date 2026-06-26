@@ -4,11 +4,13 @@ import { config } from './config.js';
 import eventRoutes from './modules/event/event.routes.js';
 import noticeRoutes from './modules/notice/notice.routes.js';
 import mediaRoutes from './modules/media/media.routes.js';
+import { extractUser } from './middleware/extractUser.js';
 
 const app = express();
 const startTime = Date.now();
 
 app.use(express.json());
+app.use(extractUser);
 
 // ── Health check ──────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => {

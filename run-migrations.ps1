@@ -46,8 +46,16 @@ $migrations = @(
         File = "ms3/migrations/001_create_content_schema.sql"
     },
     @{
+        Service = "MS3 (Events Add banner/fee)"
+        File = "ms3/migrations/002_add_banner_image_and_fee.sql"
+    },
+    @{
         Service = "MS4 (Finance & Logs)"
         File = "ms4-finance-notification-log/migrations/001_create_finance_schema.sql"
+    },
+    @{
+        Service = "MS4 (Finance Add transactions)"
+        File = "ms4-finance-notification-log/migrations/002_create_transactions.sql"
     }
 )
 

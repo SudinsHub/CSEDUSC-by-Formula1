@@ -15,7 +15,7 @@ export const create = async (req, res) => {
 
 export const list = async (req, res) => {
   try {
-    const events = await eventService.list();
+    const events = await eventService.list(req.userId);
     res.status(200).json(events);
   } catch (err) {
     console.error('[event/list]', err);
@@ -25,7 +25,7 @@ export const list = async (req, res) => {
 
 export const getById = async (req, res) => {
   try {
-    const event = await eventService.getById(parseInt(req.params.id, 10));
+    const event = await eventService.getById(parseInt(req.params.id, 10), req.userId);
     res.status(200).json(event);
   } catch (err) {
     if (err.status) return res.status(err.status).json({ error: err.message });
@@ -64,7 +64,8 @@ export const registerAttendee = async (req, res) => {
   try {
     const registration = await eventService.registerAttendee(
       parseInt(req.params.id, 10),
-      req.userId
+      req.userId,
+      req.body
     );
     res.status(201).json(registration);
   } catch (err) {

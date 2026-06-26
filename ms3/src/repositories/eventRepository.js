@@ -2,8 +2,8 @@ import { query } from '../db.js';
 
 export const insert = async (data) => {
   const sql = `
-    INSERT INTO events (title, description, event_date, location, volunteers_needed, status, created_by)
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    INSERT INTO events (title, description, event_date, location, volunteers_needed, status, created_by, banner_image_id, registration_fee)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     RETURNING *
   `;
   const values = [
@@ -14,33 +14,67 @@ export const insert = async (data) => {
     data.volunteers_needed || 0,
     data.status || 'open',
     data.created_by,
+    data.banner_image_id || null,
+    data.registration_fee || 0.00,
   ];
   const result = await query(sql, values);
   return result.rows[0];
 };
 
-export const findAll = async () => {
+export const findAll = async (userId = null) => {
   const sql = `
     SELECT e.*, 
+           m.file_path as banner_image_path,
            (SELECT COUNT(*) FROM event_registrations WHERE event_id = e.event_id AND type = 'attendee') as attendee_count,
            (SELECT COUNT(*) FROM event_registrations WHERE event_id = e.event_id AND type = 'volunteer' AND status = 'approved') as volunteer_count
+           ${userId ? `, (
+             SELECT json_build_object(
+               'registration_id', er.registration_id,
+               'type', er.type,
+               'status', er.status,
+               'registered_at', er.registered_at,
+               'payment_status', COALESCE(t.payment_status, 'pending'),
+               'transaction_reference', t.transaction_reference
+             )
+             FROM event_registrations er
+             LEFT JOIN finance.transactions t ON t.purpose = 'event_registration' AND t.target_id = er.registration_id
+             WHERE er.event_id = e.event_id AND er.user_id = $1
+             LIMIT 1
+           ) as user_registration` : ''}
     FROM events e
+    LEFT JOIN media m ON e.banner_image_id = m.media_id
     WHERE e.status != 'cancelled'
     ORDER BY e.event_date DESC
   `;
-  const result = await query(sql);
+  const result = await query(sql, userId ? [userId] : []);
   return result.rows;
 };
 
-export const findById = async (id) => {
+export const findById = async (id, userId = null) => {
   const sql = `
     SELECT e.*,
+           m.file_path as banner_image_path,
            (SELECT COUNT(*) FROM event_registrations WHERE event_id = e.event_id AND type = 'attendee') as attendee_count,
            (SELECT COUNT(*) FROM event_registrations WHERE event_id = e.event_id AND type = 'volunteer' AND status = 'approved') as volunteer_count
+           ${userId ? `, (
+             SELECT json_build_object(
+               'registration_id', er.registration_id,
+               'type', er.type,
+               'status', er.status,
+               'registered_at', er.registered_at,
+               'payment_status', COALESCE(t.payment_status, 'pending'),
+               'transaction_reference', t.transaction_reference
+             )
+             FROM event_registrations er
+             LEFT JOIN finance.transactions t ON t.purpose = 'event_registration' AND t.target_id = er.registration_id
+             WHERE er.event_id = e.event_id AND er.user_id = $2
+             LIMIT 1
+           ) as user_registration` : ''}
     FROM events e
+    LEFT JOIN media m ON e.banner_image_id = m.media_id
     WHERE e.event_id = $1
   `;
-  const result = await query(sql, [id]);
+  const result = await query(sql, userId ? [id, userId] : [id]);
   return result.rows[0];
 };
 
@@ -68,6 +102,14 @@ export const update = async (id, data) => {
   if (data.volunteers_needed !== undefined) {
     fields.push(`volunteers_needed = $${paramCount++}`);
     values.push(data.volunteers_needed);
+  }
+  if (data.registration_fee !== undefined) {
+    fields.push(`registration_fee = $${paramCount++}`);
+    values.push(data.registration_fee);
+  }
+  if (data.banner_image_id !== undefined) {
+    fields.push(`banner_image_id = $${paramCount++}`);
+    values.push(data.banner_image_id);
   }
 
   if (fields.length === 0) {

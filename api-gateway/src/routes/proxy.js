@@ -97,6 +97,11 @@ router.get('/api/notices/*path',   optionalVerifyJWT, createProxyMiddleware(prox
 router.post('/api/notices',        verifyJWT, createProxyMiddleware(proxyOptions(config.ms3Url)));
 router.post('/api/notices/*path',  verifyJWT, createProxyMiddleware(proxyOptions(config.ms3Url)));
 
+// Media
+router.get('/api/media',           optionalVerifyJWT, createProxyMiddleware(proxyOptions(config.ms3Url)));
+router.get('/api/media/*path',      optionalVerifyJWT, createProxyMiddleware(proxyOptions(config.ms3Url)));
+router.post('/api/media/*path',     verifyJWT, createProxyMiddleware(proxyOptions(config.ms3Url)));
+
 // ---------------------------------------------------------------------------
 // MS4 — Finance, Notifications & Logging  (http://localhost:3004)
 // ---------------------------------------------------------------------------

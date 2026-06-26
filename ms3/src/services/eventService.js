@@ -20,12 +20,12 @@ export const create = async (data, createdBy) => {
   return event;
 };
 
-export const list = async () => {
-  return await eventRepository.findAll();
+export const list = async (userId = null) => {
+  return await eventRepository.findAll(userId);
 };
 
-export const getById = async (id) => {
-  const event = await eventRepository.findById(id);
+export const getById = async (id, userId = null) => {
+  const event = await eventRepository.findById(id, userId);
   if (!event) {
     const error = new Error('Event not found');
     error.status = 404;
@@ -76,7 +76,7 @@ export const cancel = async (id, userId) => {
   return cancelled;
 };
 
-export const registerAttendee = async (eventId, userId) => {
+export const registerAttendee = async (eventId, userId, paymentData = null) => {
   const event = await eventRepository.findById(eventId);
   if (!event) {
     const error = new Error('Event not found');
@@ -98,7 +98,22 @@ export const registerAttendee = async (eventId, userId) => {
     throw error;
   }
 
-  const registration = await eventRegistrationRepository.insert(eventId, userId, 'attendee');
+  let paymentDetails = null;
+  if (event.registration_fee > 0) {
+    if (!paymentData || !paymentData.transaction_reference || !paymentData.payment_method) {
+      const error = new Error('Payment reference and method are required for this event');
+      error.status = 400;
+      throw error;
+    }
+    paymentDetails = {
+      amount: event.registration_fee,
+      payment_status: 'paid',
+      payment_method: paymentData.payment_method,
+      transaction_reference: paymentData.transaction_reference,
+    };
+  }
+
+  const registration = await eventRegistrationRepository.insert(eventId, userId, 'attendee', paymentDetails);
 
   // Emit notification
   await emitNotification('event.registered', {

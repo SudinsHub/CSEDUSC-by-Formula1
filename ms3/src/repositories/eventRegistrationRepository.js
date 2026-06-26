@@ -1,6 +1,6 @@
 import { query } from '../db.js';
 
-export const insert = async (eventId, userId, type) => {
+export const insert = async (eventId, userId, type, paymentDetails = null) => {
   const sql = `
     INSERT INTO event_registrations (event_id, user_id, type, status, registered_at)
     VALUES ($1, $2, $3, $4, NOW())
@@ -8,7 +8,24 @@ export const insert = async (eventId, userId, type) => {
   `;
   const status = type === 'volunteer' ? 'pending' : 'approved';
   const result = await query(sql, [eventId, userId, type, status]);
-  return result.rows[0];
+  const registration = result.rows[0];
+
+  if (paymentDetails && type === 'attendee') {
+    const txSql = `
+      INSERT INTO finance.transactions (user_id, amount, payment_status, payment_method, transaction_reference, purpose, target_id)
+      VALUES ($1, $2, $3, $4, $5, 'event_registration', $6)
+    `;
+    await query(txSql, [
+      userId,
+      paymentDetails.amount,
+      paymentDetails.payment_status || 'paid',
+      paymentDetails.payment_method,
+      paymentDetails.transaction_reference,
+      registration.registration_id
+    ]);
+  }
+
+  return registration;
 };
 
 export const findByEvent = async (eventId) => {
@@ -16,9 +33,14 @@ export const findByEvent = async (eventId) => {
     SELECT er.*, 
            u.name as user_name, 
            u.email as user_email,
-           u.batch_year
+           u.batch_year,
+           t.payment_status,
+           t.transaction_reference,
+           t.payment_method,
+           t.amount as paid_amount
     FROM event_registrations er
     LEFT JOIN auth.users u ON er.user_id = u.user_id
+    LEFT JOIN finance.transactions t ON t.purpose = 'event_registration' AND t.target_id = er.registration_id
     WHERE er.event_id = $1
     ORDER BY er.registered_at DESC
   `;
