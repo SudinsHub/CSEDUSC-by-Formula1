@@ -23,7 +23,16 @@ export const save = async (file) => {
   const filepath = path.join(dir, filename);
   
   // Move file from temp location to final destination
-  fs.renameSync(file.path, filepath);
+  try {
+    fs.renameSync(file.path, filepath);
+  } catch (err) {
+    if (err.code === 'EXDEV') {
+      fs.copyFileSync(file.path, filepath);
+      fs.unlinkSync(file.path);
+    } else {
+      throw err;
+    }
+  }
   
   // Return relative path for database storage
   return path.join(String(year), month, filename);

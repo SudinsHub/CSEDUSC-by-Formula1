@@ -2,7 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { ArrowLeft, CalendarDays, MapPin, Users, UserCheck, Share2, Copy, Check, DollarSign } from 'lucide-react';
 import api from '@/lib/api';
@@ -15,6 +16,15 @@ import DashboardSidebar from '@/components/layout/DashboardSidebar';
 import type { Event, EventRegistration } from '@/types';
 
 function fmt(err: unknown) { return getErrorMessage(err as { message?: string }); }
+
+type EventForm = { 
+  title: string; 
+  description: string; 
+  event_date: string; 
+  location: string; 
+  volunteers_needed: string;
+  registration_fee: string;
+};
 
 interface ExtendedEvent extends Event {
   banner_image_path?: string;
@@ -30,18 +40,35 @@ interface ExtendedEvent extends Event {
   };
 }
 
+const toDatetimeLocal = (isoString?: string) => {
+  if (!isoString) return '';
+  const d = new Date(isoString);
+  const tzOffset = d.getTimezoneOffset() * 60000;
+  const localISOTime = (new Date(d.getTime() - tzOffset)).toISOString().slice(0, 16);
+  return localISOTime;
+};
+
 export default function EventDetailClient({ id }: { id: string }) {
   const router = useRouter();
   const { user, isEcMember, isAdmin } = useAuth();
   const queryClient = useQueryClient();
+  
+  // Modal States
   const [regConfirmModal, setRegConfirmModal] = useState(false);
   const [paymentModal, setPaymentModal] = useState(false);
   const [volModal, setVolModal] = useState(false);
   const [shareModal, setShareModal] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+  const [cancelConfirmModal, setCancelConfirmModal] = useState(false);
   
   // Payment Form States
   const [paymentMethod, setPaymentMethod] = useState('bkash');
   const [txRef, setTxRef] = useState('');
+  
+  // Edit Form States
+  const [editBannerFile, setEditBannerFile] = useState<File | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const editForm = useForm<EventForm>();
 
   const { data: event, isLoading } = useQuery({
     queryKey: ['event', id],
@@ -53,6 +80,20 @@ export default function EventDetailClient({ id }: { id: string }) {
     queryFn: () => api.get<any[]>(`/api/events/${id}/registrations`).then((r) => r.data),
     enabled: isEcMember || isAdmin,
   });
+
+  // Load event details into edit form
+  useEffect(() => {
+    if (event) {
+      editForm.reset({
+        title: event.title,
+        description: event.description || '',
+        event_date: toDatetimeLocal(event.event_date),
+        location: event.location || '',
+        volunteers_needed: String(event.volunteers_needed || 0),
+        registration_fee: String(event.registration_fee || 0),
+      });
+    }
+  }, [event, editForm]);
 
   const registerMutation = useMutation({
     mutationFn: (body?: { payment_method?: string; transaction_reference?: string } | undefined) => 
@@ -90,6 +131,38 @@ export default function EventDetailClient({ id }: { id: string }) {
     onError: (e) => toast.error(fmt(e)),
   });
 
+  const updateEventMutation = useMutation({
+    mutationFn: (d: any) =>
+      api.patch(`/api/events/${id}`, {
+        title: d.title,
+        description: d.description,
+        event_date: d.event_date,
+        location: d.location,
+        volunteers_needed: Number(d.volunteers_needed) || 0,
+        registration_fee: Number(d.registration_fee) || 0,
+        banner_image_id: d.banner_image_id !== undefined ? d.banner_image_id : undefined,
+      }),
+    onSuccess: () => {
+      toast.success('Event updated successfully!');
+      setEditModal(false);
+      setEditBannerFile(null);
+      queryClient.invalidateQueries({ queryKey: ['event', id] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+    },
+    onError: (e) => toast.error(fmt(e)),
+  });
+
+  const cancelEventMutation = useMutation({
+    mutationFn: () => api.delete(`/api/events/${id}`),
+    onSuccess: () => {
+      toast.success('Event cancelled successfully!');
+      setCancelConfirmModal(false);
+      queryClient.invalidateQueries({ queryKey: ['event', id] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+    },
+    onError: (e) => toast.error(fmt(e)),
+  });
+
   if (isLoading) return <div className="flex min-h-screen bg-gray-50"><DashboardSidebar /><LoadingSpinner className="flex-1" /></div>;
   if (!event) return null;
 
@@ -117,6 +190,26 @@ export default function EventDetailClient({ id }: { id: string }) {
       payment_method: paymentMethod,
       transaction_reference: txRef
     });
+  };
+
+  const handleEditSubmit = async (d: EventForm) => {
+    setIsUpdating(true);
+    try {
+      let bannerImageId = undefined;
+      if (editBannerFile) {
+        const formData = new FormData();
+        formData.append('file', editBannerFile);
+        const uploadRes = await api.post<{ media_id: number }>('/api/media/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        bannerImageId = uploadRes.data.media_id;
+      }
+      await updateEventMutation.mutateAsync({ ...d, banner_image_id: bannerImageId });
+    } catch (err) {
+      console.error('[Event Update Error]', err);
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   // Centered share dialog
@@ -262,6 +355,20 @@ export default function EventDetailClient({ id }: { id: string }) {
               )}
             </div>
           )}
+
+          {/* Admin Edit/Cancel Buttons */}
+          {(isEcMember || isAdmin) && (
+            <div className="flex flex-wrap gap-3 mt-6 pt-6 border-t border-gray-150">
+              <button onClick={() => setEditModal(true)} className="btn-outline bg-navy-800 hover:bg-navy-950 text-gold-400 font-medium px-4 py-2 rounded flex items-center gap-2">
+                Edit Event
+              </button>
+              {event.status !== 'cancelled' && (
+                <button onClick={() => setCancelConfirmModal(true)} className="btn-outline border-red-200 hover:border-red-500 hover:bg-red-50 text-red-600 font-medium px-4 py-2 rounded flex items-center gap-2">
+                  Cancel Event
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Registrations (EC only) */}
@@ -403,6 +510,67 @@ export default function EventDetailClient({ id }: { id: string }) {
             <button onClick={() => setVolModal(false)} className="flex-1 btn-outline">Cancel</button>
             <button onClick={() => volunteerMutation.mutate()} disabled={volunteerMutation.isPending} className="flex-1 btn-gold">
               {volunteerMutation.isPending ? 'Applying...' : 'Apply'}
+            </button>
+          </div>
+        </Modal>
+
+        {/* Edit Event Modal */}
+        <Modal open={editModal} onClose={() => setEditModal(false)} title="Edit Event Details" size="lg">
+          <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-4">
+            <div>
+              <label className="label">Event title</label>
+              <input className="input" placeholder="Annual Alumni Reunion 2026" {...editForm.register('title', { required: true })} />
+            </div>
+            <div>
+              <label className="label">Description</label>
+              <textarea className="input min-h-20 resize-none" placeholder="Event details…" {...editForm.register('description')} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="label">Event date & time</label>
+                <input type="datetime-local" className="input" {...editForm.register('event_date', { required: true })} />
+              </div>
+              <div>
+                <label className="label">Location</label>
+                <input className="input" placeholder="DU Campus, TSC" {...editForm.register('location')} />
+              </div>
+              <div>
+                <label className="label">Volunteers needed</label>
+                <input type="number" className="input" placeholder="0" min="0" {...editForm.register('volunteers_needed')} />
+              </div>
+              <div>
+                <label className="label">Registration Fee (TK)</label>
+                <input type="number" className="input" placeholder="0" min="0" {...editForm.register('registration_fee')} />
+              </div>
+            </div>
+            <div>
+              <label className="label">Banner Image (Optional - Replace existing)</label>
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="input" 
+                onChange={(e) => setEditBannerFile(e.target.files?.[0] || null)} 
+              />
+              <p className="text-xs text-amber-600 mt-1 font-medium bg-amber-50 p-2 rounded border border-amber-150">
+                ⚠ Recommendation: Please upload a banner image maintaining a 3:1 aspect ratio (e.g., 1200x400 pixels) to ensure it fits perfectly without cropping.
+              </p>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button type="button" onClick={() => setEditModal(false)} className="flex-1 btn-outline" disabled={isUpdating}>Cancel</button>
+              <button type="submit" disabled={isUpdating} className="flex-1 btn-gold">
+                {isUpdating ? 'Saving changes…' : 'Save Changes'}
+              </button>
+            </div>
+          </form>
+        </Modal>
+
+        {/* Cancel Event Modal */}
+        <Modal open={cancelConfirmModal} onClose={() => setCancelConfirmModal(false)} title="Cancel Event" size="sm">
+          <p className="text-gray-600 mb-6">Are you sure you want to cancel this event? This action will set the status to <strong>cancelled</strong> and notify registered attendees.</p>
+          <div className="flex gap-3">
+            <button onClick={() => setCancelConfirmModal(false)} className="flex-1 btn-outline">Go back</button>
+            <button onClick={() => cancelEventMutation.mutate()} disabled={cancelEventMutation.isPending} className="flex-1 btn-gold bg-red-600 hover:bg-red-700 text-white border-red-600">
+              {cancelEventMutation.isPending ? 'Cancelling...' : 'Confirm Cancel'}
             </button>
           </div>
         </Modal>
