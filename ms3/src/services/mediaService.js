@@ -48,3 +48,22 @@ export const streamFile = async (id, res, download = false) => {
   const media = await getById(id);
   fileStorageService.stream(media.file_path, res, download);
 };
+
+export const remove = async (id, userId) => {
+  const media = await getById(id);
+  // Delete file from disk
+  fileStorageService.deleteFile(media.file_path);
+  // Delete database record
+  const deleted = await mediaRepository.remove(id);
+
+  await emitAudit({
+    actor: userId,
+    action: 'media.deleted',
+    target: 'media',
+    targetId: id,
+    details: { file_path: media.file_path },
+  });
+
+  return deleted;
+};
+

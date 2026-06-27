@@ -39,3 +39,18 @@ export const streamFile = async (req, res) => {
   }
 };
 
+export const remove = async (req, res) => {
+  try {
+    const deleted = await mediaService.remove(
+      parseInt(req.params.id, 10),
+      req.userId
+    );
+    res.status(200).json(deleted);
+  } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
+    console.error('[media/delete]', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+

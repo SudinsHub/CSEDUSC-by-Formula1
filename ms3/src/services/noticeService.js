@@ -67,3 +67,22 @@ export const update = async (id, data, userId) => {
   return await getById(id);
 };
 
+export const remove = async (id, userId) => {
+  const notice = await noticeRepository.findById(id);
+  if (!notice) {
+    const error = new Error('Notice not found');
+    error.status = 404;
+    throw error;
+  }
+  const deleted = await noticeRepository.remove(id);
+  await emitAudit({
+    actor: userId,
+    action: 'notice.deleted',
+    target: 'notice',
+    targetId: id,
+    details: { title: notice.title },
+  });
+  return deleted;
+};
+
+

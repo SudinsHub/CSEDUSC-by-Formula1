@@ -15,5 +15,6 @@ router.get('/:id', noticeController.getById);
 // EC/Admin routes
 router.post('/', requireRole(EC_ADMIN), validate(createNoticeSchema), noticeController.publish);
 router.patch('/:id', requireRole(EC_ADMIN), validate(updateNoticeSchema), noticeController.update);
+router.delete('/:id', requireRole(EC_ADMIN), noticeController.remove);
 
 export default router;

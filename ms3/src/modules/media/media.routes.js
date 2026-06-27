@@ -40,5 +40,6 @@ router.get('/:id/file', mediaController.streamFile);
 
 // EC/Admin routes
 router.post('/upload', requireRole(EC_ADMIN), upload.single('file'), mediaController.upload);
+router.delete('/:id', requireRole(EC_ADMIN), mediaController.remove);
 
 export default router;

@@ -10,10 +10,8 @@ import { cn } from '@/lib/utils';
 type NavItem = { label: string; href: string };
 
 const publicNav = [
-  { label: 'Elections', href: '/elections' },
   { label: 'Events', href: '/events' },
   { label: 'Notices', href: '/notices' },
-  { label: 'Members', href: '/alumni' },
   { label: 'About Us', href: '/about' },
 ];
 
@@ -27,16 +25,6 @@ export default function Navbar() {
     <header className="bg-navy-900 text-white sticky top-0 z-50 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 flex-shrink-0">
-            <div className="w-10 h-10 bg-gold-500 rounded-lg flex items-center justify-center">
-              <span className="text-navy-900 font-black text-sm">SC</span>
-            </div>
-            <div className="hidden sm:block">
-              <div className="text-sm font-bold text-gold-400 leading-tight">STUDENTS'</div>
-              <div className="text-xs text-gray-400 leading-tight">CLUB</div>
-            </div>
-          </Link>
 
           {/* Desktop nav */}
           <nav className="hidden lg:flex items-center gap-1">

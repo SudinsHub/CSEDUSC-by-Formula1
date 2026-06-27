@@ -105,3 +105,10 @@ export const update = async (id, data) => {
   const result = await query(sql, values);
   return result.rows[0];
 };
+
+export const remove = async (id) => {
+  const sql = 'DELETE FROM notices WHERE notice_id = $1 RETURNING *';
+  const result = await query(sql, [id]);
+  return result.rows[0];
+};
+

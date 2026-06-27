@@ -67,4 +67,11 @@ export const unlinkFromNotice = async (noticeId) => {
   await query(sql, [noticeId]);
 };
 
+export const remove = async (id) => {
+  const sql = 'DELETE FROM media WHERE media_id = $1 RETURNING *';
+  const result = await query(sql, [id]);
+  return result.rows[0];
+};
+
+
 
