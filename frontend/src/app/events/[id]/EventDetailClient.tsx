@@ -13,6 +13,7 @@ import Badge from '@/components/ui/Badge';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Modal from '@/components/ui/Modal';
 import DashboardSidebar from '@/components/layout/DashboardSidebar';
+import SearchInput from '@/components/ui/SearchInput';
 import type { Event, EventRegistration } from '@/types';
 
 function fmt(err: unknown) { return getErrorMessage(err as { message?: string }); }
@@ -66,11 +67,12 @@ export default function EventDetailClient({ id }: { id: string }) {
   // Admin Registration Filter State
   const [registrationFilter, setRegistrationFilter] = useState<'all' | 'attendee' | 'volunteer'>('all');
   const [registrationPage, setRegistrationPage] = useState(1);
+  const [regSearchTerm, setRegSearchTerm] = useState('');
   const PAGE_SIZE = 10;
 
   useEffect(() => {
     setRegistrationPage(1);
-  }, [registrationFilter]);
+  }, [registrationFilter, regSearchTerm]);
 
   // Payment Form States
   const [paymentMethod, setPaymentMethod] = useState('bkash');
@@ -390,7 +392,11 @@ export default function EventDetailClient({ id }: { id: string }) {
         {/* Registrations (EC only) */}
         {isEcMember && registrations && registrations.length > 0 && (() => {
           const filteredRegistrations = registrations.filter((r) => {
-            return registrationFilter === 'all' || r.type === registrationFilter;
+            const matchesType = registrationFilter === 'all' || r.type === registrationFilter;
+            const matchesSearch = !regSearchTerm.trim() ||
+              (r.user_name || '').toLowerCase().includes(regSearchTerm.toLowerCase()) ||
+              (r.user_email || '').toLowerCase().includes(regSearchTerm.toLowerCase());
+            return matchesType && matchesSearch;
           });
 
           const totalPages = Math.ceil(filteredRegistrations.length / PAGE_SIZE);
@@ -401,24 +407,34 @@ export default function EventDetailClient({ id }: { id: string }) {
 
           return (
             <div className="card p-6">
-              <div className="flex flex-wrap items-center justify-between gap-4 mb-5 pb-4 border-b border-gray-100">
-                <h2 className="font-semibold text-navy-800">Registrations ({filteredRegistrations.length})</h2>
-                <div className="flex gap-2">
-                  {['all', 'attendee', 'volunteer'].map((type) => (
-                    <button
-                      key={type}
-                      type="button"
-                      onClick={() => setRegistrationFilter(type as any)}
-                      className={cn(
-                        "px-3 py-1.5 text-xs font-semibold rounded-lg border capitalize transition-all",
-                        registrationFilter === type
-                          ? "bg-navy-800 text-gold-400 border-navy-800"
-                          : "border-gray-200 text-gray-600 hover:border-navy-400"
-                      )}
-                    >
-                      {type === 'all' ? 'All Types' : type + 's'}
-                    </button>
-                  ))}
+              <div className="flex flex-col gap-4 mb-5 pb-4 border-b border-gray-100">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <h2 className="font-semibold text-navy-800">Registrations ({filteredRegistrations.length})</h2>
+                  <div className="flex gap-2">
+                    {['all', 'attendee', 'volunteer'].map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setRegistrationFilter(type as any)}
+                        className={cn(
+                          "px-3 py-1.5 text-xs font-semibold rounded-lg border capitalize transition-all",
+                          registrationFilter === type
+                            ? "bg-navy-800 text-gold-400 border-navy-800"
+                            : "border-gray-200 text-gray-600 hover:border-navy-400"
+                        )}
+                      >
+                        {type === 'all' ? 'All Types' : type + 's'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="max-w-md">
+                  <SearchInput
+                    value={regSearchTerm}
+                    onChange={setRegSearchTerm}
+                    placeholder="Search registrations by name or email..."
+                    className="text-xs"
+                  />
                 </div>
               </div>
               <div className="overflow-x-auto">

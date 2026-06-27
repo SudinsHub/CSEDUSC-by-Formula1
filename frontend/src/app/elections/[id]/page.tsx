@@ -12,6 +12,7 @@ import Badge from '@/components/ui/Badge';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Modal from '@/components/ui/Modal';
 import DashboardSidebar from '@/components/layout/DashboardSidebar';
+import SearchInput from '@/components/ui/SearchInput';
 import type { Election, Candidate, ElectionResult, User, Designation } from '@/types';
 
 function formatErrorMessage(err: unknown): string {
@@ -74,6 +75,15 @@ export default function ElectionDetailPage() {
   const [selectedWinnersUserIds, setSelectedWinnersUserIds] = useState<number[]>([]);
   const [additionalCandidateUserIds, setAdditionalCandidateUserIds] = useState<number[]>([]);
   const [userSearchTerm, setUserSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [selectedUserObjects, setSelectedUserObjects] = useState<Record<number, User>>({});
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(userSearchTerm);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [userSearchTerm]);
 
   // Phase 2 Candidate Apply states
   const [applyDesignationModalOpen, setApplyDesignationModalOpen] = useState(false);
@@ -120,9 +130,9 @@ export default function ElectionDetailPage() {
   });
 
   // Fetch active users for adding candidates
-  const { data: users } = useQuery({
-    queryKey: ['activeUsers'],
-    queryFn: () => api.get<{ users: User[] }>('/api/users?status=ACTIVE&limit=100').then((r) => r.data.users),
+  const { data: users, isLoading: isUsersLoading } = useQuery({
+    queryKey: ['activeUsers', debouncedSearchTerm],
+    queryFn: () => api.get<{ users: User[] }>(`/api/users?status=ACTIVE&search=${encodeURIComponent(debouncedSearchTerm)}&limit=50`).then((r) => r.data.users),
     enabled: isAdmin && (candidateModalOpen || transitionModalOpen),
   });
 
@@ -334,12 +344,8 @@ export default function ElectionDetailPage() {
     (u) => !allCandidates?.some((c) => c.user_id === Number(u.userId))
   ) ?? [];
 
-  // Filter users based on search query in Transition panel
-  const transitionSelectableUsers = selectableUsers.filter(
-    (u) => u.name.toLowerCase().includes(userSearchTerm.toLowerCase()) || 
-           u.email.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
-           (u.batchYear && String(u.batchYear).includes(userSearchTerm))
-  );
+  // Filter users based on search query (now backend-driven, so use directly)
+  const transitionSelectableUsers = selectableUsers;
 
   // Multi-vote selection helper for Phase 1
   const toggleCandidateSelection = (candidateId: number) => {
@@ -1303,13 +1309,13 @@ export default function ElectionDetailPage() {
               {/* Additional Candidates Search & Add */}
               <div>
                 <p className="text-xs font-semibold text-gray-500 mb-1.5">Add Additional Candidates (from total users):</p>
-                <div className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    className="input text-xs"
-                    placeholder="Search users by name, email, or batch..."
+                <div className="mb-2">
+                  <SearchInput
                     value={userSearchTerm}
-                    onChange={(e) => setUserSearchTerm(e.target.value)}
+                    onChange={setUserSearchTerm}
+                    isLoading={isUsersLoading}
+                    placeholder="Search users by name, email, or batch..."
+                    className="text-xs"
                   />
                 </div>
 
@@ -1328,6 +1334,7 @@ export default function ElectionDetailPage() {
                                   setAdditionalCandidateUserIds(additionalCandidateUserIds.filter(id => id !== Number(u.userId)));
                                 } else {
                                   setAdditionalCandidateUserIds([...additionalCandidateUserIds, Number(u.userId)]);
+                                  setSelectedUserObjects(prev => ({ ...prev, [Number(u.userId)]: u }));
                                 }
                               }}
                               className={cn(
@@ -1352,7 +1359,7 @@ export default function ElectionDetailPage() {
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1">Selected Additional Candidates:</p>
                     <div className="flex flex-wrap gap-1.5">
                       {additionalCandidateUserIds.map((userId) => {
-                        const userObj = users?.find(u => Number(u.userId) === userId);
+                        const userObj = selectedUserObjects[userId] || users?.find(u => Number(u.userId) === userId);
                         return (
                           <span key={userId} className="inline-flex items-center gap-1 bg-navy-50 text-navy-800 text-[10px] font-semibold px-2 py-1 rounded-lg border border-navy-100">
                             {userObj?.name || `User ID ${userId}`}

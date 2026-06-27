@@ -48,7 +48,7 @@ const features = [
 
 const recentNotices = [
   { title: 'EC Election Phase 3 Voting Now Open', date: 'May 5, 2026', priority: 'urgent' },
-  { title: 'Annual Club Picnic 2026 — Registrations Open', date: 'Apr 28, 2026', priority: 'high' },
+  { title: 'Annual Club Picnic 2026 — Registrations Open', date: 'Apr 28, 2026', priority: 'normal' },
   { title: 'Workshop on Web Development — May 15', date: 'Apr 20, 2026', priority: 'normal' },
 ];
 
@@ -188,8 +188,7 @@ export default function HomePage() {
               <div key={n.title} className="card p-5 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
-                    n.priority === 'urgent' ? 'bg-red-500' :
-                    n.priority === 'high' ? 'bg-orange-500' : 'bg-blue-500'
+                    n.priority === 'urgent' ? 'bg-red-500' : 'bg-blue-500'
                   }`} />
                   <div>
                     <p className="font-medium text-gray-800">{n.title}</p>

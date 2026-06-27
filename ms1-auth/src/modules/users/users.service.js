@@ -3,7 +3,7 @@ import { query } from '../../db.js';
 const VALID_STATUSES = ['PENDING', 'ACTIVE', 'REJECTED', 'REVOKED'];
 const VALID_ROLES = ['GeneralStudent', 'ECMember', 'Administrator'];
 
-export const listUsers = async ({ status, role, page, limit }) => {
+export const listUsers = async ({ status, role, page, limit, search }) => {
   const conditions = [];
   const params = [];
 
@@ -15,6 +15,11 @@ export const listUsers = async ({ status, role, page, limit }) => {
   if (role && VALID_ROLES.includes(role)) {
     params.push(role);
     conditions.push(`role = $${params.length}`);
+  }
+
+  if (search && typeof search === 'string' && search.trim() !== '') {
+    params.push(`%${search.trim()}%`);
+    conditions.push(`(name ILIKE $${params.length} OR email ILIKE $${params.length} OR registration_no ILIKE $${params.length})`);
   }
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';

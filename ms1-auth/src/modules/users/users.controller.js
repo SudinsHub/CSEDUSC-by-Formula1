@@ -4,9 +4,9 @@ export const listUsers = async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page || '1', 10));
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit || '20', 10)));
-    const { status, role } = req.query;
+    const { status, role, search } = req.query;
 
-    const result = await usersService.listUsers({ status, role, page, limit });
+    const result = await usersService.listUsers({ status, role, page, limit, search });
     res.status(200).json(result);
   } catch (err) {
     console.error('[users/list]', err);

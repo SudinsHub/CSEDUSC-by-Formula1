@@ -19,13 +19,12 @@ import type { Notice } from '@/types';
 
 type NoticeForm = { title: string; content: string; priority: string; expiry_date: string };
 
-const priorityOrder: Record<string, number> = { urgent: 0, high: 1, normal: 2, low: 3 };
+const priorityOrder: Record<string, number> = { urgent: 0, normal: 1, low: 2 };
 
 function NoticeCard({ n }: { n: Notice }) {
   return (
     <div className={cn('card p-5 border-l-4',
       n.priority === 'urgent' ? 'border-l-red-500' :
-      n.priority === 'high' ? 'border-l-orange-500' :
       n.priority === 'normal' ? 'border-l-blue-500' : 'border-l-gray-300'
     )}>
       <div className="flex items-start justify-between gap-4 mb-2">
@@ -91,7 +90,6 @@ export default function NoticesPage() {
             <select className="input" {...form.register('priority', { required: true })}>
               <option value="low">Low</option>
               <option value="normal">Normal</option>
-              <option value="high">High</option>
               <option value="urgent">Urgent</option>
             </select>
           </div>
@@ -132,7 +130,7 @@ export default function NoticesPage() {
           <input type="text" placeholder="Search notices…" className="input pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <div className="flex gap-2">
-          {['all', 'urgent', 'high', 'normal', 'low'].map((p) => (
+          {['all', 'urgent', 'normal', 'low'].map((p) => (
             <button key={p} onClick={() => setPriority(p)}
               className={cn('px-3 py-2 text-sm font-medium rounded-lg border capitalize transition-all',
                 priority === p ? 'bg-navy-800 text-gold-400 border-navy-800' : 'border-gray-200 text-gray-600 hover:border-navy-400'

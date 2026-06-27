@@ -91,7 +91,7 @@ export interface EventRegistration {
   email?: string;
 }
 
-export type NoticePriority = 'low' | 'normal' | 'high' | 'urgent';
+export type NoticePriority = 'low' | 'normal' | 'urgent';
 
 export interface Notice {
   notice_id: number;
