@@ -12,6 +12,7 @@ import DashboardSidebar from '@/components/layout/DashboardSidebar';
 import Modal from '@/components/ui/Modal';
 import EmptyState from '@/components/ui/EmptyState';
 import { getErrorMessage } from '@/lib/utils';
+import PublishNoticeModal from '@/components/PublishNoticeModal';
 
 function fmt(e: unknown) { return getErrorMessage(e as { message?: string }); }
 
@@ -42,7 +43,6 @@ export default function AdminPage() {
     }
   });
   const evForm = useForm<EventForm>();
-  const noForm = useForm<NoticeForm>();
 
   const createElection = useMutation({
     mutationFn: (d: ElectionForm) =>
@@ -68,11 +68,7 @@ export default function AdminPage() {
     onError: (e) => toast.error(fmt(e)),
   });
 
-  const createNotice = useMutation({
-    mutationFn: (d: NoticeForm) => api.post('/api/notices', d),
-    onSuccess: () => { toast.success('Notice published!'); setNoticeModal(false); noForm.reset(); queryClient.invalidateQueries({ queryKey: ['notices'] }); },
-    onError: (e) => toast.error(fmt(e)),
-  });
+
 
   if (!isAdmin && !isEcMember) {
     return (
@@ -222,38 +218,7 @@ export default function AdminPage() {
         </Modal>
 
         {/* Notice Modal */}
-        <Modal open={noticeModal} onClose={() => setNoticeModal(false)} title="Publish Notice" size="md">
-          <form onSubmit={noForm.handleSubmit((d) => createNotice.mutate(d))} className="space-y-4">
-            <div>
-              <label className="label">Title</label>
-              <input className="input" placeholder="Important announcement" {...noForm.register('title', { required: true })} />
-            </div>
-            <div>
-              <label className="label">Content</label>
-              <textarea className="input min-h-24 resize-none" placeholder="Notice content..." {...noForm.register('content', { required: true })} />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="label">Priority</label>
-                <select className="input" {...noForm.register('priority', { required: true })}>
-                  <option value="low">Low</option>
-                  <option value="normal">Normal</option>
-                  <option value="urgent">Urgent</option>
-                </select>
-              </div>
-              <div>
-                <label className="label">Expiry date (optional)</label>
-                <input type="date" className="input" {...noForm.register('expiry_date')} />
-              </div>
-            </div>
-            <div className="flex gap-3 pt-2">
-              <button type="button" onClick={() => setNoticeModal(false)} className="flex-1 btn-outline">Cancel</button>
-              <button type="submit" disabled={createNotice.isPending} className="flex-1 btn-gold">
-                {createNotice.isPending ? 'Publishing...' : 'Publish Notice'}
-              </button>
-            </div>
-          </form>
-        </Modal>
+        <PublishNoticeModal open={noticeModal} onClose={() => setNoticeModal(false)} />
       </main>
     </div>
   );

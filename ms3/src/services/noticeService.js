@@ -1,11 +1,17 @@
 import * as noticeRepository from '../repositories/noticeRepository.js';
+import * as mediaRepository from '../repositories/mediaRepository.js';
 import { emitAudit } from '../queues/index.js';
 
 export const publish = async (data, authorId) => {
+  const { attachments, ...noticeData } = data;
   const notice = await noticeRepository.insert({
-    ...data,
+    ...noticeData,
     created_by: authorId,
   });
+
+  if (attachments && attachments.length > 0) {
+    await mediaRepository.linkToNotice(notice.notice_id, attachments);
+  }
 
   await emitAudit({
     actor: authorId,
@@ -15,7 +21,7 @@ export const publish = async (data, authorId) => {
     details: { title: notice.title, priority: notice.priority },
   });
 
-  return notice;
+  return await getById(notice.notice_id);
 };
 
 export const list = async () => {
@@ -40,7 +46,15 @@ export const update = async (id, data, userId) => {
     throw error;
   }
 
-  const updated = await noticeRepository.update(id, data);
+  const { attachments, ...noticeData } = data;
+  const updated = await noticeRepository.update(id, noticeData);
+
+  if (attachments !== undefined) {
+    await mediaRepository.unlinkFromNotice(id);
+    if (attachments.length > 0) {
+      await mediaRepository.linkToNotice(id, attachments);
+    }
+  }
 
   await emitAudit({
     actor: userId,
@@ -50,5 +64,6 @@ export const update = async (id, data, userId) => {
     details: { changes: data },
   });
 
-  return updated;
+  return await getById(id);
 };
+

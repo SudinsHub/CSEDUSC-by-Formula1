@@ -48,3 +48,23 @@ export const findById = async (id) => {
   const result = await query(sql, [id]);
   return result.rows[0];
 };
+
+export const linkToNotice = async (noticeId, mediaIds) => {
+  const sql = `
+    UPDATE media
+    SET notice_id = $1
+    WHERE media_id = ANY($2::int[])
+  `;
+  await query(sql, [noticeId, mediaIds]);
+};
+
+export const unlinkFromNotice = async (noticeId) => {
+  const sql = `
+    UPDATE media
+    SET notice_id = NULL
+    WHERE notice_id = $1
+  `;
+  await query(sql, [noticeId]);
+};
+
+

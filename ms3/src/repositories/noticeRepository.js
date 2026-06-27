@@ -20,10 +20,22 @@ export const insert = async (data) => {
 export const findAllActive = async () => {
   const sql = `
     SELECT n.*,
-           u.name as author_name
+           u.name as author_name,
+           COALESCE(
+             json_agg(
+               json_build_object(
+                 'media_id', m.media_id,
+                 'file_path', m.file_path,
+                 'file_type', m.file_type
+               )
+             ) FILTER (WHERE m.media_id IS NOT NULL),
+             '[]'::json
+           ) as attachments
     FROM notices n
     LEFT JOIN auth.users u ON n.created_by = u.user_id
-    WHERE (n.expiry_date IS NULL OR n.expiry_date > CURRENT_DATE)
+    LEFT JOIN media m ON m.notice_id = n.notice_id
+    WHERE (n.expiry_date IS NULL OR n.expiry_date >= CURRENT_DATE)
+    GROUP BY n.notice_id, u.name
     ORDER BY 
       CASE n.priority
         WHEN 'urgent' THEN 1
@@ -40,14 +52,27 @@ export const findById = async (id) => {
   const sql = `
     SELECT n.*,
            u.name as author_name,
-           u.email as author_email
+           u.email as author_email,
+           COALESCE(
+             json_agg(
+               json_build_object(
+                 'media_id', m.media_id,
+                 'file_path', m.file_path,
+                 'file_type', m.file_type
+               )
+             ) FILTER (WHERE m.media_id IS NOT NULL),
+             '[]'::json
+           ) as attachments
     FROM notices n
     LEFT JOIN auth.users u ON n.created_by = u.user_id
+    LEFT JOIN media m ON m.notice_id = n.notice_id
     WHERE n.notice_id = $1
+    GROUP BY n.notice_id, u.name, u.email
   `;
   const result = await query(sql, [id]);
   return result.rows[0];
 };
+
 
 export const update = async (id, data) => {
   const fields = [];

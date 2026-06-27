@@ -42,7 +42,7 @@ export const buildPath = (relativePath) => {
   return path.join(config.upload.dir, relativePath);
 };
 
-export const stream = (filePath, res) => {
+export const stream = (filePath, res, download = false) => {
   const fullPath = buildPath(filePath);
   
   if (!fs.existsSync(fullPath)) {
@@ -65,10 +65,11 @@ export const stream = (filePath, res) => {
   };
   
   const contentType = mimeTypes[ext] || 'application/octet-stream';
+  const disposition = download ? 'attachment' : 'inline';
   
   res.setHeader('Content-Type', contentType);
   res.setHeader('Content-Length', stat.size);
-  res.setHeader('Content-Disposition', `inline; filename="${path.basename(fullPath)}"`);
+  res.setHeader('Content-Disposition', `${disposition}; filename="${path.basename(fullPath)}"`);
   
   const readStream = fs.createReadStream(fullPath);
   readStream.pipe(res);

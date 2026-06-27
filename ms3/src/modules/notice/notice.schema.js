@@ -5,6 +5,7 @@ export const createNoticeSchema = Joi.object({
   content: Joi.string().required(),
   priority: Joi.string().valid('low', 'normal', 'urgent').default('normal'),
   expiry_date: Joi.date().iso().allow(null),
+  attachments: Joi.array().items(Joi.number().integer()).optional(),
 });
 
 export const updateNoticeSchema = Joi.object({
@@ -12,4 +13,6 @@ export const updateNoticeSchema = Joi.object({
   content: Joi.string(),
   priority: Joi.string().valid('low', 'normal', 'urgent'),
   expiry_date: Joi.date().iso().allow(null),
+  attachments: Joi.array().items(Joi.number().integer()).optional(),
 }).min(1);
+

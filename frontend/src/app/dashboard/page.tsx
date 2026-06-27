@@ -13,6 +13,7 @@ import Badge from '@/components/ui/Badge';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Modal from '@/components/ui/Modal';
 import type { Election, Event, Notice } from '@/types';
+import PublishNoticeModal from '@/components/PublishNoticeModal';
 
 function fmt(e: unknown) { return getErrorMessage(e); }
 
@@ -64,7 +65,6 @@ export default function DashboardPage() {
 
   const elForm = useForm<ElectionForm>();
   const evForm = useForm<EventForm>();
-  const noForm = useForm<NoticeForm>();
 
   const { data: elections, isLoading: elLoading } = useQuery({
     queryKey: ['elections'],
@@ -95,11 +95,7 @@ export default function DashboardPage() {
     onError: (e) => toast.error(fmt(e)),
   });
 
-  const createNotice = useMutation({
-    mutationFn: (d: NoticeForm) => api.post('/api/notices', d),
-    onSuccess: () => { toast.success('Notice published!'); setNoticeModal(false); noForm.reset(); queryClient.invalidateQueries({ queryKey: ['notices'] }); },
-    onError: (e) => toast.error(fmt(e)),
-  });
+
 
   const upcomingEvents = events?.filter((e) => e.status === 'open') ?? [];
   const recentNotices = notices?.slice(0, 3) ?? [];
@@ -347,38 +343,7 @@ export default function DashboardPage() {
       </Modal>
 
       {/* Publish Notice Modal */}
-      <Modal open={noticeModal} onClose={() => setNoticeModal(false)} title="Publish Notice" size="md">
-        <form onSubmit={noForm.handleSubmit((d) => createNotice.mutate(d))} className="space-y-4">
-          <div>
-            <label className="label">Title</label>
-            <input className="input" placeholder="Important announcement" {...noForm.register('title', { required: true })} />
-          </div>
-          <div>
-            <label className="label">Content</label>
-            <textarea className="input min-h-24 resize-none" placeholder="Notice content…" {...noForm.register('content', { required: true })} />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="label">Priority</label>
-              <select className="input" {...noForm.register('priority', { required: true })}>
-                <option value="low">Low</option>
-                <option value="normal">Normal</option>
-                <option value="urgent">Urgent</option>
-              </select>
-            </div>
-            <div>
-              <label className="label">Expiry date (optional)</label>
-              <input type="date" className="input" {...noForm.register('expiry_date')} />
-            </div>
-          </div>
-          <div className="flex gap-3 pt-2">
-            <button type="button" onClick={() => setNoticeModal(false)} className="flex-1 btn-outline">Cancel</button>
-            <button type="submit" disabled={createNotice.isPending} className="flex-1 btn-gold">
-              {createNotice.isPending ? 'Publishing…' : 'Publish Notice'}
-            </button>
-          </div>
-        </form>
-      </Modal>
+      <PublishNoticeModal open={noticeModal} onClose={() => setNoticeModal(false)} />
     </div>
   );
 }

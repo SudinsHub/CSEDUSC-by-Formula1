@@ -44,7 +44,7 @@ export const getById = async (id) => {
   return media;
 };
 
-export const streamFile = async (id, res) => {
+export const streamFile = async (id, res, download = false) => {
   const media = await getById(id);
-  fileStorageService.stream(media.file_path, res);
+  fileStorageService.stream(media.file_path, res, download);
 };

@@ -30,10 +30,12 @@ export const list = async (req, res) => {
 
 export const streamFile = async (req, res) => {
   try {
-    await mediaService.streamFile(parseInt(req.params.id, 10), res);
+    const download = req.query.download === 'true';
+    await mediaService.streamFile(parseInt(req.params.id, 10), res, download);
   } catch (err) {
     if (err.status) return res.status(err.status).json({ error: err.message });
     console.error('[media/streamFile]', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+

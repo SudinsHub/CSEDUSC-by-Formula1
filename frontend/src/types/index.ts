@@ -93,6 +93,12 @@ export interface EventRegistration {
 
 export type NoticePriority = 'low' | 'normal' | 'urgent';
 
+export interface Attachment {
+  media_id: number;
+  file_path: string;
+  file_type: string;
+}
+
 export interface Notice {
   notice_id: number;
   title: string;
@@ -101,6 +107,8 @@ export interface Notice {
   expiry_date?: string;
   created_by: number;
   published_at: string;
+  author_name?: string;
+  attachments?: Attachment[];
 }
 
 export type BudgetStatus = 'pending' | 'approved' | 'rejected';
