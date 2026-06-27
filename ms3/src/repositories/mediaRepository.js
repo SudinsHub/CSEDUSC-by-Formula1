@@ -2,8 +2,8 @@ import { query } from '../db.js';
 
 export const insert = async (data) => {
   const sql = `
-    INSERT INTO media (file_path, file_type, event_id, notice_id, uploaded_by, uploaded_at)
-    VALUES ($1, $2, $3, $4, $5, NOW())
+    INSERT INTO media (file_path, file_type, event_id, notice_id, gallery_id, uploaded_by, uploaded_at)
+    VALUES ($1, $2, $3, $4, $5, $6, NOW())
     RETURNING *
   `;
   const values = [
@@ -11,6 +11,7 @@ export const insert = async (data) => {
     data.file_type,
     data.event_id || null,
     data.notice_id || null,
+    data.gallery_id || null,
     data.uploaded_by,
   ];
   const result = await query(sql, values);
@@ -22,11 +23,13 @@ export const findAll = async () => {
     SELECT m.*,
            u.name as uploader_name,
            e.title as event_title,
-           n.title as notice_title
+           n.title as notice_title,
+           g.title as gallery_title
     FROM media m
     LEFT JOIN auth.users u ON m.uploaded_by = u.user_id
     LEFT JOIN events e ON m.event_id = e.event_id
     LEFT JOIN notices n ON m.notice_id = n.notice_id
+    LEFT JOIN gallery g ON m.gallery_id = g.gallery_id
     ORDER BY m.uploaded_at DESC
   `;
   const result = await query(sql);
@@ -38,11 +41,13 @@ export const findById = async (id) => {
     SELECT m.*,
            u.name as uploader_name,
            e.title as event_title,
-           n.title as notice_title
+           n.title as notice_title,
+           g.title as gallery_title
     FROM media m
     LEFT JOIN auth.users u ON m.uploaded_by = u.user_id
     LEFT JOIN events e ON m.event_id = e.event_id
     LEFT JOIN notices n ON m.notice_id = n.notice_id
+    LEFT JOIN gallery g ON m.gallery_id = g.gallery_id
     WHERE m.media_id = $1
   `;
   const result = await query(sql, [id]);
@@ -65,6 +70,24 @@ export const unlinkFromNotice = async (noticeId) => {
     WHERE notice_id = $1
   `;
   await query(sql, [noticeId]);
+};
+
+export const linkToGallery = async (galleryId, mediaIds) => {
+  const sql = `
+    UPDATE media
+    SET gallery_id = $1
+    WHERE media_id = ANY($2::int[])
+  `;
+  await query(sql, [galleryId, mediaIds]);
+};
+
+export const unlinkFromGallery = async (galleryId) => {
+  const sql = `
+    UPDATE media
+    SET gallery_id = NULL
+    WHERE gallery_id = $1
+  `;
+  await query(sql, [galleryId]);
 };
 
 export const remove = async (id) => {

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Vote, CalendarDays, Bell, Wallet,
-  Users, FileText, LogOut, ChevronLeft, ChevronRight
+  Users, FileText, LogOut, ChevronLeft, ChevronRight, Image
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -15,6 +15,7 @@ const navItems = [
   { label: 'Elections', href: '/elections', icon: Vote, roles: ['GeneralStudent', 'ECMember', 'Administrator'] },
   { label: 'Events', href: '/events', icon: CalendarDays, roles: ['GeneralStudent', 'ECMember', 'Administrator'] },
   { label: 'Notices', href: '/notices', icon: Bell, roles: ['GeneralStudent', 'ECMember', 'Administrator'] },
+  { label: 'Gallery', href: '/gallery', icon: Image, roles: ['GeneralStudent', 'ECMember', 'Administrator'] },
   { label: 'Finance', href: '/finance', icon: Wallet, roles: ['ECMember', 'Administrator'] },
   { label: 'Users', href: '/admin/users', icon: Users, roles: ['ECMember', 'Administrator'] },
   { label: 'Logs', href: '/admin/logs', icon: FileText, roles: ['Administrator'] },

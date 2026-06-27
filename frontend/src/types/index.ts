@@ -160,3 +160,19 @@ export interface PaginatedResponse<T> {
     totalPages: number;
   };
 }
+
+export interface GalleryImage {
+  media_id: number;
+  file_path: string;
+  file_type: string;
+}
+
+export interface GalleryEntry {
+  gallery_id: number;
+  title: string;
+  content: string;
+  created_by: number;
+  created_at: string;
+  author_name?: string;
+  images?: GalleryImage[];
+}

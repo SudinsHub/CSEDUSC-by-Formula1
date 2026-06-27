@@ -4,6 +4,7 @@ import { config } from './config.js';
 import eventRoutes from './modules/event/event.routes.js';
 import noticeRoutes from './modules/notice/notice.routes.js';
 import mediaRoutes from './modules/media/media.routes.js';
+import galleryRoutes from './modules/gallery/gallery.routes.js';
 import { extractUser } from './middleware/extractUser.js';
 
 const app = express();
@@ -25,6 +26,7 @@ app.get('/health', (_req, res) => {
 app.use('/api/events', eventRoutes);
 app.use('/api/notices', noticeRoutes);
 app.use('/api/media', mediaRoutes);
+app.use('/api/gallery', galleryRoutes);
 
 // ── 404 fallback ──────────────────────────────────────────────────────────────
 app.use((_req, res) => {

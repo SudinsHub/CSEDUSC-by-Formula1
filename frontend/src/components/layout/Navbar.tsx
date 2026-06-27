@@ -12,6 +12,7 @@ type NavItem = { label: string; href: string };
 const publicNav = [
   { label: 'Events', href: '/events' },
   { label: 'Notices', href: '/notices' },
+  { label: 'Gallery', href: '/gallery' },
   { label: 'About Us', href: '/about' },
 ];
 

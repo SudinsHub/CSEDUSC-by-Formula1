@@ -33,6 +33,7 @@ declare -a migrations=(
     "ms2-election/migrations/002_update_election_phases.sql:MS2 (Election Phases)"
     "ms3/migrations/001_create_content_schema.sql:MS3 (Events & Notices)"
     "ms3/migrations/002_add_banner_image_and_fee.sql:MS3 (Events Add banner/fee)"
+    "ms3/migrations/003_create_gallery_schema.sql:MS3 (Gallery creation)"
     "ms4-finance-notification-log/migrations/001_create_finance_schema.sql:MS4 (Finance & Logs)"
     "ms4-finance-notification-log/migrations/002_create_transactions.sql:MS4 (Finance Add transactions)"
 )

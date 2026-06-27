@@ -50,6 +50,10 @@ $migrations = @(
         File = "ms3/migrations/002_add_banner_image_and_fee.sql"
     },
     @{
+        Service = "MS3 (Gallery creation)"
+        File = "ms3/migrations/003_create_gallery_schema.sql"
+    },
+    @{
         Service = "MS4 (Finance & Logs)"
         File = "ms4-finance-notification-log/migrations/001_create_finance_schema.sql"
     },
