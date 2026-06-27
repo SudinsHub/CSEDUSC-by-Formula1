@@ -56,11 +56,13 @@ export default function EventDetailClient({ id }: { id: string }) {
   // Modal States
   const [regConfirmModal, setRegConfirmModal] = useState(false);
   const [paymentModal, setPaymentModal] = useState(false);
-  const [volModal, setVolModal] = useState(false);
   const [shareModal, setShareModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [cancelConfirmModal, setCancelConfirmModal] = useState(false);
   
+  // Registration Flow Checkbox
+  const [isVolunteer, setIsVolunteer] = useState(false);
+
   // Payment Form States
   const [paymentMethod, setPaymentMethod] = useState('bkash');
   const [txRef, setTxRef] = useState('');
@@ -99,10 +101,11 @@ export default function EventDetailClient({ id }: { id: string }) {
     mutationFn: (body?: { payment_method?: string; transaction_reference?: string } | undefined) => 
       api.post(`/api/events/${id}/register`, body || {}),
     onSuccess: () => { 
-      toast.success('Registered as attendee!'); 
+      toast.success('Registered successfully!'); 
       setRegConfirmModal(false); 
       setPaymentModal(false);
       setTxRef('');
+      setIsVolunteer(false);
       queryClient.invalidateQueries({ queryKey: ['event', id] }); 
       queryClient.invalidateQueries({ queryKey: ['registrations', id] });
     },
@@ -113,7 +116,9 @@ export default function EventDetailClient({ id }: { id: string }) {
     mutationFn: () => api.post(`/api/events/${id}/volunteer`),
     onSuccess: () => { 
       toast.success('Volunteer application submitted!'); 
-      setVolModal(false); 
+      setRegConfirmModal(false); 
+      setPaymentModal(false);
+      setIsVolunteer(false);
       queryClient.invalidateQueries({ queryKey: ['event', id] });
       queryClient.invalidateQueries({ queryKey: ['registrations', id] });
     },
@@ -166,13 +171,14 @@ export default function EventDetailClient({ id }: { id: string }) {
   if (isLoading) return <div className="flex min-h-screen bg-gray-50"><DashboardSidebar /><LoadingSpinner className="flex-1" /></div>;
   if (!event) return null;
 
-  const isUpcoming = event.status === 'upcoming';
+  const isOpen = event.status === 'open';
   const hasFee = event.registration_fee && event.registration_fee > 0;
   const bannerUrl = event.banner_image_path 
     ? `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4005'}/api/media/${event.banner_image_id}/file`
     : null;
 
   const handleRegisterClick = () => {
+    setIsVolunteer(false);
     if (hasFee) {
       setPaymentModal(true);
     } else {
@@ -182,6 +188,10 @@ export default function EventDetailClient({ id }: { id: string }) {
 
   const handlePayAndRegister = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isVolunteer) {
+      volunteerMutation.mutate();
+      return;
+    }
     if (!txRef.trim()) {
       toast.error('Transaction reference is required');
       return;
@@ -342,17 +352,11 @@ export default function EventDetailClient({ id }: { id: string }) {
             </div>
           )}
 
-          {isUpcoming && user && !event.user_registration && (
+          {isOpen && user && !event.user_registration && (
             <div className="flex flex-wrap gap-3 mt-6">
               <button onClick={handleRegisterClick} className="btn-primary flex items-center gap-2">
-                <UserCheck className="w-4 h-4" /> 
-                {hasFee ? 'Proceed to Payment' : 'Register as Attendee'}
+                <UserCheck className="w-4 h-4" /> Register for Event
               </button>
-              {event.volunteers_needed && event.volunteers_needed > 0 && (
-                <button onClick={() => setVolModal(true)} className="btn-outline flex items-center gap-2">
-                  <Users className="w-4 h-4" /> Apply as Volunteer
-                </button>
-              )}
             </div>
           )}
 
@@ -440,78 +444,123 @@ export default function EventDetailClient({ id }: { id: string }) {
 
         {/* Free Registration Modal */}
         <Modal open={regConfirmModal} onClose={() => setRegConfirmModal(false)} title="Confirm Registration" size="sm">
-          <p className="text-gray-600 mb-6">Register as an attendee for <strong>{event.title}</strong>?</p>
-          <div className="flex gap-3">
-            <button onClick={() => setRegConfirmModal(false)} className="flex-1 btn-outline">Cancel</button>
-            <button onClick={() => registerMutation.mutate(undefined)} disabled={registerMutation.isPending} className="flex-1 btn-gold">
-              {registerMutation.isPending ? 'Registering...' : 'Register'}
-            </button>
+          <div className="space-y-4">
+            <p className="text-gray-600">Register for <strong>{event.title}</strong>?</p>
+            
+            {event.volunteers_needed && event.volunteers_needed > 0 ? (
+              <label className="flex items-center gap-2 mt-4 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isVolunteer}
+                  onChange={(e) => setIsVolunteer(e.target.checked)}
+                  className="rounded border-gray-300 text-gold-600 focus:ring-gold-500"
+                />
+                <span className="text-sm text-gray-700">Register as a volunteer instead of attendee</span>
+              </label>
+            ) : null}
+
+            <div className="flex gap-3 pt-2">
+              <button type="button" onClick={() => setRegConfirmModal(false)} className="flex-1 btn-outline">Cancel</button>
+              <button 
+                type="button"
+                onClick={() => {
+                  if (isVolunteer) {
+                    volunteerMutation.mutate();
+                  } else {
+                    registerMutation.mutate(undefined);
+                  }
+                }} 
+                disabled={registerMutation.isPending || volunteerMutation.isPending} 
+                className="flex-1 btn-gold"
+              >
+                {registerMutation.isPending || volunteerMutation.isPending ? 'Registering...' : 'Register'}
+              </button>
+            </div>
           </div>
         </Modal>
 
         {/* Mock Payment Wizard Modal */}
         <Modal open={paymentModal} onClose={() => setPaymentModal(false)} title="Proceed to Payment" size="md">
           <form onSubmit={handlePayAndRegister} className="space-y-4">
-            <div className="p-4 rounded-lg bg-gold-50 border border-gold-200">
-              <p className="text-sm text-gold-900 font-semibold flex justify-between">
-                <span>Amount Due:</span>
-                <span>৳ {event.registration_fee}</span>
-              </p>
-            </div>
+            {event.volunteers_needed && event.volunteers_needed > 0 ? (
+              <label className="flex items-center gap-2 mb-4 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isVolunteer}
+                  onChange={(e) => setIsVolunteer(e.target.checked)}
+                  className="rounded border-gray-300 text-gold-600 focus:ring-gold-500"
+                />
+                <span className="text-sm font-medium text-navy-800">Register as a volunteer instead (waives registration fee, subject to approval)</span>
+              </label>
+            ) : null}
 
-            <div>
-              <label className="label">Payment Provider</label>
-              <div className="grid grid-cols-3 gap-3">
-                {['bkash', 'nagad', 'card'].map((method) => (
-                  <button
-                    key={method}
-                    type="button"
-                    onClick={() => setPaymentMethod(method)}
-                    className={`p-3 text-center border rounded-lg capitalize font-medium transition ${
-                      paymentMethod === method
-                        ? 'border-gold-500 bg-gold-50 text-gold-800'
-                        : 'border-gray-200 hover:border-navy-200'
-                    }`}
-                  >
-                    {method}
-                  </button>
-                ))}
+            {isVolunteer ? (
+              <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
+                <p className="text-sm text-blue-900">
+                  You are applying as a volunteer for this event. No fee is required. Your application will be sent to the administrator for review.
+                </p>
               </div>
-            </div>
+            ) : (
+              <>
+                <div className="p-4 rounded-lg bg-gold-50 border border-gold-200">
+                  <p className="text-sm text-gold-900 font-semibold flex justify-between">
+                    <span>Amount Due:</span>
+                    <span>৳ {event.registration_fee}</span>
+                  </p>
+                </div>
 
-            <div>
-              <label className="label">Transaction Reference / ID</label>
-              <input
-                type="text"
-                placeholder="e.g. TRx93J10K2Z"
-                className="input"
-                value={txRef}
-                onChange={(e) => setTxRef(e.target.value)}
-                required
-              />
-              <p className="text-xs text-gray-400 mt-1">
-                This is a mock checkout wizard. Please enter any transaction ID to verify payment.
-              </p>
-            </div>
+                <div>
+                  <label className="label">Payment Provider</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {['bkash', 'nagad', 'card'].map((method) => (
+                      <button
+                        key={method}
+                        type="button"
+                        onClick={() => setPaymentMethod(method)}
+                        className={`p-3 text-center border rounded-lg capitalize font-medium transition ${
+                          paymentMethod === method
+                            ? 'border-gold-500 bg-gold-50 text-gold-800'
+                            : 'border-gray-200 hover:border-navy-200'
+                        }`}
+                      >
+                        {method}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="label">Transaction Reference / ID</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. TRx93J10K2Z"
+                    className="input"
+                    value={txRef}
+                    onChange={(e) => setTxRef(e.target.value)}
+                    required
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    This is a mock checkout wizard. Please enter any transaction ID to verify payment.
+                  </p>
+                </div>
+              </>
+            )}
 
             <div className="flex gap-3 pt-2">
               <button type="button" onClick={() => setPaymentModal(false)} className="flex-1 btn-outline">Cancel</button>
-              <button type="submit" disabled={registerMutation.isPending} className="flex-1 btn-gold">
-                {registerMutation.isPending ? 'Processing...' : 'Complete Pay & Register'}
+              <button 
+                type="submit" 
+                disabled={registerMutation.isPending || volunteerMutation.isPending} 
+                className="flex-1 btn-gold"
+              >
+                {registerMutation.isPending || volunteerMutation.isPending 
+                  ? 'Processing...' 
+                  : isVolunteer 
+                    ? 'Submit Volunteer Application' 
+                    : 'Complete Pay & Register'}
               </button>
             </div>
           </form>
-        </Modal>
-
-        {/* Volunteer Application Modal */}
-        <Modal open={volModal} onClose={() => setVolModal(false)} title="Volunteer Application" size="sm">
-          <p className="text-gray-600 mb-6">Apply as a volunteer for <strong>{event.title}</strong>?</p>
-          <div className="flex gap-3">
-            <button onClick={() => setVolModal(false)} className="flex-1 btn-outline">Cancel</button>
-            <button onClick={() => volunteerMutation.mutate()} disabled={volunteerMutation.isPending} className="flex-1 btn-gold">
-              {volunteerMutation.isPending ? 'Applying...' : 'Apply'}
-            </button>
-          </div>
         </Modal>
 
         {/* Edit Event Modal */}

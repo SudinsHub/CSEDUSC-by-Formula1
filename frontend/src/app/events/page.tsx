@@ -211,7 +211,7 @@ export default function EventsPage() {
           <input type="text" placeholder="Search events…" className="input pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <div className="flex gap-2 flex-wrap">
-          {['all', 'upcoming', 'ongoing', 'completed', 'cancelled'].map((s) => (
+          {['all', 'open', 'closed', 'cancelled'].map((s) => (
             <button key={s} onClick={() => setFilter(s)}
               className={cn('px-3 py-2 text-sm font-medium rounded-lg border transition-all capitalize',
                 filter === s ? 'bg-navy-800 text-gold-400 border-navy-800' : 'border-gray-200 text-gray-600 hover:border-navy-400'

@@ -65,7 +65,7 @@ export interface ElectionResult {
   batch_year?: number;
 }
 
-export type EventStatus = 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
+export type EventStatus = 'open' | 'closed' | 'cancelled';
 
 export interface Event {
   event_id: number;

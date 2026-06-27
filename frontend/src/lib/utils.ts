@@ -50,6 +50,7 @@ export function statusColor(status: string): string {
   const map: Record<string, string> = {
     active: 'bg-green-100 text-green-800',
     approved: 'bg-green-100 text-green-800',
+    open: 'bg-green-100 text-green-800',
     scheduled: 'bg-blue-100 text-blue-800',
     upcoming: 'bg-blue-100 text-blue-800',
     pending: 'bg-yellow-100 text-yellow-800',

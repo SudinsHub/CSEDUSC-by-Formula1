@@ -101,7 +101,7 @@ export default function DashboardPage() {
     onError: (e) => toast.error(fmt(e)),
   });
 
-  const upcomingEvents = events?.filter((e) => e.status === 'upcoming') ?? [];
+  const upcomingEvents = events?.filter((e) => e.status === 'open') ?? [];
   const recentNotices = notices?.slice(0, 3) ?? [];
 
   return (
