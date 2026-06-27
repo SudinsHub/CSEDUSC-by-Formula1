@@ -79,7 +79,8 @@ export const applyVolunteer = async (req, res) => {
   try {
     const registration = await eventService.applyVolunteer(
       parseInt(req.params.id, 10),
-      req.userId
+      req.userId,
+      req.body
     );
     res.status(201).json(registration);
   } catch (err) {

@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { ArrowLeft, CalendarDays, MapPin, Users, UserCheck, Share2, Copy, Check, DollarSign } from 'lucide-react';
 import api from '@/lib/api';
-import { formatDateTime, getErrorMessage } from '@/lib/utils';
+import { formatDateTime, getErrorMessage, cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import Badge from '@/components/ui/Badge';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -63,6 +63,15 @@ export default function EventDetailClient({ id }: { id: string }) {
   // Registration Flow Checkbox
   const [isVolunteer, setIsVolunteer] = useState(false);
 
+  // Admin Registration Filter State
+  const [registrationFilter, setRegistrationFilter] = useState<'all' | 'attendee' | 'volunteer'>('all');
+  const [registrationPage, setRegistrationPage] = useState(1);
+  const PAGE_SIZE = 10;
+
+  useEffect(() => {
+    setRegistrationPage(1);
+  }, [registrationFilter]);
+
   // Payment Form States
   const [paymentMethod, setPaymentMethod] = useState('bkash');
   const [txRef, setTxRef] = useState('');
@@ -113,11 +122,13 @@ export default function EventDetailClient({ id }: { id: string }) {
   });
 
   const volunteerMutation = useMutation({
-    mutationFn: () => api.post(`/api/events/${id}/volunteer`),
+    mutationFn: (body?: { payment_method?: string; transaction_reference?: string } | undefined) => 
+      api.post(`/api/events/${id}/volunteer`, body || {}),
     onSuccess: () => { 
       toast.success('Volunteer application submitted!'); 
       setRegConfirmModal(false); 
       setPaymentModal(false);
+      setTxRef('');
       setIsVolunteer(false);
       queryClient.invalidateQueries({ queryKey: ['event', id] });
       queryClient.invalidateQueries({ queryKey: ['registrations', id] });
@@ -188,18 +199,19 @@ export default function EventDetailClient({ id }: { id: string }) {
 
   const handlePayAndRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    if (isVolunteer) {
-      volunteerMutation.mutate();
-      return;
-    }
     if (!txRef.trim()) {
       toast.error('Transaction reference is required');
       return;
     }
-    registerMutation.mutate({
+    const paymentData = {
       payment_method: paymentMethod,
       transaction_reference: txRef
-    });
+    };
+    if (isVolunteer) {
+      volunteerMutation.mutate(paymentData);
+    } else {
+      registerMutation.mutate(paymentData);
+    }
   };
 
   const handleEditSubmit = async (d: EventForm) => {
@@ -342,9 +354,9 @@ export default function EventDetailClient({ id }: { id: string }) {
                 </p>
                 <p className="text-navy-600 text-xs">
                   Status: <span className="font-medium capitalize">{event.user_registration.status}</span>
-                  {event.user_registration.type === 'attendee' && hasFee && (
+                  {hasFee && (
                     <span className="ml-2 pl-2 border-l border-navy-200">
-                      Payment: Paid (Ref: {event.user_registration.transaction_reference})
+                      Payment: {event.user_registration.payment_status || 'Paid'} (Ref: {event.user_registration.transaction_reference})
                     </span>
                   )}
                 </p>
@@ -376,71 +388,133 @@ export default function EventDetailClient({ id }: { id: string }) {
         </div>
 
         {/* Registrations (EC only) */}
-        {isEcMember && registrations && registrations.length > 0 && (
-          <div className="card p-6">
-            <h2 className="font-semibold text-navy-800 mb-4">Registrations ({registrations.length})</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-200 text-gray-500 font-medium">
-                    <th className="text-left py-3 px-2">Name</th>
-                    <th className="text-left py-3 px-2">Type</th>
-                    <th className="text-left py-3 px-2">Status</th>
-                    <th className="text-left py-3 px-2">Payment info</th>
-                    <th className="text-left py-3 px-2">Registered At</th>
-                    <th className="text-right py-3 px-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 text-gray-700">
-                  {registrations.map((r) => (
-                    <tr key={r.registration_id}>
-                      <td className="py-3 px-2">
-                        <p className="font-medium">{r.user_name || `User ${r.user_id}`}</p>
-                        <p className="text-xs text-gray-400">{r.user_email}</p>
-                      </td>
-                      <td className="py-3 px-2 capitalize">{r.type}</td>
-                      <td className="py-3 px-2">
-                        <Badge label={r.status} status={r.status} />
-                      </td>
-                      <td className="py-3 px-2 text-xs">
-                        {r.type === 'attendee' && r.payment_status ? (
-                          <div>
-                            <p className="font-semibold capitalize text-green-700">{r.payment_status}</p>
-                            <p className="text-gray-400">Ref: {r.transaction_reference}</p>
-                            <p className="text-gray-400">Method: {r.payment_method}</p>
-                          </div>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
-                      </td>
-                      <td className="py-3 px-2 text-xs text-gray-400">
-                        {formatDateTime(r.registered_at)}
-                      </td>
-                      <td className="py-3 px-2 text-right">
-                        {r.type === 'volunteer' && r.status === 'pending' && (
-                          <div className="flex gap-1 justify-end">
-                            <button
-                              onClick={() => manageVolunteerMutation.mutate({ vid: r.registration_id, status: 'approved' })}
-                              className="px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded text-xs transition"
-                            >
-                              Approve
-                            </button>
-                            <button
-                              onClick={() => manageVolunteerMutation.mutate({ vid: r.registration_id, status: 'rejected' })}
-                              className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded text-xs transition"
-                            >
-                              Reject
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
+        {isEcMember && registrations && registrations.length > 0 && (() => {
+          const filteredRegistrations = registrations.filter((r) => {
+            return registrationFilter === 'all' || r.type === registrationFilter;
+          });
+
+          const totalPages = Math.ceil(filteredRegistrations.length / PAGE_SIZE);
+          const paginatedRegistrations = filteredRegistrations.slice(
+            (registrationPage - 1) * PAGE_SIZE,
+            registrationPage * PAGE_SIZE
+          );
+
+          return (
+            <div className="card p-6">
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-5 pb-4 border-b border-gray-100">
+                <h2 className="font-semibold text-navy-800">Registrations ({filteredRegistrations.length})</h2>
+                <div className="flex gap-2">
+                  {['all', 'attendee', 'volunteer'].map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setRegistrationFilter(type as any)}
+                      className={cn(
+                        "px-3 py-1.5 text-xs font-semibold rounded-lg border capitalize transition-all",
+                        registrationFilter === type
+                          ? "bg-navy-800 text-gold-400 border-navy-800"
+                          : "border-gray-200 text-gray-600 hover:border-navy-400"
+                      )}
+                    >
+                      {type === 'all' ? 'All Types' : type + 's'}
+                    </button>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-gray-500 font-medium">
+                      <th className="text-left py-3 px-2">Name</th>
+                      <th className="text-left py-3 px-2">Type</th>
+                      <th className="text-left py-3 px-2">Status</th>
+                      <th className="text-left py-3 px-2">Payment info</th>
+                      <th className="text-left py-3 px-2">Registered At</th>
+                      <th className="text-right py-3 px-2">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 text-gray-700">
+                    {paginatedRegistrations.map((r) => (
+                      <tr key={r.registration_id}>
+                        <td className="py-3 px-2">
+                          <p className="font-medium">{r.user_name || `User ${r.user_id}`}</p>
+                          <p className="text-xs text-gray-400">{r.user_email}</p>
+                        </td>
+                        <td className="py-3 px-2 capitalize">{r.type}</td>
+                        <td className="py-3 px-2">
+                          <Badge label={r.status} status={r.status} />
+                        </td>
+                        <td className="py-3 px-2 text-xs">
+                          {r.payment_status ? (
+                            <div>
+                              <p className="font-semibold capitalize text-green-700">{r.payment_status}</p>
+                              <p className="text-gray-400">Ref: {r.transaction_reference}</p>
+                              <p className="text-gray-400">Method: {r.payment_method}</p>
+                            </div>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-2 text-xs text-gray-400">
+                          {formatDateTime(r.registered_at)}
+                        </td>
+                        <td className="py-3 px-2 text-right">
+                          {r.type === 'volunteer' && r.status === 'pending' && (
+                            <div className="flex gap-1 justify-end">
+                              <button
+                                onClick={() => manageVolunteerMutation.mutate({ vid: r.registration_id, status: 'approved' })}
+                                className="px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 rounded text-xs transition"
+                              >
+                                Approve
+                              </button>
+                              <button
+                                onClick={() => manageVolunteerMutation.mutate({ vid: r.registration_id, status: 'rejected' })}
+                                className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded text-xs transition"
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between border-t border-gray-100 pt-4 mt-4 text-xs">
+                  <span className="text-gray-500">
+                    Showing {Math.min((registrationPage - 1) * PAGE_SIZE + 1, filteredRegistrations.length)} to{' '}
+                    {Math.min(registrationPage * PAGE_SIZE, filteredRegistrations.length)} of{' '}
+                    {filteredRegistrations.length} entries
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      disabled={registrationPage === 1}
+                      onClick={() => setRegistrationPage((p) => p - 1)}
+                      className="px-3 py-1.5 border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50 transition-all font-semibold text-gray-700"
+                    >
+                      Previous
+                    </button>
+                    <span className="flex items-center px-2 font-medium text-navy-800">
+                      Page {registrationPage} of {totalPages}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={registrationPage === totalPages}
+                      onClick={() => setRegistrationPage((p) => p + 1)}
+                      className="px-3 py-1.5 border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50 transition-all font-semibold text-gray-700"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Free Registration Modal */}
         <Modal open={regConfirmModal} onClose={() => setRegConfirmModal(false)} title="Confirm Registration" size="sm">
@@ -465,7 +539,7 @@ export default function EventDetailClient({ id }: { id: string }) {
                 type="button"
                 onClick={() => {
                   if (isVolunteer) {
-                    volunteerMutation.mutate();
+                    volunteerMutation.mutate(undefined);
                   } else {
                     registerMutation.mutate(undefined);
                   }
@@ -490,61 +564,51 @@ export default function EventDetailClient({ id }: { id: string }) {
                   onChange={(e) => setIsVolunteer(e.target.checked)}
                   className="rounded border-gray-300 text-gold-600 focus:ring-gold-500"
                 />
-                <span className="text-sm font-medium text-navy-800">Register as a volunteer instead (waives registration fee, subject to approval)</span>
+                <span className="text-sm font-medium text-navy-800">Register as a volunteer instead of attendee (subject to approval)</span>
               </label>
             ) : null}
 
-            {isVolunteer ? (
-              <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
-                <p className="text-sm text-blue-900">
-                  You are applying as a volunteer for this event. No fee is required. Your application will be sent to the administrator for review.
-                </p>
+            <div className="p-4 rounded-lg bg-gold-50 border border-gold-200">
+              <p className="text-sm text-gold-900 font-semibold flex justify-between">
+                <span>Amount Due:</span>
+                <span>৳ {event.registration_fee}</span>
+              </p>
+            </div>
+
+            <div>
+              <label className="label">Payment Provider</label>
+              <div className="grid grid-cols-3 gap-3">
+                {['bkash', 'nagad', 'card'].map((method) => (
+                  <button
+                    key={method}
+                    type="button"
+                    onClick={() => setPaymentMethod(method)}
+                    className={`p-3 text-center border rounded-lg capitalize font-medium transition ${
+                      paymentMethod === method
+                        ? 'border-gold-500 bg-gold-50 text-gold-800'
+                        : 'border-gray-200 hover:border-navy-200'
+                    }`}
+                  >
+                    {method}
+                  </button>
+                ))}
               </div>
-            ) : (
-              <>
-                <div className="p-4 rounded-lg bg-gold-50 border border-gold-200">
-                  <p className="text-sm text-gold-900 font-semibold flex justify-between">
-                    <span>Amount Due:</span>
-                    <span>৳ {event.registration_fee}</span>
-                  </p>
-                </div>
+            </div>
 
-                <div>
-                  <label className="label">Payment Provider</label>
-                  <div className="grid grid-cols-3 gap-3">
-                    {['bkash', 'nagad', 'card'].map((method) => (
-                      <button
-                        key={method}
-                        type="button"
-                        onClick={() => setPaymentMethod(method)}
-                        className={`p-3 text-center border rounded-lg capitalize font-medium transition ${
-                          paymentMethod === method
-                            ? 'border-gold-500 bg-gold-50 text-gold-800'
-                            : 'border-gray-200 hover:border-navy-200'
-                        }`}
-                      >
-                        {method}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="label">Transaction Reference / ID</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. TRx93J10K2Z"
-                    className="input"
-                    value={txRef}
-                    onChange={(e) => setTxRef(e.target.value)}
-                    required
-                  />
-                  <p className="text-xs text-gray-400 mt-1">
-                    This is a mock checkout wizard. Please enter any transaction ID to verify payment.
-                  </p>
-                </div>
-              </>
-            )}
+            <div>
+              <label className="label">Transaction Reference / ID</label>
+              <input
+                type="text"
+                placeholder="e.g. TRx93J10K2Z"
+                className="input"
+                value={txRef}
+                onChange={(e) => setTxRef(e.target.value)}
+                required
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                This is a mock checkout wizard. Please enter any transaction ID to verify payment.
+              </p>
+            </div>
 
             <div className="flex gap-3 pt-2">
               <button type="button" onClick={() => setPaymentModal(false)} className="flex-1 btn-outline">Cancel</button>
@@ -555,9 +619,7 @@ export default function EventDetailClient({ id }: { id: string }) {
               >
                 {registerMutation.isPending || volunteerMutation.isPending 
                   ? 'Processing...' 
-                  : isVolunteer 
-                    ? 'Submit Volunteer Application' 
-                    : 'Complete Pay & Register'}
+                  : 'Complete Pay & Register'}
               </button>
             </div>
           </form>

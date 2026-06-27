@@ -134,7 +134,7 @@ export const registerAttendee = async (eventId, userId, paymentData = null) => {
   return registration;
 };
 
-export const applyVolunteer = async (eventId, userId) => {
+export const applyVolunteer = async (eventId, userId, paymentData = null) => {
   const event = await eventRepository.findById(eventId);
   if (!event) {
     const error = new Error('Event not found');
@@ -156,7 +156,22 @@ export const applyVolunteer = async (eventId, userId) => {
     throw error;
   }
 
-  const registration = await eventRegistrationRepository.insert(eventId, userId, 'volunteer');
+  let paymentDetails = null;
+  if (event.registration_fee > 0) {
+    if (!paymentData || !paymentData.transaction_reference || !paymentData.payment_method) {
+      const error = new Error('Payment reference and method are required for this event');
+      error.status = 400;
+      throw error;
+    }
+    paymentDetails = {
+      amount: event.registration_fee,
+      payment_status: 'paid',
+      payment_method: paymentData.payment_method,
+      transaction_reference: paymentData.transaction_reference,
+    };
+  }
+
+  const registration = await eventRegistrationRepository.insert(eventId, userId, 'volunteer', paymentDetails);
 
   await emitAudit({
     actor: userId,

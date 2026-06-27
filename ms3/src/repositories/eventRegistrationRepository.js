@@ -10,7 +10,7 @@ export const insert = async (eventId, userId, type, paymentDetails = null) => {
   const result = await query(sql, [eventId, userId, type, status]);
   const registration = result.rows[0];
 
-  if (paymentDetails && type === 'attendee') {
+  if (paymentDetails) {
     const txSql = `
       INSERT INTO finance.transactions (user_id, amount, payment_status, payment_method, transaction_reference, purpose, target_id)
       VALUES ($1, $2, $3, $4, $5, 'event_registration', $6)
