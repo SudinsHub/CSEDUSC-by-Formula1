@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { SidebarProvider } from '@/contexts/SidebarContext';
 import { useState } from 'react';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -13,8 +14,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        {children}
-        <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
+        <SidebarProvider>
+          {children}
+          <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
+        </SidebarProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

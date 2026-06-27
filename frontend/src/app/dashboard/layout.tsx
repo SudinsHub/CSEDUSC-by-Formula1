@@ -3,7 +3,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import DashboardSidebar from '@/components/layout/DashboardSidebar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -16,13 +15,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [isAuthenticated, loading, router]);
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) return <div className="flex-1 flex justify-center items-center py-20"><LoadingSpinner /></div>;
   if (!isAuthenticated) return null;
 
-  return (
-    <div className="flex min-h-screen bg-gray-50">
-      <DashboardSidebar />
-      <main className="flex-1 overflow-auto">{children}</main>
-    </div>
-  );
+  return <>{children}</>;
 }

@@ -4,7 +4,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { User, Mail, GraduationCap, Shield } from 'lucide-react';
-import DashboardSidebar from '@/components/layout/DashboardSidebar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Badge from '@/components/ui/Badge';
 import { roleBadge } from '@/lib/utils';
@@ -21,8 +20,7 @@ export default function ProfilePage() {
   if (!user) return null;
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <DashboardSidebar />
+    <div className="flex flex-col flex-1 bg-gray-50 max-w-7xl mx-auto w-full">
       <main className="flex-1 p-6 max-w-2xl">
         <h1 className="text-2xl font-bold text-navy-800 mb-6 flex items-center gap-2">
           <User className="w-6 h-6" /> My Profile

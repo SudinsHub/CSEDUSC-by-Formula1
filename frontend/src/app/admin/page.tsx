@@ -8,7 +8,6 @@ import { Shield, Vote, CalendarDays, Plus, Bell, Users } from 'lucide-react';
 import Link from 'next/link';
 import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
-import DashboardSidebar from '@/components/layout/DashboardSidebar';
 import Modal from '@/components/ui/Modal';
 import EmptyState from '@/components/ui/EmptyState';
 import { getErrorMessage } from '@/lib/utils';
@@ -72,8 +71,7 @@ export default function AdminPage() {
 
   if (!isAdmin && !isEcMember) {
     return (
-      <div className="flex min-h-screen bg-gray-50">
-        <DashboardSidebar />
+      <div className="flex flex-col flex-1 bg-gray-50 max-w-7xl mx-auto w-full">
         <main className="flex-1 flex items-center justify-center">
           <EmptyState icon={Shield} title="Access Restricted" description="Admin or EC Member only." />
         </main>
@@ -82,8 +80,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <DashboardSidebar />
+    <div className="flex flex-col flex-1 bg-gray-50 max-w-7xl mx-auto w-full">
       <main className="flex-1 p-6 max-w-5xl">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-navy-800 flex items-center gap-2">

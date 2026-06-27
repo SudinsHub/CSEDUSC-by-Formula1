@@ -12,7 +12,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import Badge from '@/components/ui/Badge';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Modal from '@/components/ui/Modal';
-import DashboardSidebar from '@/components/layout/DashboardSidebar';
 import SearchInput from '@/components/ui/SearchInput';
 import type { Event, EventRegistration } from '@/types';
 
@@ -181,7 +180,7 @@ export default function EventDetailClient({ id }: { id: string }) {
     onError: (e) => toast.error(fmt(e)),
   });
 
-  if (isLoading) return <div className="flex min-h-screen bg-gray-50"><DashboardSidebar /><LoadingSpinner className="flex-1" /></div>;
+  if (isLoading) return <div className="flex-1 flex justify-center items-center py-20"><LoadingSpinner /></div>;
   if (!event) return null;
 
   const isOpen = event.status === 'open';
@@ -276,8 +275,7 @@ export default function EventDetailClient({ id }: { id: string }) {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <DashboardSidebar />
+    <div className="flex flex-col flex-1 bg-gray-50 max-w-7xl mx-auto w-full">
       <main className="flex-1 p-6 max-w-4xl">
         <div className="flex items-center justify-between mb-6">
           <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-navy-700">

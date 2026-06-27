@@ -14,7 +14,6 @@ import Badge from '@/components/ui/Badge';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import Modal from '@/components/ui/Modal';
-import DashboardSidebar from '@/components/layout/DashboardSidebar';
 import type { User, UserRole } from '@/types';
 
 interface UsersResponse {
@@ -113,8 +112,7 @@ export default function UsersPage() {
 
   if (!isAdmin) {
     return (
-      <div className="flex min-h-screen bg-gray-50">
-        <DashboardSidebar />
+      <div className="flex flex-col flex-1 bg-gray-50 max-w-7xl mx-auto w-full">
         <main className="flex-1 p-6 flex items-center justify-center">
           <EmptyState icon={Shield} title="Access Restricted" description="Administrator role required." />
         </main>
@@ -123,8 +121,7 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <DashboardSidebar />
+    <div className="flex flex-col flex-1 bg-gray-50 max-w-7xl mx-auto w-full">
       <main className="flex-1 p-6 max-w-6xl">
 
         {/* Header */}

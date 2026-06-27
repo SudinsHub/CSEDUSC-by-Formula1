@@ -12,8 +12,6 @@ import Badge from '@/components/ui/Badge';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import Modal from '@/components/ui/Modal';
-import DashboardSidebar from '@/components/layout/DashboardSidebar';
-import Navbar from '@/components/layout/Navbar';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Event } from '@/types';
 
@@ -237,18 +235,8 @@ export default function EventsPage() {
     </main>
   );
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <div className="flex flex-1">{content}</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <DashboardSidebar />
+    <div className="flex flex-col flex-1 bg-gray-50 max-w-7xl mx-auto w-full">
       {content}
     </div>
   );

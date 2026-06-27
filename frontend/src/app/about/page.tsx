@@ -1,11 +1,9 @@
-import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Users, Award, GraduationCap, Globe } from 'lucide-react';
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+    <div className="flex flex-col flex-1">
       <main className="flex-1">
         {/* Hero */}
         <section className="bg-navy-900 text-white py-16">

@@ -8,9 +8,6 @@ import toast from 'react-hot-toast';
 import { formatDate, getErrorMessage, cn } from '@/lib/utils';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
-import DashboardSidebar from '@/components/layout/DashboardSidebar';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import type { GalleryEntry } from '@/types';
 import { BentoGrid, BentoCard } from '@/components/magicui/bento-grid';
@@ -214,23 +211,9 @@ export default function GalleryPage() {
     </main>
   );
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <Navbar />
-        <div className="flex flex-1 max-w-7xl mx-auto px-4 py-8 w-full">{pageContent}</div>
-        <Footer />
-      </div>
-    );
-  }
-
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <DashboardSidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Navbar />
-        <div className="flex-1 overflow-y-auto">{pageContent}</div>
-      </div>
+    <div className="flex flex-col flex-1 bg-gray-50 max-w-7xl mx-auto w-full">
+      {pageContent}
     </div>
   );
 }
