@@ -177,3 +177,28 @@ export const resetPassword = async ({ token, newPassword }) => {
     [row.token_id]
   );
 };
+
+export const refresh = async (refreshToken) => {
+  try {
+    const decoded = jwt.verify(refreshToken, config.jwt.secret);
+    const result = await query(
+      'SELECT user_id, role, status FROM users WHERE user_id = $1',
+      [decoded.userId]
+    );
+
+    const user = result.rows[0];
+    if (!user || user.status !== 'ACTIVE') {
+      const err = new Error('Invalid or inactive user');
+      err.status = 401;
+      throw err;
+    }
+
+    return issueTokens(user.user_id, user.role);
+  } catch (jwtErr) {
+    if (jwtErr.status) throw jwtErr;
+    const err = new Error('Invalid or expired refresh token');
+    err.status = 401;
+    throw err;
+  }
+};
+

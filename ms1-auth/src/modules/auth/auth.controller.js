@@ -58,3 +58,15 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const refresh = async (req, res) => {
+  try {
+    const result = await authService.refresh(req.body.refreshToken);
+    res.status(200).json(result);
+  } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
+    console.error('[auth/refresh]', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+

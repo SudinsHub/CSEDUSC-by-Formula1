@@ -45,6 +45,7 @@ router.post('/api/auth/register',       createProxyMiddleware(proxyOptions(confi
 router.post('/api/auth/login',          authLimiter, createProxyMiddleware(proxyOptions(config.ms1Url)));
 router.post('/api/auth/forgot-password',createProxyMiddleware(proxyOptions(config.ms1Url)));
 router.post('/api/auth/reset-password', createProxyMiddleware(proxyOptions(config.ms1Url)));
+router.post('/api/auth/refresh',        createProxyMiddleware(proxyOptions(config.ms1Url)));
 
 // Protected auth routes
 router.post('/api/auth/logout', verifyJWT, createProxyMiddleware(proxyOptions(config.ms1Url)));
