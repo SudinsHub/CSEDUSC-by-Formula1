@@ -78,12 +78,25 @@ export default function EventsCarousel() {
     staleTime: 45_000,
   });
 
-  // Filter for open (upcoming/ongoing) events
-  const activeEvents = (events ?? []).filter(
-    (ev) => ev.status === 'open' && new Date(ev.event_date) >= new Date(Date.now() - 24 * 60 * 60 * 1000)
-  );
+  // Filter out cancelled events, prioritizing open/upcoming ones first, then past ones.
+  const filteredEvents = (events ?? []).filter((ev) => ev.status !== 'cancelled');
 
-  const displayEvents = activeEvents.length > 0 ? activeEvents : FALLBACK_EVENTS;
+  const sortedEvents = filteredEvents.slice().sort((a, b) => {
+    const aTime = new Date(a.event_date).getTime();
+    const bTime = new Date(b.event_date).getTime();
+    const now = Date.now();
+
+    const aIsFuture = aTime >= now;
+    const bIsFuture = bTime >= now;
+
+    if (aIsFuture && !bIsFuture) return -1;
+    if (!aIsFuture && bIsFuture) return 1;
+
+    // Sort by proximity to now
+    return Math.abs(aTime - now) - Math.abs(bTime - now);
+  });
+
+  const displayEvents = sortedEvents.length > 0 ? sortedEvents : FALLBACK_EVENTS;
   const mediaBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4005';
 
   const scroll = (direction: 'left' | 'right') => {

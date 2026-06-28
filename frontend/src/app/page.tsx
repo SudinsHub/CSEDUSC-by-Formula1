@@ -46,13 +46,13 @@ export default function HomePage() {
 
             {/* Right: Welcome Text & Brand Intro */}
             <div className="order-1 lg:order-2">
-              <div className="inline-flex items-center gap-2 bg-gold-50 border border-gold-250 text-gold-750 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
+              <div className="inline-flex items-center gap-2 bg-gold-50 border border-gold-200 text-gold-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
                 <Star className="w-3.5 h-3.5 text-gold-600 fill-gold-600" />
                 Dept. of CSE, University of Dhaka
               </div>
               <h1 className="text-4xl sm:text-5xl font-black text-navy-900 leading-tight mb-4 tracking-tight">
                 Welcome to the{' '}
-                <span className="text-gold-550 block sm:inline">CSEDU</span>
+                <span className="text-gold-500 block sm:inline">CSEDU</span>
                 <br />
                 <span className="text-navy-950 font-black">Students&apos; Club!</span>
               </h1>
@@ -85,7 +85,7 @@ export default function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((s) => (
               <div key={s.label} className="text-center">
-                <div className="text-4xl font-extrabold text-gold-450 mb-1">{s.value}</div>
+                <div className="text-4xl font-extrabold text-gold-400 mb-1">{s.value}</div>
                 <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">{s.label}</div>
               </div>
             ))}
@@ -174,10 +174,10 @@ export default function HomePage() {
               Become a Member
             </Link>
             <Link 
-              href="/elections" 
+              href="/gallery" 
               className="btn-outline border-gold-600 text-gold-400 hover:bg-navy-800 text-base px-10 py-3.5"
             >
-              View Elections
+              Visit Gallery
             </Link>
           </div>
         </div>

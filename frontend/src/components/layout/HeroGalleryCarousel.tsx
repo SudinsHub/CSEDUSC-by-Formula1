@@ -42,11 +42,14 @@ export default function HeroGalleryCarousel() {
 
   const mediaBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4005';
 
-  // Gather images from gallery
+  // Gather images from gallery, sorting by created_at descending and limiting to 6 items
   const images = (entries ?? [])
+    .slice()
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .filter((e) => e.images && e.images.length > 0)
+    .slice(0, 6) // Limit to the 6 most recent gallery entries
     .flatMap((entry) => 
-      (entry.images || []).map((img) => ({
+      (entry.images || []).slice(0, 1).map((img) => ({ // Take the first image per entry
         url: `${mediaBaseUrl}/api/media/${img.media_id}/file`,
         title: entry.title,
         content: entry.content
@@ -91,11 +94,7 @@ export default function HeroGalleryCarousel() {
       {/* Dark overlay gradient */}
       <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-900/40 to-navy-900/10 z-20" />
 
-      {/* Glimpse Badge */}
-      <div className="absolute top-4 left-4 z-30 inline-flex items-center gap-1.5 bg-gold-500 text-navy-950 px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider shadow-md">
-        <ImageIcon className="w-3.5 h-3.5" />
-        <span>Club Gallery Glimpse</span>
-      </div>
+
 
       {/* Carousel Caption */}
       <div className="absolute bottom-6 left-6 right-6 z-30 text-white flex flex-col justify-end">
