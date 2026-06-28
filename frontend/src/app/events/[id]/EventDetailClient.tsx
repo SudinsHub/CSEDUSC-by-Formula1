@@ -453,6 +453,9 @@ export default function EventDetailClient({ id }: { id: string }) {
                         <td className="py-3 px-2">
                           <p className="font-medium">{r.user_name || `User ${r.user_id}`}</p>
                           <p className="text-xs text-gray-400">{r.user_email}</p>
+                          {r.user_contact && (
+                            <p className="text-xs text-gray-500 font-semibold mt-0.5">Contact: {r.user_contact}</p>
+                          )}
                         </td>
                         <td className="py-3 px-2 capitalize">{r.type}</td>
                         <td className="py-3 px-2">

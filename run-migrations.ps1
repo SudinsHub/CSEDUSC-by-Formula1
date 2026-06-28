@@ -34,6 +34,10 @@ $migrations = @(
         File = "ms1-auth/migrations/001_create_users.sql"
     },
     @{
+        Service = "MS1 (Auth & Users - Profile Fields)"
+        File = "ms1-auth/migrations/002_add_profile_fields.sql"
+    },
+    @{
         Service = "MS2 (Elections)"
         File = "ms2-election/migrations/001_create_election_schema.sql"
     },

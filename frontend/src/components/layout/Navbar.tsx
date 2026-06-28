@@ -43,9 +43,17 @@ export default function Navbar() {
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gold-600/50 text-gold-400 hover:bg-navy-850 hover:border-gold-500 transition-all text-sm font-medium"
+                  className="flex items-center gap-2 px-2 py-1 rounded-lg border border-gold-600/50 text-gold-400 hover:bg-navy-850 hover:border-gold-500 transition-all text-sm font-medium"
                 >
-                  <User className="w-4 h-4" />
+                  {user.profilePicture ? (
+                    <img
+                      src={`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4005'}/api/media/file/${user.profilePicture}`}
+                      alt={user.name}
+                      className="w-6 h-6 rounded-full object-cover border border-gold-500/50"
+                    />
+                  ) : (
+                    <User className="w-4 h-4" />
+                  )}
                   <span className="max-w-28 truncate">{user.name}</span>
                   <ChevronDown className="w-3.5 h-3.5 transition-transform" />
                 </button>

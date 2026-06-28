@@ -9,6 +9,8 @@ export interface User {
   status: UserStatus;
   registrationNo?: string;
   batchYear?: number;
+  contactNo?: string;
+  profilePicture?: string;
   createdAt?: string;
 }
 
@@ -89,6 +91,7 @@ export interface EventRegistration {
   registered_at: string;
   name?: string;
   email?: string;
+  user_contact?: string;
 }
 
 export type NoticePriority = 'low' | 'normal' | 'urgent';

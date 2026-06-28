@@ -56,6 +56,7 @@ router.get('/api/users',    verifyJWT, createProxyMiddleware(proxyOptions(config
 router.get('/api/users/*path',  verifyJWT, createProxyMiddleware(proxyOptions(config.ms1Url)));
 router.patch('/api/users',      verifyJWT, createProxyMiddleware(proxyOptions(config.ms1Url)));
 router.patch('/api/users/*path',verifyJWT, createProxyMiddleware(proxyOptions(config.ms1Url)));
+router.delete('/api/users/*path',verifyJWT, createProxyMiddleware(proxyOptions(config.ms1Url)));
 
 // ---------------------------------------------------------------------------
 // MS2 — Elections  (http://localhost:3002)
@@ -103,6 +104,7 @@ router.delete('/api/notices/*path', verifyJWT, createProxyMiddleware(proxyOption
 // Media
 router.get('/api/media',           optionalVerifyJWT, createProxyMiddleware(proxyOptions(config.ms3Url)));
 router.get('/api/media/*path',      optionalVerifyJWT, createProxyMiddleware(proxyOptions(config.ms3Url)));
+router.post('/api/media/upload-public', optionalVerifyJWT, createProxyMiddleware(proxyOptions(config.ms3Url)));
 router.post('/api/media/*path',     verifyJWT, createProxyMiddleware(proxyOptions(config.ms3Url)));
 router.delete('/api/media/*path',   verifyJWT, createProxyMiddleware(proxyOptions(config.ms3Url)));
 

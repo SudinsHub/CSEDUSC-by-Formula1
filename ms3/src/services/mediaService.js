@@ -67,3 +67,7 @@ export const remove = async (id, userId) => {
   return deleted;
 };
 
+export const streamFileByPath = async (filePath, res, download = false) => {
+  fileStorageService.stream(filePath, res, download);
+};
+

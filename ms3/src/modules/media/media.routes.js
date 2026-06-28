@@ -37,6 +37,8 @@ const upload = multer({
 // Public routes
 router.get('/', mediaController.list);
 router.get('/:id/file', mediaController.streamFile);
+router.get('/file/:year/:month/:filename', mediaController.streamFileByPath);
+router.post('/upload-public', upload.single('file'), mediaController.uploadPublic);
 
 // EC/Admin routes
 router.post('/upload', requireRole(EC_ADMIN), upload.single('file'), mediaController.upload);

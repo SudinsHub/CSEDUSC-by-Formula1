@@ -34,6 +34,7 @@ export const findByEvent = async (eventId) => {
            u.name as user_name, 
            u.email as user_email,
            u.batch_year,
+           u.contact_no as user_contact,
            t.payment_status,
            t.transaction_reference,
            t.payment_method,

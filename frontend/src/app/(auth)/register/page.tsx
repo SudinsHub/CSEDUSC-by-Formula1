@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff, GraduationCap } from 'lucide-react';
 import { authApi } from '@/lib/auth';
-import { getErrorMessage } from '@/lib/api';
+import api, { getErrorMessage } from '@/lib/api';
 
 interface RegisterForm {
   name: string;
@@ -16,21 +16,38 @@ interface RegisterForm {
   confirmPassword: string;
   registrationNo: string;
   batchYear: string;
+  contactNo?: string;
 }
 
 export default function RegisterPage() {
   const router = useRouter();
   const [showPass, setShowPass] = useState(false);
+  const [profileFile, setProfileFile] = useState<File | null>(null);
   const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<RegisterForm>();
 
   const onSubmit = async (data: RegisterForm) => {
     try {
+      let profilePicturePath = '';
+      if (profileFile) {
+        const formData = new FormData();
+        formData.append('file', profileFile);
+        
+        const uploadRes = await api.post<{ file_path: string }>('/api/media/upload-public', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        profilePicturePath = uploadRes.data.file_path;
+      }
+
       await authApi.register({
         name: data.name,
         email: data.email,
         password: data.password,
         registrationNo: data.registrationNo,
         batchYear: parseInt(data.batchYear),
+        contactNo: data.contactNo || undefined,
+        profilePicture: profilePicturePath || undefined,
         role: 'student',
       });
       toast.success('Registration successful! Your account is pending admin approval.');
@@ -104,6 +121,42 @@ export default function RegisterPage() {
                     min: { value: 1990, message: 'Invalid year' },
                   })}
                 />
+              </div>
+            </div>
+
+            <div>
+              <label className="label">Contact number</label>
+              <input
+                type="text"
+                className="input"
+                placeholder="e.g. +88017XXXXXXXX"
+                {...register('contactNo')}
+              />
+            </div>
+
+            <div>
+              <label className="label">Profile picture</label>
+              <div className="mt-1 flex flex-col gap-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="file-input block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-navy-50 file:text-navy-700 hover:file:bg-navy-100"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      if (file.size > 2 * 1024 * 1024) {
+                        toast.error("File size exceeds 2MB limit.");
+                        e.target.value = '';
+                        setProfileFile(null);
+                      } else {
+                        setProfileFile(file);
+                      }
+                    }
+                  }}
+                />
+                <p className="text-[11px] text-gray-500 bg-gray-100 p-2.5 rounded-lg border border-gray-200">
+                  <strong>Recommendation:</strong> Square aspect ratio (1:1), maximum 2MB size, in JPG or PNG format.
+                </p>
               </div>
             </div>
 

@@ -29,6 +29,7 @@ echo ""
 # Define migration files
 declare -a migrations=(
     "ms1-auth/migrations/001_create_users.sql:MS1 (Auth & Users)"
+    "ms1-auth/migrations/002_add_profile_fields.sql:MS1 (Auth & Users - Profile Fields)"
     "ms2-election/migrations/001_create_election_schema.sql:MS2 (Elections)"
     "ms2-election/migrations/002_update_election_phases.sql:MS2 (Election Phases)"
     "ms3/migrations/001_create_content_schema.sql:MS3 (Events & Notices)"

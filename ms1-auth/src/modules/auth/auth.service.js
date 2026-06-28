@@ -34,7 +34,7 @@ const issueTokens = (userId, role) => {
 
 // ── Service methods ───────────────────────────────────────────────────────────
 
-export const register = async ({ name, email, password, registrationNo, batchYear }) => {
+export const register = async ({ name, email, password, registrationNo, batchYear, contactNo = null, profilePicture = null }) => {
   const existing = await query('SELECT user_id FROM users WHERE email = $1', [email]);
   if (existing.rows.length > 0) {
     const err = new Error('Email already registered');
@@ -44,16 +44,27 @@ export const register = async ({ name, email, password, registrationNo, batchYea
 
   const password_hash = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
-  await query(
-    `INSERT INTO users (name, email, password_hash, registration_no, batch_year)
-     VALUES ($1, $2, $3, $4, $5)`,
-    [name, email, password_hash, registrationNo, batchYear]
+  const result = await query(
+    `INSERT INTO users (name, email, password_hash, registration_no, batch_year, contact_no, profile_picture)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING user_id`,
+    [name, email, password_hash, registrationNo, batchYear, contactNo, profilePicture]
   );
+
+  const userId = result.rows[0].user_id;
+
+  if (profilePicture) {
+    // Cross-schema update to set uploaded_by to this user's user_id in content.media
+    await query(
+      'UPDATE content.media SET uploaded_by = $1 WHERE file_path = $2',
+      [userId, profilePicture]
+    );
+  }
 };
 
 export const login = async ({ email, password }) => {
   const result = await query(
-    'SELECT user_id, name, email, password_hash, role, status, registration_no, batch_year FROM users WHERE email = $1',
+    'SELECT user_id, name, email, password_hash, role, status, registration_no, batch_year, contact_no, profile_picture FROM users WHERE email = $1',
     [email]
   );
 
@@ -91,13 +102,15 @@ export const login = async ({ email, password }) => {
       role: user.role,
       registrationNo: user.registration_no,
       batchYear: user.batch_year,
+      contactNo: user.contact_no,
+      profilePicture: user.profile_picture,
     },
   };
 };
 
 export const getMe = async (userId) => {
   const result = await query(
-    'SELECT user_id, name, email, role, status, registration_no, batch_year, created_at FROM users WHERE user_id = $1',
+    'SELECT user_id, name, email, role, status, registration_no, batch_year, contact_no, profile_picture, created_at FROM users WHERE user_id = $1',
     [userId]
   );
 
@@ -116,6 +129,8 @@ export const getMe = async (userId) => {
     status: user.status,
     registrationNo: user.registration_no,
     batchYear: user.batch_year,
+    contactNo: user.contact_no,
+    profilePicture: user.profile_picture,
     createdAt: user.created_at,
   };
 };

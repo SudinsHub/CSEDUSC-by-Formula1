@@ -17,6 +17,8 @@ export const registerSchema = z.object({
     .gte(1000, 'batchYear must be a 4-digit year')
     .lte(9999, 'batchYear must be a 4-digit year')
     .optional(),
+  contactNo: z.string().optional().nullable(),
+  profilePicture: z.string().optional().nullable(),
 });
 
 export const loginSchema = z.object({
