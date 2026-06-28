@@ -75,6 +75,15 @@ export const updateUserStatus = async (userId, status) => {
   return result.rows[0];
 };
 
+export const activatePendingUsers = async () => {
+  const result = await query(
+    `UPDATE users SET status = 'ACTIVE', updated_at = NOW()
+     WHERE status = 'PENDING'
+     RETURNING user_id AS "userId", name, email, role, status, registration_no AS "registrationNo", batch_year AS "batchYear", updated_at AS "updatedAt"`
+  );
+  return { updatedCount: result.rowCount, users: result.rows };
+};
+
 export const updateUserRole = async (userId, role) => {
   const result = await query(
     `UPDATE users SET role = $1, updated_at = NOW()

@@ -36,6 +36,17 @@ export const updateStatus = async (req, res) => {
   }
 };
 
+export const activatePending = async (req, res) => {
+  try {
+    const result = await usersService.activatePendingUsers();
+    res.status(200).json(result);
+  } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
+    console.error('[users/activatePending]', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 export const updateRole = async (req, res) => {
   try {
     const user = await usersService.updateUserRole(req.params.userId, req.body.role);

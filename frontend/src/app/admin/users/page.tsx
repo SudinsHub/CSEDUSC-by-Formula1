@@ -55,6 +55,7 @@ export default function UsersPage() {
   const [page, setPage] = useState(1);
   const [roleModal, setRoleModal] = useState<{ user: User; role: UserRole } | null>(null);
   const [confirmModal, setConfirmModal] = useState<{ user: User; action: ConfirmAction } | null>(null);
+  const [confirmApproveAll, setConfirmApproveAll] = useState(false);
 
   const params = new URLSearchParams({ page: String(page), limit: String(LIMIT) });
   if (statusFilter) params.set('status', statusFilter);
@@ -83,6 +84,15 @@ export default function UsersPage() {
     onSuccess: () => {
       toast.success('User updated.');
       setConfirmModal(null);
+      invalidate();
+    },
+    onError: (e) => toast.error(fmt(e)),
+  });
+
+  const activateAllMutation = useMutation({
+    mutationFn: () => api.patch('/api/users/activate-pending'),
+    onSuccess: () => {
+      toast.success('All pending users have been approved.');
       invalidate();
     },
     onError: (e) => toast.error(fmt(e)),
@@ -137,10 +147,18 @@ export default function UsersPage() {
         {/* Pending approvals */}
         {pending.length > 0 && (
           <div className="card p-5 mb-6 border-yellow-200 bg-yellow-50">
-            <h2 className="font-semibold text-yellow-800 mb-3 flex items-center gap-2 text-sm">
-              <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
-              Pending Approvals ({pending.length})
-            </h2>
+            <div className="flex items-center justify-between mb-3 gap-4">
+              <h2 className="font-semibold text-yellow-800 flex items-center gap-2 text-sm">
+                <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
+                Pending Approvals ({pending.length})
+              </h2>
+              <button
+                onClick={() => setConfirmApproveAll(true)}
+                className="flex items-center gap-1 px-3 py-1.5 bg-yellow-600 hover:bg-yellow-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors"
+              >
+                Approve All Pending
+              </button>
+            </div>
             <div className="space-y-2">
               {pending.map((u) => (
                 <div
@@ -406,6 +424,35 @@ export default function UsersPage() {
                 }`}
               >
                 {statusMutation.isPending ? 'Processing…' : ACTION_LABEL[confirmModal.action]}
+              </button>
+            </div>
+          </Modal>
+        )}
+
+        {/* Confirm bulk approve modal */}
+        {confirmApproveAll && (
+          <Modal
+            open
+            title="Approve all pending users"
+            onClose={() => setConfirmApproveAll(false)}
+            size="sm"
+          >
+            <p className="text-sm text-gray-600 mb-6">
+              Are you sure you want to approve all <span className="font-semibold">{pending.length}</span> pending users?
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmApproveAll(false)} className="flex-1 btn-outline">
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setConfirmApproveAll(false);
+                  activateAllMutation.mutate();
+                }}
+                disabled={activateAllMutation.isPending}
+                className="flex-1 font-semibold px-6 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white disabled:opacity-50 text-sm"
+              >
+                {activateAllMutation.isPending ? 'Processing…' : 'Approve All'}
               </button>
             </div>
           </Modal>
