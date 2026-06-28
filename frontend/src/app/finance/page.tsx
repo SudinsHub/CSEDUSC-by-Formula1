@@ -13,7 +13,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import EmptyState from '@/components/ui/EmptyState';
 import Modal from '@/components/ui/Modal';
 
-import type { Budget } from '@/types';
+import type { Budget, Event } from '@/types';
 
 interface BudgetForm {
   eventId: string;
@@ -34,6 +34,12 @@ export default function FinancePage() {
   const { data: budgets, isLoading } = useQuery({
     queryKey: ['budgets'],
     queryFn: () => api.get<Budget[]>('/api/budgets').then((r) => r.data),
+    enabled: isEcMember || isAdmin,
+  });
+
+  const { data: events, isLoading: isEventsLoading } = useQuery({
+    queryKey: ['events'],
+    queryFn: () => api.get<Event[]>('/api/events').then((r) => r.data),
     enabled: isEcMember || isAdmin,
   });
 
@@ -184,8 +190,25 @@ export default function FinancePage() {
         <Modal open={createOpen} onClose={() => setCreateOpen(false)} title="New Budget Proposal">
           <form onSubmit={handleSubmit((d) => createMutation.mutate(d))} className="space-y-4">
             <div>
-              <label className="label">Event ID</label>
-              <input type="number" className="input" placeholder="1" min="1" {...register('eventId', { required: 'Required' })} />
+              <label className="label">Event</label>
+              {isEventsLoading ? (
+                <div className="text-xs text-gray-500">Loading events...</div>
+              ) : (
+                <select
+                  className="input"
+                  {...register('eventId', { required: 'Required' })}
+                  defaultValue=""
+                >
+                  <option value="" disabled>
+                    {events && events.length > 0 ? 'Select an event' : 'No events available'}
+                  </option>
+                  {events?.map((ev) => (
+                    <option key={ev.event_id} value={ev.event_id}>
+                      {ev.title} (ID: {ev.event_id})
+                    </option>
+                  ))}
+                </select>
+              )}
               {errors.eventId && <p className="text-red-500 text-xs mt-1">{errors.eventId.message}</p>}
             </div>
             <div>
