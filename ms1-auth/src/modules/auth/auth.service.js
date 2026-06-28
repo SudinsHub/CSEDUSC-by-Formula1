@@ -1,20 +1,11 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import nodemailer from 'nodemailer';
 import { query } from '../../db.js';
 import { config } from '../../config.js';
+import { emitNotification } from '../../queues/index.js';
 
 const BCRYPT_ROUNDS = 12;
-
-// ── Mailer ────────────────────────────────────────────────────────────────────
-
-const transporter = nodemailer.createTransport({
-  host: config.smtp.host,
-  port: config.smtp.port,
-  secure: false, // STARTTLS
-  auth: { user: config.smtp.user, pass: config.smtp.pass },
-});
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -137,7 +128,7 @@ export const getMe = async (userId) => {
 
 export const forgotPassword = async (email) => {
   const result = await query(
-    "SELECT user_id FROM users WHERE email = $1 AND status = 'ACTIVE'",
+    "SELECT user_id, name FROM users WHERE email = $1 AND status = 'ACTIVE'",
     [email]
   );
 
@@ -155,12 +146,10 @@ export const forgotPassword = async (email) => {
 
   const resetLink = `${config.frontendUrl}/reset-password?token=${rawToken}`;
 
-  await transporter.sendMail({
-    from: config.smtp.from,
-    to: email,
-    subject: 'Password Reset Request — CSEDU Club',
-    text: `You requested a password reset. Click the link below within 30 minutes:\n\n${resetLink}\n\nIf you did not request this, ignore this email.`,
-    html: `<p>You requested a password reset. Click the link below within 30 minutes:</p><p><a href="${resetLink}">${resetLink}</a></p><p>If you did not request this, ignore this email.</p>`,
+  await emitNotification('auth.forgot_password', {
+    email,
+    name: user.name,
+    resetLink,
   });
 };
 

@@ -48,16 +48,14 @@ services:
       JWT_SECRET: ${JWT_SECRET:-csedusc_by_formula1}
       JWT_ACCESS_EXPIRES: 15m
       JWT_REFRESH_EXPIRES: 7d
-      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
-      SMTP_PORT: ${SMTP_PORT:-587}
-      SMTP_USER: ${SMTP_USER:-your_email@gmail.com}
-      SMTP_PASS: ${SMTP_PASS:-your_app_password}
-      SMTP_FROM: "CSEDU Club <no-reply@csedu.ac.bd>"
+      REDIS_URL: redis://redis:6379
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3005}
     ports:
       - "3001:3001"
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - csedu-network
@@ -128,6 +126,7 @@ services:
       SMTP_USER: ${SMTP_USER:-your_email@gmail.com}
       SMTP_PASS: ${SMTP_PASS:-your_app_password}
       SMTP_FROM: "CSEDU Club <noreply@cseduclub.com>"
+      RESEND_API_KEY: ${RESEND_API_KEY}
     ports:
       - "3004:3004"
     depends_on:

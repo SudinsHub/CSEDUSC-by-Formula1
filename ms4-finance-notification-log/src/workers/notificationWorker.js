@@ -20,6 +20,9 @@ export function startNotificationWorker() {
           case 'user.rejected':
             await handleUserRejected(job.data);
             break;
+          case 'auth.forgot_password':
+            await handleForgotPassword(job.data);
+            break;
           case 'election.announced':
             await handleElectionAnnounced(job.data);
             break;
@@ -175,4 +178,13 @@ async function handleBudgetDecided(payload) {
   });
   
   await emailService.send(recipientEmail, subject, body);
+}
+
+async function handleForgotPassword(payload) {
+  const { email, name, resetLink } = payload;
+  
+  const subject = 'Password Reset Request — CSEDU Club';
+  const body = emailService.renderTemplate('auth.forgot_password', { name, resetLink });
+  
+  await emailService.send(email, subject, body);
 }
