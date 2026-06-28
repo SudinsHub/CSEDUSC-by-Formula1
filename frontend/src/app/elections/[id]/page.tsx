@@ -930,13 +930,29 @@ export default function ElectionDetailPage() {
 
             <div>
               <label className="label">Contesting Post / Designation</label>
-              <input
-                type="text"
-                className="input"
-                placeholder={election.phase === 1 ? 'e.g., Representative' : 'e.g., President'}
-                value={candidatePost}
-                onChange={(e) => setCandidatePost(e.target.value)}
-              />
+              {election?.phase === 2 && election?.designations && election.designations.length > 0 ? (
+                <select
+                  className="input"
+                  value={candidatePost}
+                  onChange={(e) => setCandidatePost(e.target.value)}
+                  required
+                >
+                  <option value="">-- Select Designation --</option>
+                  {election.designations.map((d) => (
+                    <option key={d.name} value={d.name}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  className="input"
+                  placeholder={election.phase === 1 ? 'e.g., Representative' : 'e.g., President'}
+                  value={candidatePost}
+                  onChange={(e) => setCandidatePost(e.target.value)}
+                />
+              )}
             </div>
 
             <div>
@@ -1141,13 +1157,29 @@ export default function ElectionDetailPage() {
           >
             <div>
               <label className="label">Contesting Post</label>
-              <input
-                type="text"
-                className="input"
-                value={editCandidatePost}
-                onChange={(e) => setEditCandidatePost(e.target.value)}
-                required
-              />
+              {election?.phase === 2 && election?.designations && election.designations.length > 0 ? (
+                <select
+                  className="input"
+                  value={editCandidatePost}
+                  onChange={(e) => setEditCandidatePost(e.target.value)}
+                  required
+                >
+                  <option value="">-- Select Designation --</option>
+                  {election.designations.map((d) => (
+                    <option key={d.name} value={d.name}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  className="input"
+                  value={editCandidatePost}
+                  onChange={(e) => setEditCandidatePost(e.target.value)}
+                  required
+                />
+              )}
             </div>
             <div>
               <label className="label">Candidate Biography</label>
