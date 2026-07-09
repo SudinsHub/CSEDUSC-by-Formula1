@@ -3,56 +3,19 @@ import { config } from '../config.js';
 
 class EmailService {
   constructor() {
-    if (!config.resendApiKey) {
-      this.transporter = nodemailer.createTransport({
-        host: config.smtp.host,
-        port: config.smtp.port,
-        secure: config.smtp.port === 465,
-        auth: {
-          user: config.smtp.user,
-          pass: config.smtp.pass,
-        },
-      });
-    }
+    this.transporter = nodemailer.createTransport({
+      host: config.smtp.host,
+      port: config.smtp.port,
+      secure: config.smtp.port === 465,
+      auth: {
+        user: config.smtp.user,
+        pass: config.smtp.pass,
+      },
+    });
   }
 
   async send(to, subject, body) {
-    if (config.resendApiKey) {
-      return this.sendWithResend(to, subject, body);
-    } else {
-      return this.sendWithSmtp(to, subject, body);
-    }
-  }
-
-  async sendWithResend(to, subject, body) {
-    try {
-      const from = config.smtp.from || 'onboarding@resend.dev';
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${config.resendApiKey}`
-        },
-        body: JSON.stringify({
-          from,
-          to,
-          subject,
-          html: body
-        })
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Resend API returned status ${response.status}: ${errorText}`);
-      }
-
-      const data = await response.json();
-      console.log(`Email sent via Resend to ${to}: ${data.id}`);
-      return data;
-    } catch (error) {
-      console.error(`Failed to send email to ${to} via Resend:`, error);
-      throw error;
-    }
+    return this.sendWithSmtp(to, subject, body);
   }
 
   async sendWithSmtp(to, subject, body) {

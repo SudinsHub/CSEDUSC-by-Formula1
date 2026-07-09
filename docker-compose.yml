@@ -121,12 +121,11 @@ services:
       DATABASE_URL: postgresql://formula1:formula1@postgres:5432/csedu_sc
       REDIS_URL: redis://redis:6379
       NODE_ENV: ${NODE_ENV:-development}
-      # SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
-      # SMTP_PORT: ${SMTP_PORT:-587}
-      # SMTP_USER: ${SMTP_USER:-your_email@gmail.com}
-      # SMTP_PASS: ${SMTP_PASS:-your_app_password}
-      SMTP_FROM: "CSEDU Students' Club <onboarding@resend.dev>"
-      RESEND_API_KEY: ${RESEND_API_KEY}
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-your_email@gmail.com}
+      SMTP_PASS: ${SMTP_PASS:-your_app_password}
+      SMTP_FROM: ${SMTP_FROM:-"CSEDU Students' Club <your_email@gmail.com>"}
     ports:
       - "3004:3004"
     depends_on:
