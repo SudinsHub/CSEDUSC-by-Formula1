@@ -3,6 +3,7 @@ import express from 'express';
 import { config } from './config.js';
 import budgetRoutes from './modules/budget/budget.routes.js';
 import logRoutes from './modules/log/log.routes.js';
+import notificationRoutes from './modules/notifications/notification.routes.js';
 import { startNotificationWorker } from './workers/notificationWorker.js';
 import { startAuditWorker } from './workers/auditWorker.js';
 
@@ -23,6 +24,7 @@ app.get('/health', (_req, res) => {
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.use('/api/budgets', budgetRoutes);
 app.use('/api/logs', logRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // ── Error handling ────────────────────────────────────────────────────────────
 app.use((err, req, res, next) => {

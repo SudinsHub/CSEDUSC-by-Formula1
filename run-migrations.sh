@@ -37,6 +37,7 @@ declare -a migrations=(
     "ms3/migrations/003_create_gallery_schema.sql:MS3 (Gallery creation)"
     "ms4-finance-notification-log/migrations/001_create_finance_schema.sql:MS4 (Finance & Logs)"
     "ms4-finance-notification-log/migrations/002_create_transactions.sql:MS4 (Finance Add transactions)"
+    "ms4-finance-notification-log/migrations/003_create_notifications.sql:MS4 (Finance Add notifications)"
 )
 
 success_count=0

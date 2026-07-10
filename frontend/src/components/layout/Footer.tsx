@@ -41,6 +41,7 @@ export default function Footer() {
                 { label: 'Notices', href: '/notices' },
                 { label: 'Elections', href: '/elections' },
                 { label: 'Members', href: '/alumni' },
+                { label: 'Contact Us', href: '/contact' },
               ].map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="text-gray-400 hover:text-gold-400 transition-colors">

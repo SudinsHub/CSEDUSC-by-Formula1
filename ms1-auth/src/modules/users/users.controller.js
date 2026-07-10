@@ -27,7 +27,7 @@ export const getUser = async (req, res) => {
 
 export const updateStatus = async (req, res) => {
   try {
-    const user = await usersService.updateUserStatus(req.params.userId, req.body.status);
+    const user = await usersService.updateUserStatus(req.params.userId, req.body.status, req.body.reason);
     res.status(200).json(user);
   } catch (err) {
     if (err.status) return res.status(err.status).json({ error: err.message });

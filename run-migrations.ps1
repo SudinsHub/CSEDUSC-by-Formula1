@@ -64,6 +64,10 @@ $migrations = @(
     @{
         Service = "MS4 (Finance Add transactions)"
         File = "ms4-finance-notification-log/migrations/002_create_transactions.sql"
+    },
+    @{
+        Service = "MS4 (Finance Add notifications)"
+        File = "ms4-finance-notification-log/migrations/003_create_notifications.sql"
     }
 )
 

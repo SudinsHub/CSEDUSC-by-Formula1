@@ -68,7 +68,7 @@ export const login = async ({ email, password }) => {
     throw err;
   }
 
-  if (user.status !== 'ACTIVE') {
+  if (user.status !== 'ACTIVE' && user.status !== 'PENDING') {
     const err = new Error('Account is not active');
     err.status = 403;
     throw err;
@@ -91,6 +91,7 @@ export const login = async ({ email, password }) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      status: user.status,
       registrationNo: user.registration_no,
       batchYear: user.batch_year,
       contactNo: user.contact_no,

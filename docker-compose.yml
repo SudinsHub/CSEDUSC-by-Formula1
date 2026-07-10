@@ -45,11 +45,11 @@ services:
     environment:
       PORT: 3001
       DATABASE_URL: postgresql://formula1:formula1@postgres:5432/csedu_sc
-      JWT_SECRET: ${JWT_SECRET:-csedusc_by_formula1}
+      JWT_SECRET: ${JWT_SECRET}
       JWT_ACCESS_EXPIRES: 15m
       JWT_REFRESH_EXPIRES: 7d
       REDIS_URL: redis://redis:6379
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3005}
+      FRONTEND_URL: ${FRONTEND_URL}
     ports:
       - "3001:3001"
     depends_on:

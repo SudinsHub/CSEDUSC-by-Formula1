@@ -4,6 +4,7 @@ export const updateStatusSchema = z.object({
   status: z.enum(['ACTIVE', 'REJECTED', 'REVOKED'], {
     errorMap: () => ({ message: "status must be one of: ACTIVE, REJECTED, REVOKED" }),
   }),
+  reason: z.string().optional().nullable(),
 });
 
 export const updateRoleSchema = z.object({

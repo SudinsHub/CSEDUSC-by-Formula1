@@ -2,18 +2,29 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Menu, ChevronDown, LogOut, User, LayoutDashboard } from 'lucide-react';
+import { Menu, ChevronDown, LogOut, User, LayoutDashboard, Bell } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSidebar } from '@/contexts/SidebarContext';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/lib/api';
 
 export default function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
   const { toggle } = useSidebar();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
+  // Fetch unread notifications count with background polling
+  const { data } = useQuery({
+    queryKey: ['notifications-unread-count'],
+    queryFn: () => api.get<{ unreadCount: number }>('/api/notifications').then((r) => r.data),
+    enabled: isAuthenticated,
+    refetchInterval: 30000, // Poll every 30 seconds
+  });
+  const unreadCount = data?.unreadCount ?? 0;
+
   return (
     <header className="bg-navy-900 text-white sticky top-0 z-50 shadow-lg h-16 flex items-center">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4 w-full">
         <div className="flex items-center justify-between h-16">
           {/* Left: Sidebar Toggle & Brand Title */}
           <div className="flex items-center gap-3">
@@ -40,7 +51,22 @@ export default function Navbar() {
           {/* Right Side: Auth buttons / User Profile Dropdown */}
           <div className="flex items-center gap-3">
             {isAuthenticated && user ? (
-              <div className="relative">
+              <div className="flex items-center gap-3.5">
+                {/* Notification Bell */}
+                <Link
+                  href="/notifications"
+                  className="relative p-1.5 rounded-lg text-gray-300 hover:text-white hover:bg-navy-800 transition-colors focus:outline-none"
+                  aria-label="Notifications"
+                >
+                  <Bell className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[9px] font-black border border-navy-900 shadow-xs animate-pulse">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </Link>
+
+                <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 px-2 py-1 rounded-lg border border-gold-600/50 text-gold-400 hover:bg-navy-850 hover:border-gold-500 transition-all text-sm font-medium"
@@ -92,6 +118,7 @@ export default function Navbar() {
                   </>
                 )}
               </div>
+            </div>
             ) : (
               <div className="flex items-center gap-2">
                 <Link

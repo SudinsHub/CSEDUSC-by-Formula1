@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Vote, CalendarDays, Bell, Wallet,
-  Users, FileText, LogOut, Image, GraduationCap, Info, X
+  Users, FileText, LogOut, Image, GraduationCap, Info, X, Megaphone, Mail
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSidebar } from '@/contexts/SidebarContext';
@@ -21,11 +21,13 @@ type NavItem = {
 const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, public: false, roles: ['GeneralStudent', 'ECMember', 'Administrator'] },
   { label: 'Elections', href: '/elections', icon: Vote, public: false, roles: ['GeneralStudent', 'ECMember', 'Administrator'] },
-  { label: 'Notices', href: '/notices', icon: Bell, public: true },
+  { label: 'Notices', href: '/notices', icon: Megaphone, public: true },
   { label: 'Events', href: '/events', icon: CalendarDays, public: true },
   { label: 'Gallery', href: '/gallery', icon: Image, public: true },
   { label: 'Alumni', href: '/alumni', icon: GraduationCap, public: true },
   { label: 'About Us', href: '/about', icon: Info, public: true },
+  { label: 'Contact Us', href: '/contact', icon: Mail, public: true },
+  { label: 'Notifications', href: '/notifications', icon: Bell, public: false, roles: ['GeneralStudent', 'ECMember', 'Administrator'] },
   { label: 'Finance', href: '/finance', icon: Wallet, public: false, roles: ['ECMember', 'Administrator'] },
   { label: 'Users', href: '/admin/users', icon: Users, public: false, roles: ['ECMember', 'Administrator'] },
   { label: 'Logs', href: '/admin/logs', icon: FileText, public: false, roles: ['Administrator'] },
@@ -38,6 +40,9 @@ export default function DashboardSidebar() {
 
   // Filter items according to permissions
   const visibleItems = navItems.filter((item) => {
+    if (user?.status === 'PENDING') {
+      return item.public;
+    }
     if (item.public) return true;
     if (!user) return false;
     return item.roles?.includes(user.role) ?? false;

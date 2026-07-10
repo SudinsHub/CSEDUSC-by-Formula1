@@ -1,4 +1,5 @@
 import { query } from '../../db.js';
+import { emitNotification } from '../../queues/index.js';
 
 const VALID_STATUSES = ['PENDING', 'ACTIVE', 'REJECTED', 'REVOKED'];
 const VALID_ROLES = ['GeneralStudent', 'ECMember', 'Administrator'];
@@ -57,7 +58,7 @@ export const getUserById = async (userId) => {
   return user;
 };
 
-export const updateUserStatus = async (userId, status) => {
+export const updateUserStatus = async (userId, status, reason = null) => {
   const result = await query(
     `UPDATE users SET status = $1, updated_at = NOW()
      WHERE user_id = $2
@@ -71,8 +72,25 @@ export const updateUserStatus = async (userId, status) => {
     throw err;
   }
 
-  // TODO: emit an event to MS4 notification queue after status update (wire when MS4 is ready).
-  return result.rows[0];
+  const updatedUser = result.rows[0];
+
+  // Emit event to notification queue
+  if (status === 'ACTIVE') {
+    await emitNotification('user.approved', {
+      userId: updatedUser.userId,
+      email: updatedUser.email,
+      name: updatedUser.name,
+    });
+  } else if (status === 'REJECTED') {
+    await emitNotification('user.rejected', {
+      userId: updatedUser.userId,
+      email: updatedUser.email,
+      name: updatedUser.name,
+      reason,
+    });
+  }
+
+  return updatedUser;
 };
 
 export const activatePendingUsers = async () => {
@@ -81,6 +99,16 @@ export const activatePendingUsers = async () => {
      WHERE status = 'PENDING'
      RETURNING user_id AS "userId", name, email, role, status, registration_no AS "registrationNo", batch_year AS "batchYear", updated_at AS "updatedAt"`
   );
+
+  // Emit welcome emails for all approved users
+  for (const user of result.rows) {
+    await emitNotification('user.approved', {
+      userId: user.userId,
+      email: user.email,
+      name: user.name,
+    });
+  }
+
   return { updatedCount: result.rowCount, users: result.rows };
 };
 

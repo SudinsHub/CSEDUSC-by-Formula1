@@ -22,9 +22,13 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginForm) => {
     try {
-      await login(data.email, data.password);
+      const user = await login(data.email, data.password);
       toast.success('Welcome back!');
-      router.push('/dashboard');
+      if (user.status === 'PENDING') {
+        router.push('/pending-approval');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (err) {
       toast.error(getErrorMessage(err));
     }

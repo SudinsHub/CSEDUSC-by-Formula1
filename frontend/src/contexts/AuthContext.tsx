@@ -7,7 +7,7 @@ import type { User } from '@/types';
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
   isAuthenticated: boolean;
@@ -42,6 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     saveTokens(data.accessToken, data.refreshToken);
     const profile = await authApi.getProfile();
     setUser(profile.data);
+    return profile.data;
   }, []);
 
   const logout = useCallback(async () => {

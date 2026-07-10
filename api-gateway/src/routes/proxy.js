@@ -129,4 +129,13 @@ router.patch('/api/budgets/*path', verifyJWT, createProxyMiddleware(proxyOptions
 router.get('/api/logs',       verifyJWT, createProxyMiddleware(proxyOptions(config.ms4Url)));
 router.get('/api/logs/*path', verifyJWT, createProxyMiddleware(proxyOptions(config.ms4Url)));
 
+// Notifications
+router.post('/api/notifications/contact', optionalVerifyJWT, createProxyMiddleware(proxyOptions(config.ms4Url)));
+router.post('/api/notifications/pending-contact', optionalVerifyJWT, createProxyMiddleware(proxyOptions(config.ms4Url)));
+router.post('/api/notifications/send-custom', verifyJWT, createProxyMiddleware(proxyOptions(config.ms4Url)));
+router.get('/api/notifications', verifyJWT, createProxyMiddleware(proxyOptions(config.ms4Url)));
+router.patch('/api/notifications/read-all', verifyJWT, createProxyMiddleware(proxyOptions(config.ms4Url)));
+router.patch('/api/notifications/:id/read', verifyJWT, createProxyMiddleware(proxyOptions(config.ms4Url)));
+router.delete('/api/notifications/:id', verifyJWT, createProxyMiddleware(proxyOptions(config.ms4Url)));
+
 export default router;

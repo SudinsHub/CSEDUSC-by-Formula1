@@ -1,7 +1,6 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
 
 interface SidebarContextType {
   isOpen: boolean;
@@ -12,31 +11,24 @@ interface SidebarContextType {
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
-  const [isOpen, setIsOpen] = useState(true);
-  const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Handle window resizing to adjust default state
+  // Load state from localStorage on mount (hydration safe)
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        setIsOpen(true);
-      } else {
-        setIsOpen(false);
-      }
-    };
-
-    handleResize(); // Initial check
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    const stored = localStorage.getItem('sidebar_open');
+    if (stored !== null) {
+      setIsOpen(stored === 'true');
+    }
+    setIsInitialized(true);
   }, []);
 
-  // Close sidebar on mobile when path changes (i.e. user navigated to a new page)
+  // Save state to localStorage whenever it changes
   useEffect(() => {
-    if (window.innerWidth < 1024) {
-      setIsOpen(false);
+    if (isInitialized) {
+      localStorage.setItem('sidebar_open', String(isOpen));
     }
-  }, [pathname]);
+  }, [isOpen, isInitialized]);
 
   const toggle = () => setIsOpen((prev) => !prev);
 

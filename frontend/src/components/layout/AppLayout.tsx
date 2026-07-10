@@ -1,20 +1,39 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import Navbar from './Navbar';
 import DashboardSidebar from './DashboardSidebar';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { isOpen } = useSidebar();
+  const { user, isAuthenticated, loading } = useAuth();
 
   // Exclude auth-related routes from layout wrapping
   const isAuthPage =
     pathname.startsWith('/login') ||
     pathname.startsWith('/register') ||
     pathname.startsWith('/forgot-password');
+
+  const isPublicPage =
+    pathname === '/' ||
+    pathname.startsWith('/about') ||
+    pathname.startsWith('/contact') ||
+    pathname.startsWith('/notices') ||
+    pathname.startsWith('/events') ||
+    pathname.startsWith('/gallery') ||
+    pathname.startsWith('/alumni');
+
+  useEffect(() => {
+    if (!loading && isAuthenticated && user?.status === 'PENDING' && !isPublicPage && pathname !== '/pending-approval') {
+      router.push('/pending-approval');
+    }
+  }, [user, isAuthenticated, loading, pathname, isPublicPage, router]);
 
   if (isAuthPage) {
     return <>{children}</>;

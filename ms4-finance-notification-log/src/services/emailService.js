@@ -106,6 +106,32 @@ class EmailService {
         }
         <p>Best regards,<br>CSEDU Students' Club</p>
       `,
+      
+      'contact_submission': (d) => `
+        <h2>New Contact Us Message Received</h2>
+        <p><strong>Name:</strong> ${d.name}</p>
+        <p><strong>Email:</strong> ${d.email}</p>
+        <p><strong>Message:</strong></p>
+        <p style="background-color: #f1f5f9; padding: 16px; border-radius: 8px; font-style: italic; white-space: pre-wrap;">${d.message}</p>
+        <p>Best regards,<br>CSEDU Students' Club System</p>
+      `,
+
+      'pending_approval_contact': (d) => `
+        <h2>Urgent: Pending Registration Inquiry</h2>
+        <p>A user with pending registration has sent a message requesting validation.</p>
+        <p><strong>Name:</strong> ${d.name}</p>
+        <p><strong>Email:</strong> ${d.email}</p>
+        <p><strong>Message:</strong></p>
+        <p style="background-color: #f1f5f9; padding: 16px; border-radius: 8px; font-style: italic; white-space: pre-wrap;">${d.message}</p>
+        <p>Best regards,<br>CSEDU Students' Club System</p>
+      `,
+
+      'custom_message': (d) => `
+        <h2>Message from CSEDU Students' Club</h2>
+        <p>Dear Member,</p>
+        <p style="white-space: pre-wrap;">${d.message}</p>
+        <p>Best regards,<br>CSEDU Students' Club Administration</p>
+      `,
     };
 
     const template = templates[type];
