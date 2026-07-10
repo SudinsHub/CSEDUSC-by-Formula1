@@ -24,7 +24,6 @@ const navItems: NavItem[] = [
   { label: 'Notices', href: '/notices', icon: Megaphone, public: true },
   { label: 'Events', href: '/events', icon: CalendarDays, public: true },
   { label: 'Gallery', href: '/gallery', icon: Image, public: true },
-  { label: 'Alumni', href: '/alumni', icon: GraduationCap, public: true },
   { label: 'About Us', href: '/about', icon: Info, public: true },
   { label: 'Contact Us', href: '/contact', icon: Mail, public: true },
   { label: 'Notifications', href: '/notifications', icon: Bell, public: false, roles: ['GeneralStudent', 'ECMember', 'Administrator'] },
@@ -67,7 +66,7 @@ export default function DashboardSidebar() {
           // Width & Visibility states
           isOpen ? 'w-64 opacity-100 translate-x-0' : 'w-0 overflow-hidden opacity-0 -translate-x-full lg:translate-x-0',
           // Mobile styling: fixed full-height drawer overlapping page content
-          'fixed inset-y-0 left-0 lg:relative lg:inset-auto h-screen lg:h-auto'
+          'fixed inset-y-0 left-0 lg:relative lg:inset-auto h-screen lg:h-[calc(100vh-4rem)]'
         )}
       >
         {/* Mobile Header (Close button & Brand) */}

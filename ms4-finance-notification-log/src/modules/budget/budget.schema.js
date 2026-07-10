@@ -8,16 +8,27 @@ export const submitBudgetSchema = [
     .isFloat({ min: 0 })
     .withMessage('Total amount must be a non-negative number'),
   body('lineItems')
-    .isArray({ min: 1 })
-    .withMessage('Line items must be a non-empty array'),
+    .isArray()
+    .withMessage('Line items must be an array')
+    .customSanitizer((value) => {
+      if (!Array.isArray(value)) return [];
+      return value
+        .map((item) => {
+          if (!item || typeof item !== 'object') return null;
+          const category = typeof item.category === 'string' ? item.category.trim() : (item.category ? String(item.category).trim() : '');
+          const amount = parseInt(item.amount, 10);
+          return { category, amount };
+        })
+        .filter((item) => item !== null && item.category !== '' && !isNaN(item.amount) && item.amount > 0);
+    }),
   body('lineItems.*.category')
     .isString()
     .trim()
     .notEmpty()
     .withMessage('Each line item must have a category'),
-  body('lineItems.*.estimatedCost')
-    .isFloat({ min: 0 })
-    .withMessage('Each line item must have a non-negative estimated cost'),
+  body('lineItems.*.amount')
+    .isInt({ min: 1 })
+    .withMessage('Each line item must have a positive integer amount'),
 ];
 
 export const budgetIdSchema = [

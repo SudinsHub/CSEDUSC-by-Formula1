@@ -109,7 +109,22 @@ export default api;
 
 export function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
-    return (error.response?.data as { error?: string })?.error || error.message || 'Request failed';
+    const data = error.response?.data as any;
+    if (data) {
+      if (Array.isArray(data.details)) {
+        return data.details.map((d: any) => typeof d === 'string' ? d : d.message || d.msg || JSON.stringify(d)).join(', ');
+      }
+      if (Array.isArray(data.errors)) {
+        return data.errors.map((e: any) => e.msg || e.message || JSON.stringify(e)).join(', ');
+      }
+      if (data.error) {
+        return data.error;
+      }
+      if (data.message) {
+        return data.message;
+      }
+    }
+    return error.message || 'Request failed';
   }
   if (error instanceof Error) return error.message;
   return 'An unexpected error occurred';

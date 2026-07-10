@@ -2,9 +2,9 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { Wallet, Plus, TrendingUp, Receipt } from 'lucide-react';
+import { Wallet, Plus, TrendingUp, Receipt, X } from 'lucide-react';
 import api from '@/lib/api';
 import { formatDate, formatCurrency, getErrorMessage } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,7 +18,7 @@ import type { Budget, Event } from '@/types';
 interface BudgetForm {
   eventId: string;
   totalAmount: string;
-  lineItems: string;
+  lineItems: { category: string; amount: string }[];
 }
 
 function fmt(err: unknown) { return getErrorMessage(err as { message?: string }); }
@@ -29,7 +29,18 @@ export default function FinancePage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<BudgetForm>();
+  const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } = useForm<BudgetForm>({
+    defaultValues: {
+      eventId: '',
+      totalAmount: '',
+      lineItems: [{ category: '', amount: '' }]
+    }
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'lineItems'
+  });
 
   const { data: budgets, isLoading } = useQuery({
     queryKey: ['budgets'],
@@ -45,17 +56,10 @@ export default function FinancePage() {
 
   const createMutation = useMutation({
     mutationFn: (data: BudgetForm) => {
-      // Parse line items from textarea (format: "category:amount, category:amount")
-      const lineItems = data.lineItems
-        .split(',')
-        .map((item) => {
-          const [category, cost] = item.trim().split(':');
-          return {
-            category: category?.trim() || '',
-            estimatedCost: parseFloat(cost?.trim() || '0'),
-          };
-        })
-        .filter((item) => item.category && item.estimatedCost > 0);
+      const lineItems = data.lineItems.map((item) => ({
+        category: item.category,
+        amount: item.amount ? parseInt(item.amount, 10) : null,
+      }));
 
       return api.post('/api/budgets', {
         eventId: parseInt(data.eventId, 10),
@@ -66,7 +70,11 @@ export default function FinancePage() {
     onSuccess: () => {
       toast.success('Budget proposal submitted!');
       setCreateOpen(false);
-      reset();
+      reset({
+        eventId: '',
+        totalAmount: '',
+        lineItems: [{ category: '', amount: '' }]
+      });
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
     },
     onError: (e) => toast.error(fmt(e)),
@@ -218,11 +226,47 @@ export default function FinancePage() {
               {errors.totalAmount && <p className="text-red-500 text-xs mt-1">{errors.totalAmount.message}</p>}
             </div>
             <div>
-              <label className="label">Line Items (format: category:amount, category:amount)</label>
-              <textarea className="input min-h-24 resize-none" placeholder="Venue:20000, Food:15000, Decorations:5000"
-                {...register('lineItems', { required: 'Required' })} />
-              {errors.lineItems && <p className="text-red-500 text-xs mt-1">{errors.lineItems.message}</p>}
-              <p className="text-xs text-gray-500 mt-1">Enter each item as category:amount, separated by commas</p>
+              <label className="label">Expenditure Items</label>
+              <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                {fields.map((field, index) => (
+                  <div key={field.id} className="flex gap-2 items-center">
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        placeholder="Category (e.g. Venue)"
+                        className="input"
+                        {...register(`lineItems.${index}.category` as const)}
+                      />
+                    </div>
+                    <div className="w-32">
+                      <input
+                        type="number"
+                        placeholder="Amount"
+                        className="input"
+                        min="1"
+                        {...register(`lineItems.${index}.amount` as const)}
+                      />
+                    </div>
+                    {fields.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="p-2 text-red-500 hover:text-red-750 hover:bg-red-950/10 rounded transition-colors"
+                        title="Remove item"
+                      >
+                        <X className="w-4.5 h-4.5" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => append({ category: '', amount: '' })}
+                className="mt-2 text-xs flex items-center gap-1 text-gold-500 hover:text-gold-600 font-semibold px-2 py-1.5 rounded border border-gold-500/20 hover:border-gold-500/40 transition-all bg-navy-850/10"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Expenditure Item
+              </button>
             </div>
             <div className="flex gap-3 pt-2">
               <button type="button" onClick={() => setCreateOpen(false)} className="flex-1 btn-outline">Cancel</button>

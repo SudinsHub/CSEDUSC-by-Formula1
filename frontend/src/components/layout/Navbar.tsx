@@ -24,7 +24,7 @@ export default function Navbar() {
 
   return (
     <header className="bg-navy-900 text-white sticky top-0 z-50 shadow-lg h-16 flex items-center">
-      <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4 w-full">
+      <div className="max-w-7xl mx-auto px-2 w-full">
         <div className="flex items-center justify-between h-16">
           {/* Left: Sidebar Toggle & Brand Title */}
           <div className="flex items-center gap-3">
@@ -80,8 +80,8 @@ export default function Navbar() {
                   ) : (
                     <User className="w-4 h-4" />
                   )}
-                  <span className="max-w-28 truncate">{user.name}</span>
-                  <ChevronDown className="w-3.5 h-3.5 transition-transform" />
+                  <span className="max-w-28 truncate hidden sm:inline">{user.name}</span>
+                  <ChevronDown className="w-3.5 h-3.5 transition-transform hidden sm:inline" />
                 </button>
                 {userMenuOpen && (
                   <>
