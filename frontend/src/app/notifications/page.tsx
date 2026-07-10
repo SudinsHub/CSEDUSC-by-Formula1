@@ -6,7 +6,8 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import {
   Bell, Mail, Check, Trash2, Send, Megaphone,
-  Calendar, Vote, Wallet, ShieldAlert, Award, Inbox
+  Calendar, Vote, Wallet, ShieldAlert, Award, Inbox,
+  AlertTriangle, RefreshCw, Edit3, X, Eye
 } from 'lucide-react';
 import api from '@/lib/api';
 import { getErrorMessage } from '@/lib/api';
@@ -20,6 +21,10 @@ interface NotificationDetails {
   email?: string;
   message?: string;
   senderUserId?: string | number;
+  to?: string;
+  subject?: string;
+  body?: string;
+  error?: string;
   [key: string]: any;
 }
 
@@ -28,7 +33,7 @@ interface NotificationItem {
   userId: number;
   title: string;
   message: string;
-  type: 'contact_submission' | 'pending_approval' | 'custom' | 'system' | 'budget_update' | string;
+  type: 'contact_submission' | 'pending_approval' | 'custom' | 'system' | 'budget_update' | 'failed_email' | string;
   isRead: boolean;
   details: NotificationDetails | null;
   createdAt: string;
@@ -51,9 +56,14 @@ interface CustomBroadcastForm {
 export default function NotificationsPage() {
   const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<'inbox' | 'broadcast'>('inbox');
+  const [activeTab, setActiveTab] = useState<'inbox' | 'failed' | 'broadcast'>('inbox');
   const [filterUnread, setFilterUnread] = useState(false);
   const [sendingBroadcast, setSendingBroadcast] = useState(false);
+
+  // States for failed email edits
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editedEmail, setEditedEmail] = useState('');
+  const [viewingHtmlId, setViewingHtmlId] = useState<number | null>(null);
 
   // 1. Queries
   const { data, isLoading } = useQuery({
@@ -83,7 +93,20 @@ export default function NotificationsPage() {
   const deleteMutation = useMutation({
     mutationFn: (id: number) => api.delete(`/api/notifications/${id}`),
     onSuccess: () => {
-      toast.success('Notification deleted.');
+      toast.success('Notification record deleted.');
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+    onError: (e) => toast.error(getErrorMessage(e)),
+  });
+
+  const retryMutation = useMutation({
+    mutationFn: ({ id, email }: { id: number; email?: string }) => 
+      api.post(`/api/notifications/${id}/retry`, { email }),
+    onSuccess: () => {
+      toast.success('Email dispatched and retried successfully!');
+      setEditingId(null);
+      setEditedEmail('');
+      setViewingHtmlId(null);
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
     onError: (e) => toast.error(getErrorMessage(e)),
@@ -140,6 +163,8 @@ export default function NotificationsPage() {
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
+      case 'failed_email':
+        return <AlertTriangle className="w-5 h-5 text-red-650" />;
       case 'contact_submission':
         return <Inbox className="w-5 h-5 text-teal-600" />;
       case 'pending_approval':
@@ -159,9 +184,14 @@ export default function NotificationsPage() {
     }
   };
 
-  const list = data?.notifications ?? [];
-  const filteredList = filterUnread ? list.filter((n) => !n.isRead) : list;
-  const unreadCount = data?.unreadCount ?? 0;
+  const allNotifications = data?.notifications ?? [];
+  
+  // Separate failed emails from normal notifications
+  const failedList = allNotifications.filter((n) => n.type === 'failed_email');
+  const inboxList = allNotifications.filter((n) => n.type !== 'failed_email');
+
+  const filteredInboxList = filterUnread ? inboxList.filter((n) => !n.isRead) : inboxList;
+  const inboxUnreadCount = inboxList.filter((n) => !n.isRead).length;
 
   return (
     <div className="flex flex-col flex-1 bg-gray-50 max-w-7xl mx-auto w-full">
@@ -178,18 +208,28 @@ export default function NotificationsPage() {
             </p>
           </div>
 
-          {isAdmin && (
-            <div className="flex gap-2 bg-navy-900/10 p-1 rounded-xl w-fit self-start sm:self-auto border border-gray-200">
-              <button
-                onClick={() => setActiveTab('inbox')}
-                className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
-                  activeTab === 'inbox'
-                    ? 'bg-navy-900 text-white shadow-sm'
-                    : 'text-navy-900 hover:bg-navy-900/5'
-                }`}
-              >
-                Inbox ({unreadCount} new)
-              </button>
+          <div className="flex gap-2 bg-navy-900/10 p-1 rounded-xl w-fit self-start sm:self-auto border border-gray-200">
+            <button
+              onClick={() => setActiveTab('inbox')}
+              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                activeTab === 'inbox'
+                  ? 'bg-navy-900 text-white shadow-sm'
+                  : 'text-navy-900 hover:bg-navy-900/5'
+              }`}
+            >
+              Inbox ({inboxUnreadCount} new)
+            </button>
+            <button
+              onClick={() => setActiveTab('failed')}
+              className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                activeTab === 'failed'
+                  ? 'bg-navy-900 text-white shadow-sm'
+                  : 'text-navy-900 hover:bg-navy-900/5'
+              }`}
+            >
+              Failed Messages ({failedList.length})
+            </button>
+            {isAdmin && (
               <button
                 onClick={() => setActiveTab('broadcast')}
                 className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${
@@ -200,8 +240,8 @@ export default function NotificationsPage() {
               >
                 Broadcast Center
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Tab 1: Notification Inbox */}
@@ -209,7 +249,7 @@ export default function NotificationsPage() {
           <div className="space-y-4">
             
             {/* Filter bar */}
-            {list.length > 0 && (
+            {inboxList.length > 0 && (
               <div className="flex items-center justify-between border-b pb-3 border-gray-200 gap-4">
                 <div className="flex items-center gap-2">
                   <button
@@ -226,11 +266,11 @@ export default function NotificationsPage() {
                       filterUnread ? 'bg-navy-800 text-white' : 'text-gray-600 hover:bg-gray-150'
                     }`}
                   >
-                    Unread ({unreadCount})
+                    Unread ({inboxUnreadCount})
                   </button>
                 </div>
 
-                {unreadCount > 0 && (
+                {inboxUnreadCount > 0 && (
                   <button
                     onClick={() => markAllReadMutation.mutate()}
                     className="text-xs font-semibold text-gold-600 hover:text-gold-700 flex items-center gap-1.5"
@@ -244,7 +284,7 @@ export default function NotificationsPage() {
             {/* List */}
             {isLoading ? (
               <div className="py-20 flex justify-center"><LoadingSpinner /></div>
-            ) : filteredList.length === 0 ? (
+            ) : filteredInboxList.length === 0 ? (
               <EmptyState
                 icon={Bell}
                 title={filterUnread ? 'No Unread Alerts' : 'Inbox is Empty'}
@@ -256,7 +296,7 @@ export default function NotificationsPage() {
               />
             ) : (
               <div className="space-y-3">
-                {filteredList.map((item) => (
+                {filteredInboxList.map((item) => (
                   <div
                     key={item.notificationId}
                     className={`card p-4 transition-all duration-300 border flex gap-4 ${
@@ -324,7 +364,7 @@ export default function NotificationsPage() {
                       <button
                         onClick={() => deleteMutation.mutate(item.notificationId)}
                         disabled={deleteMutation.isPending}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-red-650 hover:bg-red-50 transition-colors"
                         title="Delete Alert"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -338,7 +378,176 @@ export default function NotificationsPage() {
           </div>
         )}
 
-        {/* Tab 2: Admin Broadcast Center */}
+        {/* Tab 2: Failed Messages */}
+        {activeTab === 'failed' && (
+          <div className="space-y-4">
+            {isLoading ? (
+              <div className="py-20 flex justify-center"><LoadingSpinner /></div>
+            ) : failedList.length === 0 ? (
+              <EmptyState
+                icon={Mail}
+                title="No Failed Email logs"
+                description="Excellent! All email notifications have dispatched successfully."
+              />
+            ) : (
+              <div className="space-y-4">
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
+                  <AlertTriangle className="w-5 h-5 text-red-650 shrink-0" />
+                  <p className="text-xs text-red-800 font-medium">
+                    The messages below failed to deliver via SMTP. You can edit the recipient address and retry sending them.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  {failedList.map((item) => {
+                    const isEditing = editingId === item.notificationId;
+                    const isViewingHtml = viewingHtmlId === item.notificationId;
+
+                    return (
+                      <div
+                        key={item.notificationId}
+                        className="card p-5 border border-red-200 bg-white shadow-xs hover:shadow-sm transition-all duration-300 flex flex-col gap-3"
+                      >
+                        {/* Upper Section */}
+                        <div className="flex gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center shrink-0">
+                            <Mail className="w-5 h-5 text-red-650" />
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-4">
+                              <h4 className="text-sm font-bold text-navy-900 leading-tight">
+                                {item.title}
+                              </h4>
+                              <span className="text-[10px] text-gray-400 font-semibold whitespace-nowrap">
+                                {formatDate(item.createdAt)}
+                              </span>
+                            </div>
+
+                            <p className="text-xs text-gray-600 mt-1">
+                              {item.message}
+                            </p>
+
+                            {/* Error Details */}
+                            {item.details?.error && (
+                              <div className="mt-2 text-[11px] font-mono bg-red-50 border border-red-100 text-red-800 p-2 rounded-lg whitespace-pre-wrap">
+                                <span className="font-bold">Error: </span>
+                                {item.details.error}
+                              </div>
+                            )}
+
+                            {/* Email Details */}
+                            <div className="mt-2 text-xs space-y-1.5">
+                              <div className="text-gray-500 font-medium">
+                                <span className="font-bold text-navy-800">Subject: </span>
+                                {item.details?.subject || 'N/A'}
+                              </div>
+
+                              {/* Recipient Address */}
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-navy-800">To Address: </span>
+                                {isEditing ? (
+                                  <div className="flex items-center gap-2 flex-1 max-w-md">
+                                    <input
+                                      type="email"
+                                      className="input text-xs py-1.5 px-2 bg-gray-50 focus:bg-white"
+                                      value={editedEmail}
+                                      onChange={(e) => setEditedEmail(e.target.value)}
+                                      placeholder="Edit recipient address..."
+                                    />
+                                    <button
+                                      onClick={() => {
+                                        if (!editedEmail.trim() || !editedEmail.includes('@')) {
+                                          toast.error('Please enter a valid email address');
+                                          return;
+                                        }
+                                        retryMutation.mutate({ id: item.notificationId, email: editedEmail });
+                                      }}
+                                      disabled={retryMutation.isPending}
+                                      className="px-2.5 py-1.5 bg-navy-900 text-white rounded-lg text-[10px] font-bold"
+                                    >
+                                      Send
+                                    </button>
+                                    <button
+                                      onClick={() => setEditingId(null)}
+                                      className="p-1.5 text-gray-400 hover:bg-gray-100 rounded-lg"
+                                    >
+                                      <X className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-navy-900 font-semibold bg-gray-100 px-2 py-0.5 rounded text-[11px]">
+                                      {item.details?.to || 'Unknown'}
+                                    </span>
+                                    <button
+                                      onClick={() => {
+                                        setEditingId(item.notificationId);
+                                        setEditedEmail(item.details?.to || '');
+                                      }}
+                                      className="text-gold-650 hover:text-gold-700 flex items-center gap-0.5 text-[10px] font-bold"
+                                      title="Edit email address"
+                                    >
+                                      <Edit3 className="w-3 h-3" /> Edit
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Expandable Email Body */}
+                        {item.details?.body && (
+                          <div className="mt-1 border-t pt-2 border-gray-150">
+                            <button
+                              onClick={() => setViewingHtmlId(isViewingHtml ? null : item.notificationId)}
+                              className="text-[11px] font-bold text-gray-500 hover:text-navy-900 flex items-center gap-1"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              {isViewingHtml ? 'Hide Message HTML Content' : 'View Message HTML Content'}
+                            </button>
+
+                            {isViewingHtml && (
+                              <div className="mt-2 border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
+                                <div className="p-3 max-h-60 overflow-y-auto bg-white text-xs">
+                                  <div dangerouslySetInnerHTML={{ __html: item.details.body }} />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Action buttons footer */}
+                        <div className="flex justify-end items-center gap-2 border-t pt-3 border-gray-100">
+                          <button
+                            onClick={() => deleteMutation.mutate(item.notificationId)}
+                            disabled={deleteMutation.isPending}
+                            className="btn-outline px-3 py-1.5 text-xs text-red-650 hover:bg-red-50 hover:border-red-300 font-bold flex items-center gap-1"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" /> Delete Log
+                          </button>
+                          {!isEditing && (
+                            <button
+                              onClick={() => retryMutation.mutate({ id: item.notificationId })}
+                              disabled={retryMutation.isPending}
+                              className="btn-gold px-4 py-1.5 text-xs font-bold flex items-center gap-1"
+                            >
+                              <RefreshCw className={`w-3.5 h-3.5 ${retryMutation.isPending && retryMutation.variables?.id === item.notificationId ? 'animate-spin' : ''}`} />
+                              Resend Notification
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 3: Admin Broadcast Center */}
         {activeTab === 'broadcast' && isAdmin && (
           <div className="card p-8 bg-white border border-gray-100 shadow-sm">
             <h3 className="text-lg font-bold text-navy-900 mb-1">Create Broadcast Announcement</h3>

@@ -55,12 +55,13 @@ export const budgetController = {
       const userId = parseInt(req.headers['x-user-id'], 10);
       const userRole = req.headers['x-user-role'];
       const budgetId = parseInt(req.params.id, 10);
+      const { notifyRequester, customMessage } = req.body;
       
       if (userRole !== 'Administrator') {
         return res.status(403).json({ error: 'Only admins can approve budgets' });
       }
 
-      const budget = await budgetService.approve(budgetId, userId);
+      const budget = await budgetService.approve(budgetId, userId, notifyRequester, customMessage);
       res.json(budget);
     } catch (error) {
       if (error.message === 'Budget not found') {
@@ -79,13 +80,13 @@ export const budgetController = {
       const userId = parseInt(req.headers['x-user-id'], 10);
       const userRole = req.headers['x-user-role'];
       const budgetId = parseInt(req.params.id, 10);
-      const { comment } = req.body;
+      const { comment, notifyRequester, customMessage } = req.body;
 
       if (userRole !== 'Administrator') {
         return res.status(403).json({ error: 'Only admins can reject budgets' });
       }
 
-      const budget = await budgetService.reject(budgetId, userId, comment);
+      const budget = await budgetService.reject(budgetId, userId, comment, notifyRequester, customMessage);
       res.json(budget);
     } catch (error) {
       if (error.message === 'Budget not found') {

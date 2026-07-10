@@ -29,6 +29,15 @@ export const submitBudgetSchema = [
   body('lineItems.*.amount')
     .isInt({ min: 1 })
     .withMessage('Each line item must have a positive integer amount'),
+  body('notifyAdmins')
+    .optional()
+    .isBoolean()
+    .withMessage('notifyAdmins must be a boolean'),
+  body('adminMessage')
+    .optional()
+    .isString()
+    .trim()
+    .withMessage('adminMessage must be a string'),
 ];
 
 export const budgetIdSchema = [
@@ -39,6 +48,15 @@ export const budgetIdSchema = [
 
 export const approveBudgetSchema = [
   ...budgetIdSchema,
+  body('notifyRequester')
+    .optional()
+    .isBoolean()
+    .withMessage('notifyRequester must be a boolean'),
+  body('customMessage')
+    .optional()
+    .isString()
+    .trim()
+    .withMessage('customMessage must be a string'),
 ];
 
 export const rejectBudgetSchema = [
@@ -48,6 +66,15 @@ export const rejectBudgetSchema = [
     .isString()
     .trim()
     .withMessage('Comment must be a string'),
+  body('notifyRequester')
+    .optional()
+    .isBoolean()
+    .withMessage('notifyRequester must be a boolean'),
+  body('customMessage')
+    .optional()
+    .isString()
+    .trim()
+    .withMessage('customMessage must be a string'),
 ];
 
 export const recordExpenditureSchema = [

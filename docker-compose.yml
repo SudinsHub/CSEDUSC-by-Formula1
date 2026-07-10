@@ -126,6 +126,7 @@ services:
       SMTP_USER: ${SMTP_USER:-your_email@gmail.com}
       SMTP_PASS: ${SMTP_PASS:-your_app_password}
       SMTP_FROM: ${SMTP_FROM:-"CSEDU Students' Club <your_email@gmail.com>"}
+      FRONTEND_URL: ${FRONTEND_URL}
     ports:
       - "3004:3004"
     depends_on:

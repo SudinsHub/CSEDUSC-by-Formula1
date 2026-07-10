@@ -114,7 +114,7 @@ export interface Notice {
   attachments?: Attachment[];
 }
 
-export type BudgetStatus = 'pending' | 'approved' | 'rejected';
+export type BudgetStatus = 'pending_review' | 'approved' | 'rejected';
 
 export interface Budget {
   budget_id: number;
@@ -122,7 +122,7 @@ export interface Budget {
   proposed_by: number;
   status: BudgetStatus;
   total_amount: number;
-  line_items: Record<string, number>;
+  line_items: { category: string; amount: number }[];
   admin_comment?: string;
   reviewed_by?: number;
   submitted_at: string;

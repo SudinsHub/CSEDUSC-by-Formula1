@@ -162,5 +162,24 @@ export const notificationRepository = {
     }
     const result = await pool.query(queryStr, params);
     return result.rows[0];
+  },
+
+  async updateDetails(id, details) {
+    const result = await pool.query(
+      `UPDATE notifications
+       SET details = $1
+       WHERE notification_id = $2
+       RETURNING 
+         notification_id AS "notificationId", 
+         user_id AS "userId", 
+         title, 
+         message, 
+         type, 
+         is_read AS "isRead", 
+         details, 
+         created_at AS "createdAt"`,
+      [JSON.stringify(details), id]
+    );
+    return result.rows[0];
   }
 };

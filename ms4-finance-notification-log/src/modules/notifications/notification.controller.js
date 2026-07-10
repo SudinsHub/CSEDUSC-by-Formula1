@@ -122,5 +122,23 @@ export const notificationController = {
       console.error('Error in custom broadcast:', error);
       res.status(500).json({ error: error.message || 'Failed to send broadcast' });
     }
+  },
+
+  async retryFailed(req, res) {
+    try {
+      const userId = parseInt(req.headers['x-user-id'], 10);
+      const id = parseInt(req.params.id, 10);
+      const { email } = req.body;
+
+      if (isNaN(userId)) {
+        return res.status(401).json({ error: 'Unauthorized: missing user ID header' });
+      }
+
+      const result = await notificationService.retryFailedEmail(id, userId, email);
+      res.json(result);
+    } catch (error) {
+      console.error('Error retrying failed email:', error);
+      res.status(500).json({ error: error.message || 'Failed to retry email' });
+    }
   }
 };

@@ -136,6 +136,7 @@ router.post('/api/notifications/send-custom', verifyJWT, createProxyMiddleware(p
 router.get('/api/notifications', verifyJWT, createProxyMiddleware(proxyOptions(config.ms4Url)));
 router.patch('/api/notifications/read-all', verifyJWT, createProxyMiddleware(proxyOptions(config.ms4Url)));
 router.patch('/api/notifications/:id/read', verifyJWT, createProxyMiddleware(proxyOptions(config.ms4Url)));
+router.post('/api/notifications/:id/retry', verifyJWT, createProxyMiddleware(proxyOptions(config.ms4Url)));
 router.delete('/api/notifications/:id', verifyJWT, createProxyMiddleware(proxyOptions(config.ms4Url)));
 
 export default router;

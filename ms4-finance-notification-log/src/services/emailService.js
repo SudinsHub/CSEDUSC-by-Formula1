@@ -132,6 +132,22 @@ class EmailService {
         <p style="white-space: pre-wrap;">${d.message}</p>
         <p>Best regards,<br>CSEDU Students' Club Administration</p>
       `,
+      'budget.submitted': (d) => `
+        <h2>New Budget Proposal Submitted</h2>
+        <p>Dear Admin,</p>
+        <p style="white-space: pre-wrap;">${d.message}</p>
+        <p style="margin: 24px 0;"><a href="${config.frontendUrl}/finance" style="background-color: #0f172a; color: #fbbf24; padding: 12px 24px; text-decoration: none; display: inline-block; border-radius: 8px; font-weight: bold;">Go to Finance Page</a></p>
+        <p>Or copy this link: <a href="${config.frontendUrl}/finance">${config.frontendUrl}/finance</a></p>
+        <p>Best regards,<br>CSEDU Students' Club System</p>
+      `,
+      'budget.decided_custom': (d) => `
+        <h2>Budget Proposal ${d.status === 'approved' ? 'Approved' : 'Rejected'}</h2>
+        <p>Dear Member,</p>
+        <p style="white-space: pre-wrap;">${d.message}</p>
+        <p style="margin: 24px 0;"><a href="${config.frontendUrl}/finance" style="background-color: #0f172a; color: #fbbf24; padding: 12px 24px; text-decoration: none; display: inline-block; border-radius: 8px; font-weight: bold;">Go to Finance Page</a></p>
+        <p>Or copy this link: <a href="${config.frontendUrl}/finance">${config.frontendUrl}/finance</a></p>
+        <p>Best regards,<br>CSEDU Students' Club Administration</p>
+      `,
     };
 
     const template = templates[type];

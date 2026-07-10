@@ -18,6 +18,7 @@ router.post('/pending-contact', pendingContactSchema, validate, notificationCont
 router.get('/', notificationController.list);
 router.patch('/read-all', notificationController.markAllRead);
 router.patch('/:id/read', notificationIdSchema, validate, notificationController.markRead);
+router.post('/:id/retry', notificationIdSchema, validate, notificationController.retryFailed);
 router.delete('/:id', notificationIdSchema, validate, notificationController.delete);
 router.post('/send-custom', sendCustomNotificationSchema, validate, notificationController.sendCustom);
 

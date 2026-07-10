@@ -162,5 +162,44 @@ export const notificationService = {
     });
 
     return { message: `Notification successfully delivered to ${recipients.length} user(s)` };
+  },
+
+  async retryFailedEmail(id, userId, newEmail) {
+    const notif = await notificationRepository.findById(id);
+    if (!notif) {
+      throw new Error('Notification not found');
+    }
+    if (notif.userId !== userId) {
+      throw new Error('Access denied');
+    }
+    if (notif.type !== 'failed_email') {
+      throw new Error('Notification is not a failed email');
+    }
+
+    const details = notif.details || {};
+    let toAddress = newEmail || details.to;
+    if (!toAddress) {
+      throw new Error('No recipient email address specified');
+    }
+
+    try {
+      await emailService.send(toAddress, details.subject || 'Notification Retry', details.body || '');
+      
+      // If successful, delete the failed notification from DB
+      await notificationRepository.delete(id);
+      return { message: 'Email sent successfully and removed from failed list' };
+    } catch (error) {
+      console.error(`Retry send to ${toAddress} failed:`, error);
+      
+      // Update details with new recipient and new error
+      const updatedDetails = {
+        ...details,
+        to: toAddress,
+        error: error.message
+      };
+      await notificationRepository.updateDetails(id, updatedDetails);
+      
+      throw new Error(`Email sending failed: ${error.message}`);
+    }
   }
 };

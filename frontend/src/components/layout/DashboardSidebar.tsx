@@ -66,7 +66,7 @@ export default function DashboardSidebar() {
           // Width & Visibility states
           isOpen ? 'w-64 opacity-100 translate-x-0' : 'w-0 overflow-hidden opacity-0 -translate-x-full lg:translate-x-0',
           // Mobile styling: fixed full-height drawer overlapping page content
-          'fixed inset-y-0 left-0 lg:relative lg:inset-auto h-screen lg:h-[calc(100vh-4rem)]'
+          'fixed inset-y-0 left-0 h-screen lg:bottom-auto'
         )}
       >
         {/* Mobile Header (Close button & Brand) */}
@@ -97,7 +97,7 @@ export default function DashboardSidebar() {
         )}
 
         {/* Navigation Items */}
-        <nav className="flex-1 py-4 space-y-1.5 px-3 overflow-y-auto">
+        <nav className="flex-1 py-4 space-y-1.5 px-3 overflow-y-auto scrollbar-none">
           {visibleItems.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.href || pathname.startsWith(item.href + '/');

@@ -24,7 +24,7 @@ export default function Navbar() {
 
   return (
     <header className="bg-navy-900 text-white sticky top-0 z-50 shadow-lg h-16 flex items-center">
-      <div className="max-w-7xl mx-auto px-2 w-full">
+      <div className="px-4 w-full">
         <div className="flex items-center justify-between h-16">
           {/* Left: Sidebar Toggle & Brand Title */}
           <div className="flex items-center gap-3">
