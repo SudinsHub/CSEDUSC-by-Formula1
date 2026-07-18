@@ -128,6 +128,7 @@ router.patch('/api/budgets/*path', verifyJWT, createProxyMiddleware(proxyOptions
 
 router.get('/api/logs',       verifyJWT, createProxyMiddleware(proxyOptions(config.ms4Url)));
 router.get('/api/logs/*path', verifyJWT, createProxyMiddleware(proxyOptions(config.ms4Url)));
+router.delete('/api/logs',    verifyJWT, createProxyMiddleware(proxyOptions(config.ms4Url)));
 
 // Notifications
 router.post('/api/notifications/contact', optionalVerifyJWT, createProxyMiddleware(proxyOptions(config.ms4Url)));

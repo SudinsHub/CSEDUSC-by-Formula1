@@ -4,4 +4,8 @@ export const logService = {
   async list(filters) {
     return await logRepository.findAll(filters);
   },
+
+  async delete(filters) {
+    return await logRepository.delete(filters);
+  },
 };

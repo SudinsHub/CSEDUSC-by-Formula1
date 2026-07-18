@@ -148,6 +148,8 @@ export interface ActivityLog {
   target_entity_id?: number;
   details?: Record<string, unknown>;
   logged_at: string;
+  actor_name?: string;
+  target_name?: string;
 }
 
 export interface ApiError {
