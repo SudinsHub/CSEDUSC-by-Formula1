@@ -382,7 +382,9 @@ export default function FinancePage() {
                 </div>
                 <div>
                   <div className="text-[10px] uppercase font-bold text-gray-400">Proposed By</div>
-                  <div className="text-gray-700 font-medium mt-0.5">User ID: #{selectedBudget.proposed_by}</div>
+                  <div className="text-gray-700 font-medium mt-0.5">
+                    {selectedBudget.proposed_by_name || `User ID: #${selectedBudget.proposed_by}`}
+                  </div>
                 </div>
                 <div>
                   <div className="text-[10px] uppercase font-bold text-gray-400">Submitted At</div>

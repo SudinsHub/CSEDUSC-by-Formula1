@@ -590,7 +590,7 @@ export default function NotificationsPage() {
                     <input
                       type="text"
                       className="input text-sm py-2"
-                      placeholder="e.g. member@cs.du.ac.bd or 12"
+                      placeholder="e.g. member@example.com or 12"
                       {...register('userValue', { required: 'Target identifier is required' })}
                     />
                     {errors.userValue && <p className="text-red-500 text-xs mt-1">{errors.userValue.message}</p>}

@@ -4,11 +4,7 @@ export const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z
     .string()
-    .email('Invalid email address')
-    .refine(
-      (val) => val.endsWith('@cs.du.ac.bd') || val.endsWith('@cse.du.ac.bd'),
-      { message: 'Email must be a @cs.du.ac.bd or @cse.du.ac.bd address' }
-    ),
+    .email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   registrationNo: z.string().optional(),
   batchYear: z

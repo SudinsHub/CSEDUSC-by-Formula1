@@ -33,15 +33,15 @@ if [ -z "$ADMIN_NAME" ]; then
     exit 1
 fi
 
-read -p "Email (@cs.du.ac.bd or @cse.du.ac.bd): " ADMIN_EMAIL
+read -p "Email: " ADMIN_EMAIL
 if [ -z "$ADMIN_EMAIL" ]; then
     echo "❌ Error: Email cannot be empty"
     exit 1
 fi
 
-# Validate email domain
-if [[ ! "$ADMIN_EMAIL" =~ @(cs|cse)\.du\.ac\.bd$ ]]; then
-    echo "❌ Error: Email must end with @cs.du.ac.bd or @cse.du.ac.bd"
+# Validate email format
+if [[ ! "$ADMIN_EMAIL" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]; then
+    echo "❌ Error: Invalid email address format"
     exit 1
 fi
 

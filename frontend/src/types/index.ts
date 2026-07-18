@@ -120,6 +120,7 @@ export interface Budget {
   budget_id: number;
   event_id?: number;
   proposed_by: number;
+  proposed_by_name?: string;
   status: BudgetStatus;
   total_amount: number;
   line_items: { category: string; amount: number }[];

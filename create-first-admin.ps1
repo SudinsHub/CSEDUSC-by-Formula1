@@ -40,9 +40,9 @@ if ([string]::IsNullOrWhiteSpace($ADMIN_EMAIL)) {
     exit 1
 }
 
-# Validate email domain
-if ($ADMIN_EMAIL -notmatch '@(cs|cse)\.du\.ac\.bd$') {
-    Write-Host "[ERROR] Email must end with @cs.du.ac.bd or @cse.du.ac.bd" -ForegroundColor Red
+# Validate email
+if ($ADMIN_EMAIL -notmatch '^[^@]+@[^@]+\.[^@]+$') {
+    Write-Host "[ERROR] Invalid email address format" -ForegroundColor Red
     exit 1
 }
 

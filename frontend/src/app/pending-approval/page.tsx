@@ -147,7 +147,7 @@ export default function PendingApprovalPage() {
                   <input
                     type="email"
                     className="input text-sm py-2 bg-gray-50 text-gray-500"
-                    placeholder="you@cs.du.ac.bd"
+                    placeholder="you@example.com"
                     {...register('email')}
                     disabled
                   />
