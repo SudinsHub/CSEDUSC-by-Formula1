@@ -40,11 +40,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 text-gray-850">
+    <div className="flex flex-col h-screen overflow-hidden bg-gray-50 text-gray-850">
       {/* Top Navigation Bar */}
       <Navbar />
 
-      <div className="flex flex-1 relative overflow-hidden h-[calc(100vh-4rem)]">
+      <div className="flex flex-1 relative overflow-hidden">
         {/* Left Responsive Navigation Sidebar */}
         <DashboardSidebar />
 

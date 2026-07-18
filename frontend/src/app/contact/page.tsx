@@ -32,7 +32,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="flex flex-col flex-1 bg-gray-50">
       <main className="flex-1">
         
         {/* Banner Section */}

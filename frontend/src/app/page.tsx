@@ -34,7 +34,7 @@ export default function HomePage() {
     .slice(0, 4);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="flex flex-col flex-1 bg-white">
       {/* ── HERO SECTION ── */}
       <section className="bg-white pt-12 pb-20 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -61,8 +61,7 @@ export default function DashboardSidebar() {
       <aside
         className={cn(
           'flex flex-col bg-navy-900 text-white transition-all duration-300 z-40 border-r border-navy-800 shrink-0',
-          // Desktop styling: sticky sidebar below navbar
-          'lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)]',
+          'lg:relative lg:inset-y-auto lg:h-full',
           // Width & Visibility states
           isOpen ? 'w-64 opacity-100 translate-x-0' : 'w-0 overflow-hidden opacity-0 -translate-x-full lg:translate-x-0',
           // Mobile styling: fixed full-height drawer overlapping page content
