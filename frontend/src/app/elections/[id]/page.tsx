@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Vote, Users, Trophy, Edit, Trash2, Check, UserPlus, Send, Settings, UserCheck, UserX } from 'lucide-react';
+import { ArrowLeft, Vote, Users, Trophy, Edit, Trash2, Check, UserPlus, Send, Settings, UserCheck, UserX, Mail } from 'lucide-react';
 import api from '@/lib/api';
 import { formatDateTime, getErrorMessage, cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -123,6 +123,7 @@ export default function ElectionDetailPage() {
           post: item.post,
           votes: Number(item.vote_count || 0),
           batch_year: item.batch_year ? Number(item.batch_year) : undefined,
+          email: item.email,
         })) as ElectionResult[];
       }),
     enabled: !!election && (election.status === 'closed' || (election?.phase === 2 && resultsPhase === 1)),
@@ -386,6 +387,38 @@ export default function ElectionDetailPage() {
     }
   };
 
+  const getWinnerEmails = () => {
+    if (!results || results.length === 0) return [];
+    const emails: string[] = [];
+    if (resultsPhase === 1) {
+      // Group by batch
+      const batches = [...new Set(results.map(r => r.batch_year || 0))];
+      batches.forEach((batchYear) => {
+        const batchResults = results.filter(r => r.batch_year === batchYear)
+          .sort((a, b) => b.votes - a.votes);
+        const limit = election.representatives_per_batch || 5;
+        const batchWinners = batchResults.slice(0, limit);
+        batchWinners.forEach(w => {
+          if (w.email) emails.push(w.email);
+        });
+      });
+    } else {
+      // Group by designation
+      const designations = [...new Set(results.map(r => r.post || 'Unassigned'))];
+      designations.forEach((desig) => {
+        const desigResults = results.filter(r => r.post === desig)
+          .sort((a, b) => b.votes - a.votes);
+        const matchedConfig = election.designations?.find(d => d.name === desig);
+        const limit = matchedConfig ? matchedConfig.elect_count : 1;
+        const desigWinners = desigResults.slice(0, limit);
+        desigWinners.forEach(w => {
+          if (w.email) emails.push(w.email);
+        });
+      });
+    }
+    return [...new Set(emails)]; // unique emails
+  };
+
   return (
     <div className="flex flex-col flex-1 bg-gray-50 max-w-7xl mx-auto w-full">
       <main className="flex-1 p-6 max-w-4xl">
@@ -527,9 +560,26 @@ export default function ElectionDetailPage() {
         {(election.status === 'closed' || (election.phase === 2)) && (
           <div className="card p-6 mb-6">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4 pb-2 border-b border-gray-100">
-              <h2 className="font-semibold text-navy-800 flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-gold-500" /> Election Tally & Winners
-              </h2>
+              <div className="flex items-center gap-3">
+                <h2 className="font-semibold text-navy-800 flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-gold-500" /> Election Tally & Winners
+                </h2>
+                {isAdmin && results && results.length > 0 && (
+                  <button
+                    onClick={() => {
+                      const emails = getWinnerEmails();
+                      if (emails.length === 0) {
+                        toast.error('No winner emails found.');
+                        return;
+                      }
+                      window.open(`/notifications?tab=broadcast&emails=${encodeURIComponent(emails.join(','))}`, '_blank');
+                    }}
+                    className="btn-outline flex items-center gap-1.5 px-3 py-1.5 text-xs text-gold-650 border-gold-500 hover:bg-gold-50 font-bold animate-pulse"
+                  >
+                    <Mail className="w-3.5 h-3.5" /> Notify the winners
+                  </button>
+                )}
+              </div>
               {election.phase === 2 && (
                 <div className="flex bg-gray-100 rounded-lg p-1 text-xs">
                   <button 

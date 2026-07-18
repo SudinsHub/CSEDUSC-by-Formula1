@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { ArrowLeft, CalendarDays, MapPin, Users, UserCheck, Share2, Copy, Check, DollarSign } from 'lucide-react';
+import { ArrowLeft, CalendarDays, MapPin, Users, UserCheck, Share2, Copy, Check, DollarSign, Mail } from 'lucide-react';
 import api from '@/lib/api';
 import { formatDateTime, getErrorMessage, cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -424,6 +424,21 @@ export default function EventDetailClient({ id }: { id: string }) {
                         {type === 'all' ? 'All Types' : type + 's'}
                       </button>
                     ))}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const emails = filteredRegistrations.map(r => r.user_email).filter(Boolean);
+                        if (emails.length === 0) {
+                          toast.error('No registered users with valid emails to mail.');
+                          return;
+                        }
+                        window.open(`/notifications?tab=broadcast&emails=${encodeURIComponent(emails.join(','))}`, '_blank');
+                      }}
+                      className="px-3 py-1.5 text-xs font-bold rounded-lg border border-gold-500 bg-gold-50 text-gold-700 hover:bg-gold-100 transition-all flex items-center gap-1"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      Mail {registrationFilter === 'all' ? 'Registrants' : registrationFilter === 'attendee' ? 'Attendees' : 'Volunteers'}
+                    </button>
                   </div>
                 </div>
                 <div className="max-w-md">

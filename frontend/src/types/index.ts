@@ -65,6 +65,7 @@ export interface ElectionResult {
   post?: string;
   votes: number;
   batch_year?: number;
+  email?: string;
 }
 
 export type EventStatus = 'open' | 'closed' | 'cancelled';

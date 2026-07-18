@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import {
@@ -45,7 +45,7 @@ interface NotificationsResponse {
 }
 
 interface CustomBroadcastForm {
-  recipientType: 'all' | 'role' | 'user';
+  recipientType: 'all' | 'role' | 'user' | 'multiple';
   roleValue: string;
   userValue: string;
   deliveryMethod: 'in_app' | 'email' | 'both';
@@ -64,6 +64,21 @@ export default function NotificationsPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editedEmail, setEditedEmail] = useState('');
   const [viewingHtmlId, setViewingHtmlId] = useState<number | null>(null);
+
+  // States for custom mailing list
+  const [multipleRecipients, setMultipleRecipients] = useState<string[]>([]);
+  const [manualRecipientInput, setManualRecipientInput] = useState('');
+
+  const handleAddRecipient = () => {
+    const val = manualRecipientInput.trim();
+    if (!val) return;
+    if (multipleRecipients.includes(val)) {
+      toast.error('Recipient is already in the mailing list');
+      return;
+    }
+    setMultipleRecipients([...multipleRecipients, val]);
+    setManualRecipientInput('');
+  };
 
   // 1. Queries
   const { data, isLoading } = useQuery({
@@ -113,7 +128,7 @@ export default function NotificationsPage() {
   });
 
   // 3. Admin Broadcast Form
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<CustomBroadcastForm>({
+  const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<CustomBroadcastForm>({
     defaultValues: {
       recipientType: 'all',
       roleValue: 'GeneralStudent',
@@ -126,7 +141,30 @@ export default function NotificationsPage() {
 
   const selectedRecipientType = watch('recipientType');
 
+  // Read search parameters for initial mailing list
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      const emailsParam = params.get('emails');
+      
+      if (tabParam === 'broadcast') {
+        setActiveTab('broadcast');
+      }
+      if (emailsParam) {
+        const emailsList = emailsParam.split(',').map(e => e.trim()).filter(Boolean);
+        setMultipleRecipients(emailsList);
+        setValue('recipientType', 'multiple');
+      }
+    }
+  }, [setValue]);
+
   const onBroadcastSubmit = async (formData: CustomBroadcastForm) => {
+    if (formData.recipientType === 'multiple' && multipleRecipients.length === 0) {
+      toast.error('Please add at least one recipient to the mailing list');
+      return;
+    }
+
     setSendingBroadcast(true);
     try {
       let recipientValue = 'all';
@@ -134,6 +172,8 @@ export default function NotificationsPage() {
         recipientValue = formData.roleValue;
       } else if (formData.recipientType === 'user') {
         recipientValue = formData.userValue;
+      } else if (formData.recipientType === 'multiple') {
+        recipientValue = multipleRecipients.join(',');
       }
 
       const payload = {
@@ -154,6 +194,7 @@ export default function NotificationsPage() {
         title: '',
         message: '',
       });
+      setMultipleRecipients([]);
     } catch (err) {
       toast.error(getErrorMessage(err));
     } finally {
@@ -566,6 +607,7 @@ export default function NotificationsPage() {
                     <option value="all">All Active Members</option>
                     <option value="role">Target specific Role</option>
                     <option value="user">Individual User (ID or Email)</option>
+                    <option value="multiple">Custom Mailing List</option>
                   </select>
                 </div>
 
@@ -594,6 +636,54 @@ export default function NotificationsPage() {
                       {...register('userValue', { required: 'Target identifier is required' })}
                     />
                     {errors.userValue && <p className="text-red-500 text-xs mt-1">{errors.userValue.message}</p>}
+                  </div>
+                )}
+
+                {/* Custom Mailing List Selector */}
+                {selectedRecipientType === 'multiple' && (
+                  <div className="col-span-1 md:col-span-2 space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <label className="label text-xs font-bold text-navy-800">Mailing List Recipients ({multipleRecipients.length})</label>
+                    {multipleRecipients.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-2 bg-white rounded-lg border border-gray-150">
+                        {multipleRecipients.map((emailOrId) => (
+                          <span key={emailOrId} className="inline-flex items-center gap-1 bg-navy-50 text-navy-800 text-xs font-semibold px-2.5 py-1 rounded-lg border border-navy-100">
+                            {emailOrId}
+                            <button
+                              type="button"
+                              onClick={() => setMultipleRecipients(multipleRecipients.filter(r => r !== emailOrId))}
+                              className="text-red-500 font-bold hover:bg-navy-100 w-4 h-4 flex items-center justify-center rounded-full ml-1 text-sm"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-gray-400 italic">No recipients added yet. Use the field below to build the mailing list.</p>
+                    )}
+
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        className="input text-sm py-1.5 flex-1"
+                        placeholder="Enter email address or User ID to add..."
+                        value={manualRecipientInput}
+                        onChange={(e) => setManualRecipientInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddRecipient();
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddRecipient}
+                        className="px-4 py-1.5 bg-navy-900 text-gold-400 rounded-lg text-xs font-bold hover:bg-navy-950 transition border border-navy-900"
+                      >
+                        Add
+                      </button>
+                    </div>
                   </div>
                 )}
 

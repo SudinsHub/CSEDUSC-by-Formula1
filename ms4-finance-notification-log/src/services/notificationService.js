@@ -118,6 +118,17 @@ export const notificationService = {
         throw err;
       }
       recipients = [singleUser];
+    } else if (recipientType === 'multiple') {
+      const targets = recipientValue.split(',').map(t => t.trim()).filter(Boolean);
+      for (const target of targets) {
+        const user = await notificationRepository.findUserByIdOrEmail(target);
+        if (user) {
+          recipients.push(user);
+        } else if (target.includes('@')) {
+          // Direct email fallback for guest users
+          recipients.push({ userId: null, name: target.split('@')[0], email: target });
+        }
+      }
     }
 
     if (recipients.length === 0) {
@@ -137,11 +148,23 @@ export const notificationService = {
           await emailService.send(recipient.email, emailSubject, emailBody);
         } catch (err) {
           console.error(`Failed to send custom email to ${recipient.email}:`, err);
-          // Continue to next recipient even if one fails
+          // Store failed email in the admin's inbox
+          await notificationRepository.insert({
+            userId: adminId,
+            title: `Failed to send broadcast email to ${recipient.email}`,
+            message: `Delivery failed to ${recipient.email} (${err.message}). You can retry sending from the Failed Messages list.`,
+            type: 'failed_email',
+            details: {
+              to: recipient.email,
+              subject: emailSubject,
+              body: emailBody,
+              error: err.message
+            }
+          });
         }
       }
 
-      if (createInApp) {
+      if (createInApp && recipient.userId != null) {
         await notificationRepository.insert({
           userId: recipient.userId,
           title,

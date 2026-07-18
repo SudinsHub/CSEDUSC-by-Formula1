@@ -40,8 +40,8 @@ export const notificationIdSchema = [
 
 export const sendCustomNotificationSchema = [
   body('recipientType')
-    .isIn(['all', 'role', 'user'])
-    .withMessage("recipientType must be one of: 'all', 'role', 'user'"),
+    .isIn(['all', 'role', 'user', 'multiple'])
+    .withMessage("recipientType must be one of: 'all', 'role', 'user', 'multiple'"),
   body('recipientValue')
     .isString()
     .trim()
