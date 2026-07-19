@@ -211,7 +211,8 @@ export default function FinancePage() {
         {/* Budget list */}
         {isLoading ? <LoadingSpinner /> : budgets && budgets.length > 0 ? (
           <div className="card overflow-hidden border border-gray-150">
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto w-full">
+              <table className="w-full text-sm min-w-[700px]">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">ID</th>
@@ -248,6 +249,7 @@ export default function FinancePage() {
               </tbody>
             </table>
           </div>
+        </div>
         ) : (
           <EmptyState icon={Wallet} title="No budgets yet" description="Submit a budget proposal to get started." />
         )}

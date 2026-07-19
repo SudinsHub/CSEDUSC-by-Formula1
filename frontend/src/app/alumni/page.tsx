@@ -32,8 +32,8 @@ export default function AlumniPage() {
     <div className="flex flex-col flex-1 bg-gray-50">
       <main className="flex-1 p-6 max-w-7xl mx-auto w-full">
         <div className="mb-6">
-          <h1 className="text-3xl font-extrabold text-navy-900 flex items-center gap-2">
-            <Users className="w-8 h-8 text-navy-800" /> Club Members
+          <h1 className="text-2xl font-bold text-navy-800 flex items-center gap-2">
+            <Users className="w-6 h-6 text-navy-800" /> Club Members
           </h1>
           <p className="text-gray-500 text-sm mt-1">Browse and connect with CSEDU Students&apos; Club members.</p>
         </div>

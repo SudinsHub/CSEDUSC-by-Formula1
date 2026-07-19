@@ -233,7 +233,8 @@ export default function UsersPage() {
         ) : filtered.length > 0 ? (
           <>
             <div className="card overflow-hidden">
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto w-full">
+                <table className="w-full text-sm min-w-[800px]">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="text-left px-4 py-3 text-gray-500 font-medium">Name</th>
@@ -313,6 +314,7 @@ export default function UsersPage() {
                 </tbody>
               </table>
             </div>
+          </div>
 
             {/* Pagination */}
             {totalPages > 1 && (

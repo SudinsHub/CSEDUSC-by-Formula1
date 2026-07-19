@@ -65,8 +65,8 @@ export default function GalleryPage() {
       {/* Header section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-gray-200 pb-5">
         <div>
-          <h1 className="text-3xl font-extrabold text-navy-900 flex items-center gap-2.5">
-            <ImageIcon className="w-8 h-8 text-navy-800" /> Club Gallery
+          <h1 className="text-2xl font-bold text-navy-800 flex items-center gap-2">
+            <ImageIcon className="w-6 h-6 text-navy-800" /> Club Gallery
           </h1>
           <p className="text-gray-500 text-sm mt-1">Explore memorable moments and highlights from our club events and activities.</p>
         </div>
@@ -157,14 +157,14 @@ export default function GalleryPage() {
         >
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[380px] text-gray-800">
             {/* Left Carousel Column */}
-            <div className="lg:col-span-7 flex flex-col justify-center h-full min-h-[300px] lg:min-h-[400px]">
+            <div className="lg:col-span-7 flex flex-col justify-center h-full min-h-[220px] sm:min-h-[300px] lg:min-h-[400px]">
               <Carousel images={viewingEntry.images || []} className="h-full w-full" />
             </div>
 
             {/* Right Meta Column */}
             <div className="lg:col-span-5 flex flex-col justify-between h-full space-y-4">
               <div className="space-y-3">
-                <h2 className="text-2xl font-extrabold text-navy-900 tracking-tight leading-snug">{viewingEntry.title}</h2>
+                <h2 className="text-xl font-bold text-navy-800 tracking-tight leading-snug">{viewingEntry.title}</h2>
                 
                 {/* Author and Date */}
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 border-b border-gray-100 pb-3">

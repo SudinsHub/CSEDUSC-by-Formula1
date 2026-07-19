@@ -196,7 +196,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full btn-primary py-3 justify-center flex items-center"
+              className="w-full btn-primary py-2.5 sm:py-3 text-sm sm:text-base justify-center flex items-center"
             >
               {isSubmitting ? 'Creating account...' : 'Create account'}
             </button>

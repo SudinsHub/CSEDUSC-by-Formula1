@@ -15,7 +15,7 @@ export default function Carousel({ images, className }: CarouselProps) {
 
   if (!images || images.length === 0) {
     return (
-      <div className={cn('w-full h-full bg-gray-100 flex items-center justify-center rounded-xl border border-dashed border-gray-300 min-h-[300px]', className)}>
+      <div className={cn('w-full h-full bg-gray-100 flex items-center justify-center rounded-xl border border-dashed border-gray-300 min-h-[220px] sm:min-h-[300px]', className)}>
         <div className="text-center text-gray-400 p-6">
           <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
           <p className="text-sm font-medium">No images in this gallery entry</p>
@@ -40,7 +40,7 @@ export default function Carousel({ images, className }: CarouselProps) {
   };
 
   return (
-    <div className={cn('relative overflow-hidden rounded-xl bg-navy-950 select-none group w-full h-full min-h-[300px] flex flex-col justify-center', className)}>
+    <div className={cn('relative overflow-hidden rounded-xl bg-navy-950 select-none group w-full h-full min-h-[220px] sm:min-h-[300px] flex flex-col justify-center', className)}>
       {/* Slides Container */}
       <div className="relative w-full h-full flex items-center overflow-hidden">
         <div 

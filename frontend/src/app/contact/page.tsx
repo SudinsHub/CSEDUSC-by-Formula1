@@ -157,7 +157,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full btn-primary py-3 justify-center flex items-center gap-2"
+                    className="w-full btn-primary py-2.5 sm:py-3 text-sm sm:text-base justify-center flex items-center gap-2"
                   >
                     {submitting ? (
                       'Submitting...'

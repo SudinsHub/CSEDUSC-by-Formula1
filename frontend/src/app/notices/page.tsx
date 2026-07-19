@@ -284,8 +284,8 @@ export default function NoticesPage() {
     <main className="flex-1 p-6 max-w-4xl mx-auto w-full">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-gray-200 pb-5">
         <div>
-          <h1 className="text-3xl font-bold text-navy-800 flex items-center gap-2">
-            <Bell className="w-7 h-7 text-navy-800" /> Notice Board
+          <h1 className="text-2xl font-bold text-navy-800 flex items-center gap-2">
+            <Bell className="w-6 h-6 text-navy-800" /> Notice Board
           </h1>
           <p className="text-gray-500 text-sm mt-1">Official notices, announcements, and files from the CSEDU Students&apos; Club.</p>
         </div>

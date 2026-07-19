@@ -126,7 +126,7 @@ function ResetPasswordForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full btn-primary py-3 flex justify-center"
+          className="w-full btn-primary py-2.5 sm:py-3 text-sm sm:text-base flex justify-center"
         >
           {isSubmitting ? 'Resetting...' : 'Reset Password'}
         </button>

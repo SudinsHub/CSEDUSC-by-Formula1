@@ -63,7 +63,7 @@ export default function ForgotPasswordPage() {
                   />
                   {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
                 </div>
-                <button type="submit" disabled={isSubmitting} className="w-full btn-primary py-3 flex justify-center">
+                <button type="submit" disabled={isSubmitting} className="w-full btn-primary py-2.5 sm:py-3 text-sm sm:text-base flex justify-center">
                   {isSubmitting ? 'Sending...' : 'Send reset link'}
                 </button>
               </form>

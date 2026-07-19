@@ -61,7 +61,7 @@ export default function HomePage() {
                 and everything happening in the Department of CSE, University of Dhaka.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link href="/register" className="btn-primary flex items-center gap-2 text-base px-8 py-3.5 shadow-md">
+                <Link href="/register" className="btn-primary flex items-center gap-2 text-sm sm:text-base px-5 py-2.5 sm:px-8 sm:py-3.5 shadow-md">
                   Become a Member
                 </Link>
                 <Link 
@@ -170,12 +170,12 @@ export default function HomePage() {
             Become an active member of the CSE, University of Dhaka student network. Vote, lead, volunteer, and make a difference.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/register" className="btn-gold text-base px-10 py-3.5 shadow-md">
+            <Link href="/register" className="btn-gold text-sm sm:text-base px-6 py-2.5 sm:px-10 sm:py-3.5 shadow-md">
               Become a Member
             </Link>
             <Link 
               href="/gallery" 
-              className="btn-outline border-gold-600 text-gold-400 hover:bg-navy-800 text-base px-10 py-3.5"
+              className="btn-outline border-gold-600 text-gold-400 hover:bg-navy-800 text-sm sm:text-base px-6 py-2.5 sm:px-10 sm:py-3.5"
             >
               Visit Gallery
             </Link>

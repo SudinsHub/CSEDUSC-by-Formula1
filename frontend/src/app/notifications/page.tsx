@@ -729,7 +729,7 @@ export default function NotificationsPage() {
               <button
                 type="submit"
                 disabled={sendingBroadcast}
-                className="w-full btn-primary py-3 justify-center flex items-center gap-2 text-sm shadow-sm"
+                className="w-full btn-primary py-2.5 sm:py-3 justify-center flex items-center gap-2 text-sm sm:text-base shadow-sm"
               >
                 {sendingBroadcast ? (
                   'Dispatching Broadcast...'
