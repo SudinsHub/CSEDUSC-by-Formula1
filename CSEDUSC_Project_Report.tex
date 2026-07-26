@@ -1,0 +1,513 @@
+\documentclass[12pt, a4paper]{report}
+
+% ---------------------------------------------------------
+% Packages & Formatting Setup
+% ---------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper, top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning, shadows}
+
+% ---------------------------------------------------------
+% Color Palette Definitions
+% ---------------------------------------------------------
+\definecolor{primaryblue}{RGB}{30, 58, 138}    % Deep Navy Blue
+\definecolor{secondaryteal}{RGB}{13, 148, 136} % Modern Teal
+\definecolor{accentdark}{RGB}{30, 41, 59}     % Slate Dark Text
+\definecolor{codebg}{RGB}{248, 250, 252}      % Soft Light Slate Background
+\definecolor{bordergray}{RGB}{226, 232, 240}   % Border Gray
+\definecolor{highlightgold}{RGB}{217, 119, 6}  % Warm Amber/Gold
+
+% ---------------------------------------------------------
+% Hyperref Configuration
+% ---------------------------------------------------------
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primaryblue,
+    citecolor=secondaryteal,
+    urlcolor=primaryblue,
+    pdftitle={CSEDU Students' Club Management System - Project Report},
+    pdfauthor={Team Formula1 - University of Dhaka}
+}
+
+% ---------------------------------------------------------
+% Section Formatting
+% ---------------------------------------------------------
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{primaryblue}}{\chaptertitlename\ \thechapter}{14pt}{\Huge}
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{primaryblue}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{secondaryteal}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{accentdark}}{\thesubsubsection}{1em}{}
+
+% ---------------------------------------------------------
+% Listings Code Setup
+% ---------------------------------------------------------
+\lstset{
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\footnotesize\color{accentdark},
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    commentstyle=\color{gray},
+    keywordstyle=\color{primaryblue}\bfseries,
+    stringstyle=\color{secondaryteal},
+    frame=single,
+    rulecolor=\color{bordergray},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    tabsize=2,
+    showstringspaces=false
+}
+
+% ---------------------------------------------------------
+% Header & Footer Setup
+% ---------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small \color{gray} CSEDU Students' Club Management System}
+\lhead{\small \color{gray} Course Project Report | CSE-4113}
+\rfoot{\thepage}
+\lfoot{\small \color{gray} Department of Computer Science \& Engineering, DU}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% ================= ================= ================= ===
+% DOCUMENT CONTENT STARTS HERE
+% ================= ================= ================= ===
+\begin{document}
+
+% ---------------------------------------------------------
+% GENTLE & ELEGANT COVER PAGE
+% ---------------------------------------------------------
+\begin{titlepage}
+    \centering
+    \tikz[remember picture,overlay] \node[anchor=north west,inner sep=0pt] at (current page.north west)
+    {\color{primaryblue}\rule{\paperwidth}{12pt}};
+    
+    \vspace{0.5cm}
+    
+    % Institution Header
+    {\Large \bfseries \color{accentdark} UNIVERSITY OF DHAKA}\\[0.2cm]
+    {\large \bfseries \color{primaryblue} Department of Computer Science and Engineering}\\[0.15cm]
+    {\small \color{gray} CSE-4113: Internet Programming Lab}\\[1.2cm]
+    
+    % Project Title Box
+    \begin{tcolorbox}[
+        colback=codebg,
+        colframe=primaryblue,
+        arc=4mm,
+        boxrule=1.5pt,
+        halign=center,
+        top=15pt, bottom=15pt, left=15pt, right=15pt
+    ]
+        {\huge \bfseries \color{primaryblue} CSEDU Students' Club}\\[0.25cm]
+        {\huge \bfseries \color{primaryblue} Management System}\\[0.4cm]
+        \rule{0.6\textwidth}{0.5pt}\\[0.4cm]
+        {\large \itshape \color{accentdark} A Scalable Microservices Architecture for University Club Operations, Democratic Elections, Content Delivery, and Financial Governance}
+    \end{tcolorbox}
+    
+    \vspace{1.0cm}
+    
+    % Course Teachers Box
+    \begin{tcolorbox}[
+        colback=white,
+        colframe=secondaryteal,
+        arc=3mm,
+        boxrule=1pt,
+        top=10pt, bottom=10pt, left=15pt, right=15pt,
+        title={\bfseries \color{white} Course Teachers},
+        coltitle=white,
+        colbacktitle=secondaryteal
+    ]
+        \renewcommand{\arraystretch}{1.3}
+        \begin{tabular*}{0.96\linewidth}{@{\extracolsep{\fill}} >{\bfseries}l >{\itshape}r}
+            Md. Fahim Arefin & Lecturer \\
+            Md. Ahasanul Alam & Lecturer \\
+            Dr. Md. Mamun-Or-Rashid & Professor \\
+        \end{tabular*}
+    \end{tcolorbox}
+    
+    \vspace{0.5cm}
+    
+    % Team Information Box
+    \begin{tcolorbox}[
+        colback=white,
+        colframe=primaryblue,
+        arc=3mm,
+        boxrule=1pt,
+        top=10pt, bottom=10pt, left=15pt, right=15pt,
+        title={\bfseries \color{white} Submitted By: Team Formula1},
+        coltitle=white,
+        colbacktitle=primaryblue
+    ]
+        \renewcommand{\arraystretch}{1.3}
+        \begin{tabular*}{0.96\linewidth}{@{\extracolsep{\fill}} >{\bfseries}l >{\itshape}r}
+            Amio Rashid & Roll 59 \\
+            Syed Naimul Islam & Roll 37 \\
+            Mahmud Hasan Walid & Roll 51 \\
+            Md Al Habib & Roll 17 \\
+        \end{tabular*}
+    \end{tcolorbox}
+    
+    \vfill
+    
+    % Footer Date
+    {\small \color{gray} Academic Session \& Project Submission --- University of Dhaka}
+    \vspace{0.3cm}
+\end{titlepage}
+
+% ---------------------------------------------------------
+% FRONT MATTER: TOC & ABSTRACT
+% ---------------------------------------------------------
+\cleardoublepage
+\pagenumbering{roman}
+
+% Table of Contents
+\tableofcontents
+\cleardoublepage
+
+% Abstract Page (Placed after Contents page)
+\begin{abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+The \textbf{CSEDU Students' Club Management System} is a modern, enterprise-grade web platform engineered to digitize, streamline, and govern all operational and administrative functions of the Students' Club at the Department of Computer Science and Engineering, University of Dhaka. Built using a decoupled \textbf{Microservices Architecture}, the platform separates concerns across four specialized core services, an API Gateway layer, and a high-performance Next.js frontend web application.
+
+Key system capabilities include role-based access control (RBAC), multi-phase democratic election workflows with strict ballot privacy guarantees, event registration and volunteer management, dynamic public notice and media partitioning, transparent financial budgeting and expenditure auditing, and automated multi-channel notifications. Containerized via Docker Compose and supported by automated database migration and administrative bootstrapping scripts, the platform delivers high scalability, fault isolation, and institutional reliability.
+\end{abstract}
+
+\cleardoublepage
+
+% Main Content (Arabic Page Numbering Starts Here)
+\pagenumbering{arabic}
+
+% ---------------------------------------------------------
+% CHAPTER 1: INTRODUCTION
+% ---------------------------------------------------------
+\chapter{Introduction \& Executive Summary}
+
+\section{Project Overview}
+The Department of Computer Science and Engineering at the University of Dhaka (CSEDU) fosters a vibrant student community through the CSEDU Students' Club. Historically, managing club activities---ranging from executive committee elections to event organizing, budget allocation, public notices, and student registrations---relied on fragmented, manual procedures. 
+
+The \textbf{CSEDU Students' Club Management System} was designed and implemented by \textbf{Team Formula1} as part of the course \textbf{CSE-4113: Internet Programming Lab}. The platform provides a centralized, secure, and intuitive digital hub for students, Executive Committee (EC) members, and system administrators.
+
+\section{Core System Objectives}
+The platform aims to solve operational bottlenecks through five fundamental pillars:
+\begin{enumerate}[label=\bfseries P\arabic*.]
+    \item \textbf{Decentralized Microservices Architecture:} Ensure sub-system independence, isolated scaling, and fault tolerance by decomposing features into containerized Node.js services.
+    \item \textbf{Democratic Election Governance:} Provide a cryptographically sound, multi-phase voting system that guarantees voter anonymity while preventing double voting.
+    \item \textbf{Comprehensive Content Management:} Facilitate event organizing, volunteer recruitment, registration fee processing, media asset partitioning, and interactive galleries.
+    \item \textbf{Financial Transparency \& Auditing:} Enable structured budget proposals, line-item tracking, real-time expense verification, and an immutable audit log of all system actions.
+    \item \textbf{Seamless User Experience:} Deliver a responsive, state-of-the-art web interface built with Next.js 15, React 18, and Tailwind CSS.
+\end{enumerate}
+
+\section{High-Level Architecture Summary}
+The architecture follows an API Gateway pattern where all external client communications pass through a central proxy gateway. The backend comprises four microservices interacting with a shared PostgreSQL database instance partitioned into distinct schemas (\texttt{auth}, \texttt{election}, \texttt{content}, \texttt{finance}) and a Redis caching and queue cluster.
+
+\begin{table}[h!]
+\centering
+\caption{System Microservices \& Attribution Matrix}
+\label{tab:team_attribution}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Service} & \textbf{Scope \& Responsibility} & \textbf{Lead Developer} & \textbf{Roll} \\ \midrule
+\textbf{MS1: Auth} & Identity, Registration, Approvals, JWT & Amio Rashid & Roll 59 \\
+\textbf{MS2: Election} & Elections, Candidates, Votes, Phases & Syed Naimul Islam & Roll 37 \\
+\textbf{MS3: Content} & Events, Notices, Media, Gallery & Md Al Habib & Roll 17 \\
+\textbf{MS4: Finance} & Budgets, Expenses, Logs, Email & Mahmud Hasan Walid & Roll 51 \\
+\textbf{API Gateway} & Proxying, Rate Limiting, Header Injection & Team Formula1 & -- \\
+\textbf{Frontend} & Next.js 15 UI, State, React Query & Team Formula1 & -- \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% ---------------------------------------------------------
+% CHAPTER 2: SYSTEM ARCHITECTURE
+% ---------------------------------------------------------
+\chapter{System Architecture \& Technical Design}
+
+\section{Microservices Architectural Pattern}
+The system replaces monolithic paradigms with a service-oriented architecture. Each domain operates as an autonomous Node.js HTTP service built on Express.js.
+
+\begin{figure}[h!]
+\centering
+\begin{tcolorbox}[colback=codebg,colframe=primaryblue,title=\textbf{System Topography \& Network Topology}]
+\begin{verbatim}
++-------------------------------------------------------------------+
+|                        Client Layer (Browser)                     |
+|                   Next.js 15 Web Application                      |
++----------------------------------+--------------------------------+
+                                   | HTTP/REST (Port 8084 -> 4000)
+                                   v
++-------------------------------------------------------------------+
+|                    API Gateway (Port 4000)                        |
+|  - Rate Limiting | Helmet Security | JWT Auth Check | CORS        |
++---+------------------+------------------+------------------+------+
+    | /api/auth/*      | /api/elections/* | /api/events/*    | /api/budgets/*
+    | /api/users/*     |                  | /api/notices/*   | /api/logs/*
+    v                  v                  v                  v
++-----------+      +-----------+      +-----------+      +-----------+
+|    MS1    |      |    MS2    |      |    MS3    |      |    MS4    |
+|   Auth    |      | Elections |      |  Content  |      |  Finance  |
+| Port 3001 |      | Port 3002 |      | Port 3003 |      | Port 3004 |
++-----+-----+      +-----+-----+      +-----+-----+      +-----+-----+
+      |                  |                  |                  |
+      +------------------+--------+---------+------------------+
+                                  |
+                                  v
++-------------------------------------------------------------------+
+|                     Shared Data & Queue Layer                     |
+|  - PostgreSQL 15 (Schemas: auth, election, content, finance)      |
+|  - Redis 7 (BullMQ Queues & Caching)                             |
+|  - Local File Storage (/var/uploads Media Partition)              |
++-------------------------------------------------------------------+
+\end{verbatim}
+\end{tcolorbox}
+\caption{Architectural Blueprint of the CSEDU Students' Club Platform}
+\label{fig:arch_diagram}
+\end{figure}
+
+\section{API Gateway \& Reverse Proxy Dynamics}
+The API Gateway serves as the single ingress point for all frontend requests, abstracting downstream service topographies.
+
+\subsection{Key Gateway Functions}
+\begin{itemize}
+    \item \textbf{Token Verification \& Header Forwarding:} The Gateway validates JWT Bearer tokens present in incoming \texttt{Authorization} headers. Upon verification, it strips the raw token and injects trust headers---\texttt{x-user-id} and \texttt{x-user-role}---into the proxied HTTP request sent to backend services.
+    \item \textbf{Selective Authentication:} Routes are categorized into \textit{Public} (e.g., \texttt{/api/auth/login}, \texttt{/api/events}), \textit{Optional Authenticated} (allowing guests and logged-in users different views), and \textit{Strictly Protected} (requiring active authentication).
+    \item \textbf{Rate Limiting \& Protection:} Protects services against denial-of-service and brute-force attacks via \texttt{express-rate-limit}. Auth routes are capped strictly, while general APIs receive broader throughput windows.
+\end{itemize}
+
+\section{Inter-Service Communication \& Asynchronous Messaging}
+While client-to-service communication is synchronous HTTP, background tasks (e.g., dispatching registration approval emails, background notification generation, or audit log ingestion) utilize \textbf{BullMQ} powered by a \textbf{Redis 7} broker. This ensures microservices remain non-blocking during heavy I/O operations.
+
+% ---------------------------------------------------------
+% CHAPTER 3: DATABASE SCHEMA & DESIGN
+% ---------------------------------------------------------
+\chapter{Database Schema \& Relational Design}
+
+\section{Multi-Schema Isolation Strategy}
+To preserve microservice boundary discipline while taking advantage of PostgreSQL's operational efficiency, the database uses logical schema isolation within a single database instance (\texttt{csedu\_sc}):
+\begin{itemize}
+    \item \texttt{auth}: User accounts, password hashes, approval status, and security tokens.
+    \item \texttt{election}: Elections, candidate registrations, votes, and voter audit trails.
+    \item \texttt{content}: Events, volunteer tracking, public notices, media files, and gallery.
+    \item \texttt{finance}: Financial budgets, line-item expenditures, payment transactions, notifications, and immutable activity logs.
+\end{itemize}
+
+\section{Detailed Schema Specifications}
+
+\subsection{Schema 1: Authentication \& User Management (\texttt{auth})}
+\begin{itemize}
+    \item \texttt{auth.users}: Core user registry.
+    \begin{itemize}
+        \item \texttt{user\_id} (SERIAL PRIMARY KEY)
+        \item \texttt{name} (VARCHAR 100), \texttt{email} (VARCHAR 150 UNIQUE)
+        \item \texttt{password\_hash} (TEXT) --- Encrypted using Bcrypt
+        \item \texttt{role} (ENUM: \texttt{'GeneralStudent'}, \texttt{'ECMember'}, \texttt{'Administrator'})
+        \item \texttt{status} (ENUM: \texttt{'PENDING'}, \texttt{'ACTIVE'}, \texttt{'REJECTED'}, \texttt{'REVOKED'})
+        \item \texttt{registration\_no} (VARCHAR 50), \texttt{batch\_year} (INTEGER), \texttt{contact\_no} (VARCHAR 50)
+    \end{itemize}
+    \item \texttt{auth.password\_reset\_tokens}: Handles token-based password recovery.
+\end{itemize}
+
+\subsection{Schema 2: Election Management (\texttt{election})}
+\begin{itemize}
+    \item \texttt{election.elections}: Tracks election metadata, phases, eligible batch ranges, and execution windows.
+    \item \texttt{election.candidates}: Candidate profiles, target posts, nomination status (\texttt{pending}, \texttt{approved}, \texttt{rejected}), phase assignment, and election status.
+    \item \texttt{election.votes}: \textbf{Anonymous Ballot Storage.} Contains \texttt{vote\_id}, \texttt{election\_id}, \texttt{candidate\_id}, \texttt{phase}, and \texttt{cast\_at}. \textit{Crucially, no voter ID is stored in this table.}
+    \item \texttt{election.vote\_cast\_log}: Voter audit ledger. Contains \texttt{election\_id}, \texttt{voter\_user\_id}, \texttt{phase}, and \texttt{voted\_at} with a UNIQUE constraint on \texttt{(election\_id, voter\_user\_id, phase)}.
+\end{itemize}
+
+\begin{tcolorbox}[colback=codebg,colframe=highlightgold,title=\textbf{Architectural Highlight: Ballot Privacy Protection}]
+To guarantee ballot secrecy required in democratic club elections, MS2 explicitly decouples \textit{participation verification} from \textit{vote selection}. The \texttt{vote\_cast\_log} table ensures that a student can only vote once per phase per election, while the \texttt{votes} table stores the actual vote choice without any link to the voter's identity.
+\end{tcolorbox}
+
+\subsection{Schema 3: Content, Events \& Media (\texttt{content})}
+\begin{itemize}
+    \item \texttt{content.events}: Title, description, event date, location, volunteer requirements, registration fee, and banner media reference.
+    \item \texttt{content.event\_registrations}: Tracks user registrations as either \texttt{attendee} or \texttt{volunteer}, with status tracking (\texttt{pending}, \texttt{approved}, \texttt{rejected}).
+    \item \texttt{content.notices}: Public notice board entries supporting priority levels (\texttt{low}, \texttt{normal}, \texttt{urgent}) and automated expiration filtering.
+    \item \texttt{content.media} \& \texttt{content.gallery}: Metadata for media file uploads and organized club image galleries.
+\end{itemize}
+
+\subsection{Schema 4: Finance, Notifications \& Audit (\texttt{finance})}
+\begin{itemize}
+    \item \texttt{finance.budgets}: Event budget proposals storing structured JSONB arrays of line items (\texttt{\{category, estimatedCost\}}), overall amount, approval status, and admin review comments.
+    \item \texttt{finance.expenditures}: Actual recorded expenses against approved budgets.
+    \item \texttt{finance.transactions}: Financial transaction ledger for registration fees and payments.
+    \item \texttt{finance.notifications}: In-app notification center storing user notifications and read statuses.
+    \item \texttt{finance.activity\_logs}: Immutable central audit trail capturing system events (\texttt{actor\_user\_id}, \texttt{action\_type}, \texttt{target\_entity}, \texttt{details}).
+\end{itemize}
+
+% ---------------------------------------------------------
+% CHAPTER 4: MICROSERVICES DEEP DIVE
+% ---------------------------------------------------------
+\chapter{Microservices Implementation Deep Dive}
+
+\section{MS1: Authentication \& User Management}
+\textbf{Developer Lead:} Amio Rashid (Roll 59)
+
+MS1 governs identity, user registration, authentication, and role authorization across the platform.
+
+\subsection{User Registration \& Approval Lifecycle}
+When a student registers, their account is initialized with status \texttt{PENDING}. Pending users are restricted from performing actions like voting or budget submission. System Administrators evaluate pending accounts via the Admin Dashboard to grant \texttt{ACTIVE} status or issue a rejection.
+
+\subsection{JWT Security Framework}
+MS1 implements dual JWT token issuing:
+\begin{itemize}
+    \item \textbf{Access Token:} Short-lived (15 minutes), signed with JWT secret payload containing \texttt{userId}, \texttt{email}, and \texttt{role}.
+    \item \textbf{Refresh Token:} Long-lived (7 days), stored securely to allow seamless session renewal without re-entering credentials.
+\end{itemize}
+
+\section{MS2: Election Service Engine}
+\textbf{Developer Lead:} Syed Naimul Islam (Roll 37)
+
+MS2 manages democratic processes within the club, implementing a two-phase election system.
+
+\subsection{Two-Phase Election Model}
+\begin{enumerate}[label=\bfseries Phase \arabic*:]
+    \item \textbf{Batch Representative Elections:} Students vote exclusively for candidates belonging to their own batch year. Top vote-getters advance to the batch representative body.
+    \item \textbf{Executive Committee Designation Elections:} Phase 1 winners compete for specific EC portfolio positions (e.g., President, General Secretary, VP, Treasurer). The entire student body or designated voters cast ballots for portfolio candidates.
+\end{enumerate}
+
+\subsection{Vote Tallying \& Real-Time Results}
+Vote counting queries execute SQL aggregation directly within PostgreSQL to calculate candidate totals efficiently while preventing race conditions.
+
+\section{MS3: Events, Notices, Media \& Gallery}
+\textbf{Developer Lead:} Md Al Habib (Roll 17)
+
+MS3 powers the media-rich content ecosystem of the club.
+
+\subsection{Event \& Volunteer Management}
+Students can register for club events either as regular attendees or as event volunteers. Organizers can manage volunteer applications, approve participants, and track volunteer capacity.
+
+\subsection{Notice Board with Expiry Logic}
+The notice board supports priority tagging. Notices featuring an \texttt{expiry\_date} are automatically excluded from active public feeds once expired, keeping the student board up-to-date.
+
+\subsection{Media Partitioning \& Storage}
+File uploads (images, PDFs, event banners) are validated using MIME-type white-listing and saved using structured date-partitioned paths (\texttt{/var/uploads/YYYY/MM/uuid.ext}) to optimize disk I/O performance.
+
+\section{MS4: Finance, Notifications \& Audit Logging}
+\textbf{Developer Lead:} Mahmud Hasan Walid (Roll 51)
+
+MS4 manages financial governance, system notifications, and centralized auditing.
+
+\subsection{Budget Proposals \& Expense Auditing}
+EC members submit detailed budget proposals containing JSONB line items. Administrators review proposals, approve or reject them with comments, and track actual expenditures against approved budgets to prevent cost overruns.
+
+\subsection{Multi-Channel Notification System}
+MS4 features an in-app notification center coupled with an asynchronous SMTP worker (Nodemailer) that delivers transactional emails for account approvals, budget updates, and notice broadcasts.
+
+\subsection{Centralized System Audit Trail}
+All significant system operations across any microservice trigger an append-only audit record in \texttt{finance.activity\_logs}, capturing actor context, timestamp, action type, and JSON payload metadata for compliance and security auditing.
+
+% ---------------------------------------------------------
+% CHAPTER 5: FRONTEND ARCHITECTURE
+% ---------------------------------------------------------
+\chapter{Frontend Architecture \& User Interface}
+
+\section{Next.js 15 App Router Architecture}
+The frontend application is built using Next.js 15, React 18, and TypeScript. It utilizes the App Router paradigm to organize pages, layouts, and components logically.
+
+\begin{table}[h!]
+\centering
+\caption{Frontend Route Structure \& Access Matrix}
+\label{tab:frontend_routes}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Route Path} & \textbf{Page Purpose} & \textbf{Access Level} \\ \midrule
+\texttt{/} & Public Landing Page \& Club Overview & Public \\
+\texttt{/(auth)/login} & Authentication \& Session Entry & Public \\
+\texttt{/(auth)/register} & Student Account Registration & Public \\
+\texttt{/dashboard} & Student/Member Central Hub & Authenticated \\
+\texttt{/elections} & Election Center \& Voting Interface & Active Students \\
+\texttt{/events} & Event Discovery \& Registration & Public / Authenticated \\
+\texttt{/notices} & Public Notice Board & Public \\
+\texttt{/gallery} & Photo \& Media Gallery & Public \\
+\texttt{/finance} & Club Financial Transparency & EC Members / Admins \\
+\texttt{/admin} & User Approvals \& System Governance & Administrator Only \\
+\texttt{/admin/logs} & System Audit Log Inspector & Administrator Only \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\section{State Management \& Data Fetching}
+The frontend state architecture uses React Query (\texttt{@tanstack/react-query}) for cached, asynchronous server-state management alongside React Context (\texttt{AuthContext}) for user session states. Axios interceptors automatically attach JWT bearer tokens and manage session renewal upon token expiry.
+
+\section{Design System \& Styling Aesthetics}
+The UI follows modern design standards using Tailwind CSS, custom dark/light color palettes, responsive sidebars, interactive modals, and micro-animations via Lucide React icons and component primitives.
+
+% ---------------------------------------------------------
+% CHAPTER 6: DEVOPS & CONTAINERIZATION
+% ---------------------------------------------------------
+\chapter{DevOps, Containerization \& Deployment}
+
+\section{Docker Compose Multi-Container Orchestration}
+The entire application ecosystem is containerized using Docker and orchestrated via \texttt{docker-compose.yml}.
+
+\begin{table}[h!]
+\centering
+\caption{Docker Container Network \& Port Mapping}
+\label{tab:docker_ports}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Container Name} & \textbf{Base Image} & \textbf{Internal Port} & \textbf{Host Binding} \\ \midrule
+\texttt{csedu-postgres} & postgres:15-alpine & 5432 & Internal Network \\
+\texttt{csedu-redis} & redis:7-alpine & 6379 & Internal Network \\
+\texttt{csedu-ms1-auth} & node:20-alpine & 3001 & 3001:3001 \\
+\texttt{csedu-ms2-election} & node:20-alpine & 3002 & 3002:3002 \\
+\texttt{csedu-ms3-content} & node:20-alpine & 3003 & 3003:3003 \\
+\texttt{csedu-ms4-finance} & node:20-alpine & 3004 & 3004:3004 \\
+\texttt{csedu-api-gateway} & node:20-alpine & 4000 & 127.0.0.1:8084:4000 \\
+\texttt{csedu-frontend} & node:20-alpine & 3000 & 127.0.0.1:8083:3000 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\section{Database Migrations \& Bootstrapping}
+To ensure reproducibility across development and production environments, automated scripts manage schema generation and initial admin provisioning:
+\begin{itemize}
+    \item \texttt{run-migrations.ps1} / \texttt{run-migrations.sh}: Sequential execution of SQL migration files across all microservices into the running PostgreSQL container.
+    \item \texttt{create-first-admin.ps1} / \texttt{create-first-admin.sh}: Bootstraps the initial system Administrator account with password hashing.
+\end{itemize}
+
+% ---------------------------------------------------------
+% CHAPTER 7: SECURITY & RELIABILITY
+% ---------------------------------------------------------
+\chapter{Security Architecture \& Quality Assurance}
+
+\section{Defense-in-Depth Security Controls}
+\begin{enumerate}
+    \item \textbf{Input Validation \& Sanitization:} Request payloads are strictly validated using schema enforcement tools (Zod, Joi, Express-Validator) before reaching controller logic.
+    \item \textbf{SQL Injection Prevention:} All database queries in Express services use parameterized SQL statements via \texttt{pg} node library.
+    \item \textbf{Cryptographic Password Hashing:} User passwords are hashed using Bcrypt with a salt factor of 10.
+    \item \textbf{Cross-Origin Resource Sharing (CORS):} The API Gateway explicitly restricts origin access to authorized frontend domains.
+\end{enumerate}
+
+% ---------------------------------------------------------
+% CHAPTER 8: CONCLUSION
+% ---------------------------------------------------------
+\chapter{Conclusion \& Future Work}
+
+\section{Summary of Achievements}
+Team \textbf{Formula1} successfully delivered a full-stack, enterprise-grade management platform for the CSEDU Students' Club. By implementing a decoupled microservices architecture, strict database isolation, anonymous election workflows, content management, and financial auditing, the system fulfills all functional and technical objectives of the course.
+
+\section{Future Expansion Roadmap}
+\begin{itemize}
+    \item \textbf{Payment Gateway Integration:} Direct integration with SSLCommerz or bKash for automated registration fee collection.
+    \item \textbf{Real-Time Notifications:} WebSocket / Server-Sent Events integration for live election result streams and instant broadcast alerts.
+    \item \textbf{Mobile Application:} React Native mobile client utilizing the existing API Gateway layer.
+\end{itemize}
+
+\end{document}
