@@ -39,7 +39,7 @@ app.use(generalLimiter);
 // Health check & Swagger Docs — no auth, no extra rate limit, not proxied
 // ---------------------------------------------------------------------------
 
-app.get('/health', (_req, res) => {
+app.get(['/health', '/api/health'], (_req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
 });
 

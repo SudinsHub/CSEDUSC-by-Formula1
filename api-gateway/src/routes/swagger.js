@@ -25,14 +25,6 @@ const serveJson = (_req, res) => {
   res.status(200).send(openapiSpec);
 };
 
-router.get('/api/openapi.json', serveJson);
-router.get('/api/swagger.json', serveJson);
-router.get('/openapi.json', serveJson);
-router.get('/swagger.json', serveJson);
-router.get('/docs/openapi.json', serveJson);
-router.get('/api-docs/openapi.json', serveJson);
-router.get('/api/docs/openapi.json', serveJson);
-
 // Standalone Swagger UI HTML Generator
 function renderSwaggerHtml(spec) {
   const specJson = JSON.stringify(spec).replace(/</g, '\\u003c');
@@ -93,22 +85,16 @@ const serveDocsHtml = (_req, res) => {
   res.status(200).send(renderSwaggerHtml(openapiSpec));
 };
 
-// Express 5 compatible routes (handles both with and without trailing slash, subpaths)
-const docPaths = [
-  '/api/docs',
-  '/api/docs/*path',
-  '/api/api-docs',
-  '/api/api-docs/*path',
-  '/api/swagger',
-  '/api/swagger/*path',
-  '/docs',
-  '/docs/*path',
-  '/api-docs',
-  '/api-docs/*path',
-  '/swagger',
-  '/swagger/*path'
-];
-
-router.get(docPaths, serveDocsHtml);
+// Express middleware handling docs, swagger & openapi JSON requests
+router.use((req, res, next) => {
+  const p = req.path.toLowerCase();
+  if (p.includes('docs') || p.includes('swagger') || p.includes('openapi')) {
+    if (p.endsWith('.json')) {
+      return serveJson(req, res);
+    }
+    return serveDocsHtml(req, res);
+  }
+  next();
+});
 
 export default router;
