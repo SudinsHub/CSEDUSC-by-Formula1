@@ -12,8 +12,58 @@ on:
         default: 'main'
 
 jobs:
+  unit-tests:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run API Gateway Unit Tests
+        run: |
+          cd api-gateway
+          npm ci
+          npm test
+
+      - name: Run MS1 Auth Unit Tests
+        run: |
+          cd ms1-auth
+          npm ci
+          npm test
+
+      - name: Run MS2 Election Unit Tests
+        run: |
+          cd ms2-election
+          npm ci
+          npm test
+
+      - name: Run MS3 Event Notice Media Unit Tests
+        run: |
+          cd ms3
+          npm ci
+          npm test
+
+      - name: Run MS4 Finance Notification Log Unit Tests
+        run: |
+          cd ms4-finance-notification-log
+          npm ci
+          npm test
+
+      - name: Run Frontend Unit Tests
+        run: |
+          cd frontend
+          npm ci
+          npm test
+
   deploy:
     name: Deploy to Azure Server
+    needs: unit-tests
     runs-on: ubuntu-latest
 
     steps:
