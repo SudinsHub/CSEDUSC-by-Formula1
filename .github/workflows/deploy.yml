@@ -15,6 +15,24 @@ jobs:
   unit-tests:
     name: Run Unit Tests
     runs-on: ubuntu-latest
+    env:
+      JWT_SECRET: test_jwt_secret_key_12345
+      JWT_ACCESS_EXPIRES: 15m
+      JWT_REFRESH_EXPIRES: 7d
+      FRONTEND_ORIGIN: http://localhost:3000
+      FRONTEND_URL: http://localhost:3000
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/csedusc_test
+      REDIS_URL: redis://localhost:6379
+      MS1_URL: http://localhost:3001
+      MS2_URL: http://localhost:3002
+      MS3_URL: http://localhost:3003
+      MS4_URL: http://localhost:3004
+      UPLOAD_DIR: ./uploads
+      SMTP_HOST: smtp.ethereal.email
+      SMTP_PORT: 587
+      SMTP_USER: test@ethereal.email
+      SMTP_PASS: testpass
+      SMTP_FROM: noreply@csedu.ac.bd
 
     steps:
       - name: Checkout repository
