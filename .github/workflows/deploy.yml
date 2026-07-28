@@ -1,0 +1,56 @@
+name: Deploy to Azure Server
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to deploy'
+        required: true
+        default: 'main'
+
+jobs:
+  deploy:
+    name: Deploy to Azure Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Determine Target Branch
+        id: branch
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "TARGET_BRANCH=${{ github.event.inputs.branch }}" >> $GITHUB_ENV
+          else
+            echo "TARGET_BRANCH=${{ github.ref_name }}" >> $GITHUB_ENV
+          fi
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            echo "==> Navigating to project directory..."
+            cd /home/azureuser/CSEDUSC-by-Formula1
+
+            echo "==> Fetching latest changes from git..."
+            git fetch --all
+
+            echo "==> Checking out branch: ${{ env.TARGET_BRANCH }}"
+            git checkout ${{ env.TARGET_BRANCH }}
+
+            echo "==> Pulling latest changes..."
+            git pull origin ${{ env.TARGET_BRANCH }}
+
+            echo "==> Rebuilding and restarting Docker containers..."
+            docker compose up -d --build --remove-orphans
+
+            echo "==> Pruning unused Docker images..."
+            docker image prune -f
+
+            echo "==> Deployment successful!"

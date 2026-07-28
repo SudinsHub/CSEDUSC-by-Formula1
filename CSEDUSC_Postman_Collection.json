@@ -1,0 +1,4612 @@
+{
+  "info": {
+    "name": "CSEDU Students' Club API",
+    "_postman_id": "csedusc-api-v2-1-collection",
+    "description": "Complete Postman Collection v2.1 for CSEDU Students' Club Management System. Includes API Gateway and microservice endpoints (MS1 Auth & Users, MS2 Elections, MS3 Events/Notices/Media/Gallery, MS4 Finance/Notifications/Logs) with request bodies, path params, query params, auth headers, and response examples.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000",
+      "type": "string",
+      "description": "Base URL of the API Gateway"
+    },
+    {
+      "key": "bearerToken",
+      "value": "your_jwt_access_token_here",
+      "type": "string",
+      "description": "JWT Bearer Token for authenticated requests"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "00. System & Gateway Health",
+      "item": [
+        {
+          "name": "Gateway Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Check operational status and uptime of the API Gateway."
+          },
+          "response": [
+            {
+              "name": "200 OK - Health Status",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/health",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "health"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"ok\",\n  \"uptime\": 142.85\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01. MS1 — Authentication & User Management",
+      "item": [
+        {
+          "name": "Authentication",
+          "item": [
+            {
+              "name": "Register User",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"student@csedu.ac.bd\",\n  \"password\": \"SecurePassword123!\",\n  \"registrationNo\": \"2021-1-60-001\",\n  \"batchYear\": 2021,\n  \"contactNo\": \"+8801700000000\",\n  \"profilePicture\": \"https://example.com/avatar.jpg\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "Register a new student account. Account starts in PENDING status requiring administrator approval."
+              },
+              "response": [
+                {
+                  "name": "201 Created - Registration Successful",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"student@csedu.ac.bd\",\n  \"password\": \"SecurePassword123!\",\n  \"registrationNo\": \"2021-1-60-001\",\n  \"batchYear\": 2021,\n  \"contactNo\": \"+8801700000000\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/auth/register",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "auth",
+                        "register"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"message\": \"User registered successfully\",\n  \"data\": {\n    \"user\": {\n      \"id\": 1,\n      \"name\": \"John Doe\",\n      \"email\": \"student@csedu.ac.bd\",\n      \"registrationNo\": \"2021-1-60-001\",\n      \"batchYear\": 2021,\n      \"role\": \"GeneralStudent\",\n      \"status\": \"PENDING\"\n    }\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "User Login",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"student@csedu.ac.bd\",\n  \"password\": \"SecurePassword123!\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "Authenticate user credentials and receive JWT access token. Rate limited to 10 requests per 15 minutes."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Login Successful",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"email\": \"student@csedu.ac.bd\",\n  \"password\": \"SecurePassword123!\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/auth/login",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "auth",
+                        "login"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"John Doe\",\n    \"email\": \"student@csedu.ac.bd\",\n    \"role\": \"GeneralStudent\",\n    \"status\": \"ACTIVE\"\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get Current User (Me)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "me"
+                  ]
+                },
+                "description": "Get authenticated profile info for the currently logged-in user."
+              },
+              "response": [
+                {
+                  "name": "200 OK - User Profile Details",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/auth/me",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "auth",
+                        "me"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"John Doe\",\n    \"email\": \"student@csedu.ac.bd\",\n    \"registrationNo\": \"2021-1-60-001\",\n    \"batchYear\": 2021,\n    \"contactNo\": \"+8801700000000\",\n    \"profilePicture\": \"https://example.com/avatar.jpg\",\n    \"role\": \"GeneralStudent\",\n    \"status\": \"ACTIVE\"\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "User Logout",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/logout",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "logout"
+                  ]
+                },
+                "description": "Invalidate current JWT session."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Logout Successful",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/auth/logout",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "auth",
+                        "logout"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Logged out successfully\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Forgot Password",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"student@csedu.ac.bd\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/forgot-password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "forgot-password"
+                  ]
+                },
+                "description": "Request a password reset email."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Password Reset Email Sent",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"email\": \"student@csedu.ac.bd\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/auth/forgot-password",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "auth",
+                        "forgot-password"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Password reset instructions sent to email\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Reset Password",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"token\": \"reset_token_example_123\",\n  \"newPassword\": \"NewSecurePassword123!\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/reset-password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "reset-password"
+                  ]
+                },
+                "description": "Reset password using token from reset email."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Password Reset Successful",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"token\": \"reset_token_example_123\",\n  \"newPassword\": \"NewSecurePassword123!\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/auth/reset-password",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "auth",
+                        "reset-password"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Password updated successfully\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Refresh Token",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refreshToken\": \"sample_refresh_token_xyz\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/auth/refresh",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "auth",
+                    "refresh"
+                  ]
+                },
+                "description": "Issue new access token using a valid refresh token."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Token Refreshed",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"refreshToken\": \"sample_refresh_token_xyz\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/auth/refresh",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "auth",
+                        "refresh"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"token\": \"new_jwt_access_token_example\"\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "User Management",
+          "item": [
+            {
+              "name": "List Users",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users?role=GeneralStudent&status=ACTIVE",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users"
+                  ],
+                  "query": [
+                    {
+                      "key": "role",
+                      "value": "GeneralStudent",
+                      "description": "Filter by user role (GeneralStudent, ECMember, Administrator)"
+                    },
+                    {
+                      "key": "status",
+                      "value": "ACTIVE",
+                      "description": "Filter by account status (PENDING, ACTIVE, REJECTED, REVOKED)"
+                    }
+                  ]
+                },
+                "description": "List all users. Protected: Requires Administrator or ECMember role."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Users List",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/users?role=GeneralStudent&status=ACTIVE",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "users"
+                      ],
+                      "query": [
+                        {
+                          "key": "role",
+                          "value": "GeneralStudent"
+                        },
+                        {
+                          "key": "status",
+                          "value": "ACTIVE"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"users\": [\n    {\n      \"id\": 1,\n      \"name\": \"John Doe\",\n      \"email\": \"student@csedu.ac.bd\",\n      \"registrationNo\": \"2021-1-60-001\",\n      \"batchYear\": 2021,\n      \"role\": \"GeneralStudent\",\n      \"status\": \"ACTIVE\"\n    }\n  ],\n  \"pagination\": {\n    \"page\": 1,\n    \"limit\": 20,\n    \"total\": 1\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get User By ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/:userId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    ":userId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "1",
+                      "description": "User ID"
+                    }
+                  ]
+                },
+                "description": "Get user details by ID. Protected: Requires Administrator role."
+              },
+              "response": [
+                {
+                  "name": "200 OK - User Details",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/users/1",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "users",
+                        "1"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"John Doe\",\n    \"email\": \"student@csedu.ac.bd\",\n    \"registrationNo\": \"2021-1-60-001\",\n    \"batchYear\": 2021,\n    \"contactNo\": \"+8801700000000\",\n    \"role\": \"GeneralStudent\",\n    \"status\": \"ACTIVE\"\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Update Own Profile",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"updated.email@csedu.ac.bd\",\n  \"contactNo\": \"+8801711111111\",\n  \"profilePicture\": \"https://example.com/new_avatar.jpg\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "profile"
+                  ]
+                },
+                "description": "Update authenticated user's own profile info."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Profile Updated",
+                  "originalRequest": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"contactNo\": \"+8801711111111\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/users/profile",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "users",
+                        "profile"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Profile updated successfully\",\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"John Doe\",\n    \"contactNo\": \"+8801711111111\"\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Activate Pending Users",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/activate-pending",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "activate-pending"
+                  ]
+                },
+                "description": "Bulk activate all pending user accounts. Protected: Requires Administrator role."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Accounts Activated",
+                  "originalRequest": {
+                    "method": "PATCH",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/users/activate-pending",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "users",
+                        "activate-pending"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Activated 5 pending user accounts\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Update User Status",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"ACTIVE\",\n  \"reason\": \"Verified student identification\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/:userId/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    ":userId",
+                    "status"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "1",
+                      "description": "Target User ID"
+                    }
+                  ]
+                },
+                "description": "Update status of a specific user (ACTIVE, REJECTED, REVOKED). Protected: Requires Administrator role."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Status Updated",
+                  "originalRequest": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"status\": \"ACTIVE\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/users/1/status",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "users",
+                        "1",
+                        "status"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"User status updated successfully\",\n  \"user\": {\n    \"id\": 1,\n    \"status\": \"ACTIVE\"\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Update User Role",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"role\": \"ECMember\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/:userId/role",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    ":userId",
+                    "role"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userId",
+                      "value": "1",
+                      "description": "Target User ID"
+                    }
+                  ]
+                },
+                "description": "Promote or change user role to ECMember or Administrator. Protected: Requires Administrator role."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Role Updated",
+                  "originalRequest": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"role\": \"ECMember\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/users/1/role",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "users",
+                        "1",
+                        "role"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"User role updated successfully\",\n  \"user\": {\n    \"id\": 1,\n    \"role\": \"ECMember\"\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Delete Own Account",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "profile"
+                  ]
+                },
+                "description": "Permanently delete/deactivate logged-in user account."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Account Deleted",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/users/profile",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "users",
+                        "profile"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Account deleted successfully\"\n}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02. MS2 — Elections & Voting",
+      "item": [
+        {
+          "name": "Election CRUD",
+          "item": [
+            {
+              "name": "List Elections",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/elections",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "elections"
+                  ]
+                },
+                "description": "Get all elections."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Elections List",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/elections",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "elections"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "[\n  {\n    \"id\": 1,\n    \"title\": \"CSEDU Executive Committee Election 2026\",\n    \"phase\": 1,\n    \"rules\": \"One vote per student\",\n    \"maxVotesPerUser\": 1,\n    \"startTime\": \"2026-08-01T00:00:00Z\",\n    \"endTime\": \"2026-08-02T00:00:00Z\",\n    \"batchStartYear\": 2020,\n    \"batchEndYear\": 2024,\n    \"representativesPerBatch\": 2\n  }\n]"
+                }
+              ]
+            },
+            {
+              "name": "Create Election",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"CSEDU Executive Committee Election 2026\",\n  \"phase\": 1,\n  \"rules\": \"One vote per student per category.\",\n  \"maxVotesPerUser\": 1,\n  \"startTime\": \"2026-08-01T09:00:00Z\",\n  \"endTime\": \"2026-08-02T17:00:00Z\",\n  \"batchStartYear\": 2020,\n  \"batchEndYear\": 2024,\n  \"representativesPerBatch\": 2\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/elections",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "elections"
+                  ]
+                },
+                "description": "Create a new election. Protected: Requires Administrator or ECMember role."
+              },
+              "response": [
+                {
+                  "name": "201 Created - Election Created",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"CSEDU Executive Committee Election 2026\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/elections",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "elections"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Election created successfully\",\n  \"election\": {\n    \"id\": 1,\n    \"title\": \"CSEDU Executive Committee Election 2026\",\n    \"phase\": 1\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get Election By ID",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/elections/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "elections",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Election ID"
+                    }
+                  ]
+                },
+                "description": "Get specific election details by ID."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Election Details",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/elections/1",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "elections",
+                        "1"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"id\": 1,\n  \"title\": \"CSEDU Executive Committee Election 2026\",\n  \"phase\": 1,\n  \"rules\": \"One vote per student\",\n  \"maxVotesPerUser\": 1,\n  \"startTime\": \"2026-08-01T09:00:00Z\",\n  \"endTime\": \"2026-08-02T17:00:00Z\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Update Election",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"CSEDU EC Election 2026 (Updated Rules)\",\n  \"rules\": \"Updated guidelines for voting\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/elections/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "elections",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Election ID"
+                    }
+                  ]
+                },
+                "description": "Update election details. Protected: Requires Administrator or ECMember role."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Election Updated",
+                  "originalRequest": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"Updated Title\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/elections/1",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "elections",
+                        "1"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Election updated successfully\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Delete Election",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/elections/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "elections",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Election ID"
+                    }
+                  ]
+                },
+                "description": "Delete an election. Protected: Requires Administrator role."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Election Deleted",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/elections/1",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "elections",
+                        "1"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Election deleted successfully\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Transition to Phase 2",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"startTime\": \"2026-08-10T09:00:00Z\",\n  \"endTime\": \"2026-08-11T17:00:00Z\",\n  \"designations\": [\n    {\n      \"name\": \"President\",\n      \"elect_count\": 1\n    },\n    {\n      \"name\": \"General Secretary\",\n      \"elect_count\": 1\n    }\n  ],\n  \"candidates\": [\n    5,\n    6,\n    7\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/elections/:id/transition",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "elections",
+                    ":id",
+                    "transition"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Election ID"
+                    }
+                  ]
+                },
+                "description": "Transition election to Phase 2. Protected: Requires Administrator or ECMember role."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Transition Successful",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"designations\": [\n    {\n      \"name\": \"President\",\n      \"elect_count\": 1\n    }\n  ]\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/elections/1/transition",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "elections",
+                        "1",
+                        "transition"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Election transitioned to Phase 2 successfully\"\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Candidates & Nominations",
+          "item": [
+            {
+              "name": "List Candidates",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/elections/:id/candidates",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "elections",
+                    ":id",
+                    "candidates"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Election ID"
+                    }
+                  ]
+                },
+                "description": "List candidates for an election."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Candidates List",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/elections/1/candidates",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "elections",
+                        "1",
+                        "candidates"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "[\n  {\n    \"id\": 1,\n    \"electionId\": 1,\n    \"userId\": 5,\n    \"post\": \"President\",\n    \"bio\": \"Dedicated to enhancing student programming initiatives.\",\n    \"status\": \"approved\"\n  }\n]"
+                }
+              ]
+            },
+            {
+              "name": "Add Candidate",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": 5,\n  \"post\": \"President\",\n  \"bio\": \"Dedicated to enhancing student programming initiatives.\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/elections/:id/candidates",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "elections",
+                    ":id",
+                    "candidates"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Election ID"
+                    }
+                  ]
+                },
+                "description": "Add a candidate to an election. Protected: Admin/EC Member."
+              },
+              "response": [
+                {
+                  "name": "201 Created - Candidate Added",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"userId\": 5,\n  \"post\": \"President\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/elections/1/candidates",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "elections",
+                        "1",
+                        "candidates"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Candidate added successfully\",\n  \"candidate\": {\n    \"id\": 1,\n    \"electionId\": 1,\n    \"userId\": 5,\n    \"post\": \"President\"\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Update Candidate Info",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"post\": \"Vice President\",\n  \"bio\": \"Updated vision for club events.\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/elections/:id/candidates/:candidateId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "elections",
+                    ":id",
+                    "candidates",
+                    ":candidateId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Election ID"
+                    },
+                    {
+                      "key": "candidateId",
+                      "value": "1",
+                      "description": "Candidate ID"
+                    }
+                  ]
+                },
+                "description": "Update candidate post or bio."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Candidate Updated",
+                  "originalRequest": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"post\": \"Vice President\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/elections/1/candidates/1",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "elections",
+                        "1",
+                        "candidates",
+                        "1"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Candidate updated successfully\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Update Candidate Status",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"approved\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/elections/:id/candidates/:candidateId/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "elections",
+                    ":id",
+                    "candidates",
+                    ":candidateId",
+                    "status"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Election ID"
+                    },
+                    {
+                      "key": "candidateId",
+                      "value": "1",
+                      "description": "Candidate ID"
+                    }
+                  ]
+                },
+                "description": "Approve or reject candidate status (pending, approved, rejected)."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Status Approved",
+                  "originalRequest": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"status\": \"approved\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/elections/1/candidates/1/status",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "elections",
+                        "1",
+                        "candidates",
+                        "1",
+                        "status"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Candidate status updated to approved\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Remove Candidate",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/elections/:id/candidates/:candidateId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "elections",
+                    ":id",
+                    "candidates",
+                    ":candidateId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Election ID"
+                    },
+                    {
+                      "key": "candidateId",
+                      "value": "1",
+                      "description": "Candidate ID"
+                    }
+                  ]
+                },
+                "description": "Remove a candidate from election."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Candidate Removed",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/elections/1/candidates/1",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "elections",
+                        "1",
+                        "candidates",
+                        "1"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Candidate removed successfully\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Apply Self-Nomination",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"bio\": \"Active member in previous club activities.\",\n  \"designation\": \"General Secretary\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/elections/:id/apply",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "elections",
+                    ":id",
+                    "apply"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Election ID"
+                    }
+                  ]
+                },
+                "description": "Submit self-nomination or application for a designation in election."
+              },
+              "response": [
+                {
+                  "name": "201 Created - Nomination Submitted",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"bio\": \"Self nomination bio\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/elections/1/apply",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "elections",
+                        "1",
+                        "apply"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Nomination application submitted successfully\"\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Voting & Results",
+          "item": [
+            {
+              "name": "Cast Vote",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"candidateIds\": [\n    1,\n    2\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/elections/:id/vote",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "elections",
+                    ":id",
+                    "vote"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Election ID"
+                    }
+                  ]
+                },
+                "description": "Cast vote for candidate(s). Rate limited (20 req/min)."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Vote Recorded",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"candidateIds\": [\n    1\n  ]\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/elections/1/vote",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "elections",
+                        "1",
+                        "vote"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Vote recorded successfully\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get Election Results",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/elections/:id/results",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "elections",
+                    ":id",
+                    "results"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Election ID"
+                    }
+                  ]
+                },
+                "description": "Retrieve tally and results for election."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Election Results",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/elections/1/results",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "elections",
+                        "1",
+                        "results"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"electionId\": 1,\n  \"results\": [\n    {\n      \"candidateId\": 1,\n      \"post\": \"President\",\n      \"voteCount\": 42\n    },\n    {\n      \"candidateId\": 2,\n      \"post\": \"Vice President\",\n      \"voteCount\": 38\n    }\n  ]\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get Phase 1 Winners",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/elections/:id/phase1-winners",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "elections",
+                    ":id",
+                    "phase1-winners"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Election ID"
+                    }
+                  ]
+                },
+                "description": "Get winning candidates from Phase 1 election."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Phase 1 Winners",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/elections/1/phase1-winners",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "elections",
+                        "1",
+                        "phase1-winners"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"electionId\": 1,\n  \"winners\": [\n    {\n      \"userId\": 5,\n      \"voteCount\": 42\n    },\n    {\n      \"userId\": 6,\n      \"voteCount\": 39\n    }\n  ]\n}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03. MS3 — Events, Notices, Media & Gallery",
+      "item": [
+        {
+          "name": "Events",
+          "item": [
+            {
+              "name": "List Events",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/events",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "events"
+                  ]
+                },
+                "description": "Get all events."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Events List",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/events",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "events"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "[\n  {\n    \"id\": 1,\n    \"title\": \"CSEDU Annual Hackathon 2026\",\n    \"description\": \"36-hour competitive programming event.\",\n    \"event_date\": \"2026-09-15T09:00:00Z\",\n    \"location\": \"Curzon Hall, DU\",\n    \"volunteers_needed\": 10,\n    \"registration_fee\": 200,\n    \"banner_image_id\": 1\n  }\n]"
+                }
+              ]
+            },
+            {
+              "name": "Create Event",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"CSEDU Annual Hackathon 2026\",\n  \"description\": \"36-hour competitive programming event.\",\n  \"event_date\": \"2026-09-15T09:00:00.000Z\",\n  \"location\": \"Curzon Hall, DU\",\n  \"volunteers_needed\": 10,\n  \"registration_fee\": 200,\n  \"banner_image_id\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/events",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "events"
+                  ]
+                },
+                "description": "Create a new event. Protected: ECMember, Administrator."
+              },
+              "response": [
+                {
+                  "name": "201 Created - Event Created",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"CSEDU Annual Hackathon 2026\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/events",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "events"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Event created successfully\",\n  \"event\": {\n    \"id\": 1,\n    \"title\": \"CSEDU Annual Hackathon 2026\"\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get Event By ID",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/events/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "events",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Event ID"
+                    }
+                  ]
+                },
+                "description": "Get specific event details by ID."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Event Details",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/events/1",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "events",
+                        "1"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"id\": 1,\n  \"title\": \"CSEDU Annual Hackathon 2026\",\n  \"description\": \"36-hour competitive programming event.\",\n  \"event_date\": \"2026-09-15T09:00:00Z\",\n  \"location\": \"Curzon Hall, DU\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Update Event",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"location\": \"Auditorium, Department of CSE\",\n  \"volunteers_needed\": 15\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/events/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "events",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Event ID"
+                    }
+                  ]
+                },
+                "description": "Update event details. Protected: ECMember, Administrator."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Event Updated",
+                  "originalRequest": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"location\": \"Auditorium\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/events/1",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "events",
+                        "1"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Event updated successfully\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Cancel Event",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/events/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "events",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Event ID"
+                    }
+                  ]
+                },
+                "description": "Cancel/delete event. Protected: ECMember, Administrator."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Event Cancelled",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/events/1",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "events",
+                        "1"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Event cancelled successfully\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "List Event Registrations",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/events/:id/registrations",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "events",
+                    ":id",
+                    "registrations"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Event ID"
+                    }
+                  ]
+                },
+                "description": "List all user registrations for an event. Protected: Admin/EC Member."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Registrations List",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/events/1/registrations",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "events",
+                        "1",
+                        "registrations"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "[\n  {\n    \"registrationId\": 1,\n    \"eventId\": 1,\n    \"userId\": 1,\n    \"registeredAt\": \"2026-08-01T10:00:00Z\"\n  }\n]"
+                }
+              ]
+            },
+            {
+              "name": "Register For Event",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/events/:id/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "events",
+                    ":id",
+                    "register"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Event ID"
+                    }
+                  ]
+                },
+                "description": "Register current user for an event."
+              },
+              "response": [
+                {
+                  "name": "201 Created - Registration Successful",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/events/1/register",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "events",
+                        "1",
+                        "register"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Registered for event successfully\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Apply As Volunteer",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/events/:id/volunteer",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "events",
+                    ":id",
+                    "volunteer"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Event ID"
+                    }
+                  ]
+                },
+                "description": "Apply as a volunteer for an event."
+              },
+              "response": [
+                {
+                  "name": "201 Created - Volunteer Applied",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/events/1/volunteer",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "events",
+                        "1",
+                        "volunteer"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Volunteer application submitted successfully\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Manage Volunteer Status",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"approved\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/events/:id/volunteers/:vid",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "events",
+                    ":id",
+                    "volunteers",
+                    ":vid"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Event ID"
+                    },
+                    {
+                      "key": "vid",
+                      "value": "10",
+                      "description": "Volunteer Application ID"
+                    }
+                  ]
+                },
+                "description": "Approve or reject volunteer application. Protected: Admin/EC Member."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Volunteer Status Updated",
+                  "originalRequest": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"status\": \"approved\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/events/1/volunteers/10",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "events",
+                        "1",
+                        "volunteers",
+                        "10"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Volunteer application status updated\"\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Notices",
+          "item": [
+            {
+              "name": "List Notices",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/notices",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "notices"
+                  ]
+                },
+                "description": "List all published notices."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Notices List",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/notices",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "notices"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "[\n  {\n    \"id\": 1,\n    \"title\": \"Club Membership Renewal\",\n    \"content\": \"All general members must renew their membership for 2026-2027.\",\n    \"priority\": \"urgent\",\n    \"expiry_date\": \"2026-09-01T23:59:59.000Z\",\n    \"attachments\": [\n      1,\n      2\n    ]\n  }\n]"
+                }
+              ]
+            },
+            {
+              "name": "Publish Notice",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Club Membership Renewal\",\n  \"content\": \"All general members must renew their membership for 2026-2027.\",\n  \"priority\": \"urgent\",\n  \"expiry_date\": \"2026-09-01T23:59:59.000Z\",\n  \"attachments\": [\n    1,\n    2\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/notices",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "notices"
+                  ]
+                },
+                "description": "Publish a notice. Protected: Admin/EC Member."
+              },
+              "response": [
+                {
+                  "name": "201 Created - Notice Published",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"Club Membership Renewal\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/notices",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "notices"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Notice published successfully\",\n  \"notice\": {\n    \"id\": 1,\n    \"title\": \"Club Membership Renewal\"\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get Notice By ID",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/notices/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "notices",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Notice ID"
+                    }
+                  ]
+                },
+                "description": "Get notice details by ID."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Notice Details",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/notices/1",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "notices",
+                        "1"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"id\": 1,\n  \"title\": \"Club Membership Renewal\",\n  \"content\": \"All general members must renew their membership for 2026-2027.\",\n  \"priority\": \"urgent\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Update Notice",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"priority\": \"normal\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/notices/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "notices",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Notice ID"
+                    }
+                  ]
+                },
+                "description": "Update notice. Protected: Admin/EC Member."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Notice Updated",
+                  "originalRequest": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"priority\": \"normal\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/notices/1",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "notices",
+                        "1"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Notice updated successfully\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Delete Notice",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/notices/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "notices",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Notice ID"
+                    }
+                  ]
+                },
+                "description": "Delete notice. Protected: Admin/EC Member."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Notice Deleted",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/notices/1",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "notices",
+                        "1"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Notice deleted successfully\"\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Gallery",
+          "item": [
+            {
+              "name": "List Gallery Items",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/gallery",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "gallery"
+                  ]
+                },
+                "description": "List all gallery entries/albums."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Gallery List",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/gallery",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "gallery"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "[\n  {\n    \"id\": 1,\n    \"title\": \"Freshers Orientation 2025\",\n    \"content\": \"Photos from Freshers reception ceremony.\",\n    \"images\": [\n      1,\n      2,\n      3\n    ]\n  }\n]"
+                }
+              ]
+            },
+            {
+              "name": "Create Gallery Item",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Freshers Orientation 2025\",\n  \"content\": \"Photos from Freshers reception ceremony.\",\n  \"images\": [\n    1,\n    2,\n    3\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/gallery",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "gallery"
+                  ]
+                },
+                "description": "Create gallery entry. Protected: Admin/EC Member."
+              },
+              "response": [
+                {
+                  "name": "201 Created - Gallery Item Created",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"Freshers Orientation 2025\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/gallery",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "gallery"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Gallery item created successfully\",\n  \"gallery\": {\n    \"id\": 1\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get Gallery Item By ID",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/gallery/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "gallery",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Gallery ID"
+                    }
+                  ]
+                },
+                "description": "Get gallery item details."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Gallery Item Details",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/gallery/1",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "gallery",
+                        "1"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"id\": 1,\n  \"title\": \"Freshers Orientation 2025\",\n  \"content\": \"Photos from Freshers reception ceremony.\",\n  \"images\": [\n    1,\n    2,\n    3\n  ]\n}"
+                }
+              ]
+            },
+            {
+              "name": "Update Gallery Item",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Freshers Orientation 2025 (Updated Title)\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/gallery/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "gallery",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Gallery ID"
+                    }
+                  ]
+                },
+                "description": "Update gallery item. Protected: Admin/EC Member."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Gallery Item Updated",
+                  "originalRequest": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"Updated Title\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/gallery/1",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "gallery",
+                        "1"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Gallery item updated successfully\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Delete Gallery Item",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/gallery/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "gallery",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Gallery ID"
+                    }
+                  ]
+                },
+                "description": "Delete gallery item. Protected: Admin/EC Member."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Gallery Item Deleted",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/gallery/1",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "gallery",
+                        "1"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Gallery item removed successfully\"\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Media",
+          "item": [
+            {
+              "name": "List Media Files",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/media",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "media"
+                  ]
+                },
+                "description": "List uploaded media records."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Media List",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/media",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "media"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "[\n  {\n    \"id\": 1,\n    \"filename\": \"banner.png\",\n    \"mimetype\": \"image/png\",\n    \"path\": \"/uploads/2026/07/banner.png\"\n  }\n]"
+                }
+              ]
+            },
+            {
+              "name": "Stream File By ID",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/media/:id/file",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "media",
+                    ":id",
+                    "file"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Media ID"
+                    }
+                  ]
+                },
+                "description": "Stream binary file content by ID."
+              }
+            },
+            {
+              "name": "Stream File By Path",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/media/file/:year/:month/:filename",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "media",
+                    "file",
+                    ":year",
+                    ":month",
+                    ":filename"
+                  ],
+                  "variable": [
+                    {
+                      "key": "year",
+                      "value": "2026",
+                      "description": "Year folder"
+                    },
+                    {
+                      "key": "month",
+                      "value": "07",
+                      "description": "Month folder"
+                    },
+                    {
+                      "key": "filename",
+                      "value": "banner.png",
+                      "description": "Target filename"
+                    }
+                  ]
+                },
+                "description": "Stream binary file content by path."
+              }
+            },
+            {
+              "name": "Upload Public Media",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": ""
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/media/upload-public",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "media",
+                    "upload-public"
+                  ]
+                },
+                "description": "Upload public media file."
+              },
+              "response": [
+                {
+                  "name": "201 Created - Media Uploaded",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/media/upload-public",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "media",
+                        "upload-public"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Media file uploaded successfully\",\n  \"media\": {\n    \"id\": 1,\n    \"filename\": \"1722150000000-image.png\"\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Upload Media (Protected)",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": ""
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/media/upload",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "media",
+                    "upload"
+                  ]
+                },
+                "description": "Upload media file. Protected: Admin/EC Member."
+              },
+              "response": [
+                {
+                  "name": "201 Created - Media Uploaded",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/media/upload",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "media",
+                        "upload"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Media file uploaded successfully\",\n  \"media\": {\n    \"id\": 2,\n    \"filename\": \"1722150000000-doc.pdf\"\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Delete Media File",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/media/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "media",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Media ID"
+                    }
+                  ]
+                },
+                "description": "Delete media record and underlying storage file. Protected: Admin/EC Member."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Media Deleted",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/media/1",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "media",
+                        "1"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Media file deleted successfully\"\n}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04. MS4 — Finance, Notifications & Audit Logs",
+      "item": [
+        {
+          "name": "Budget & Finance",
+          "item": [
+            {
+              "name": "List Budget Proposals",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/budgets",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "budgets"
+                  ]
+                },
+                "description": "List budget proposals. Protected: Admin/EC Member."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Budgets List",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/budgets",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "budgets"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "[\n  {\n    \"id\": 1,\n    \"eventId\": 1,\n    \"totalAmount\": 15000,\n    \"status\": \"PENDING\",\n    \"lineItems\": [\n      {\n        \"category\": \"Food & Catering\",\n        \"amount\": 10000\n      },\n      {\n        \"category\": \"Certificates & Badges\",\n        \"amount\": 5000\n      }\n    ]\n  }\n]"
+                }
+              ]
+            },
+            {
+              "name": "Submit Budget Proposal",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"eventId\": 1,\n  \"totalAmount\": 15000,\n  \"lineItems\": [\n    {\n      \"category\": \"Food & Catering\",\n      \"amount\": 10000\n    },\n    {\n      \"category\": \"Certificates & Badges\",\n      \"amount\": 5000\n    }\n  ],\n  \"notifyAdmins\": true,\n  \"adminMessage\": \"Urgent budget proposal for upcoming Hackathon event.\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/budgets",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "budgets"
+                  ]
+                },
+                "description": "Submit budget proposal. Protected: Admin/EC Member."
+              },
+              "response": [
+                {
+                  "name": "201 Created - Budget Submitted",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"eventId\": 1,\n  \"totalAmount\": 15000\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/budgets",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "budgets"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Budget proposal submitted successfully\",\n  \"budget\": {\n    \"id\": 1,\n    \"eventId\": 1,\n    \"totalAmount\": 15000,\n    \"status\": \"PENDING\"\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get Budget By ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/budgets/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "budgets",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Budget ID"
+                    }
+                  ]
+                },
+                "description": "Get budget details. Protected: Admin/EC Member."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Budget Details",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/budgets/1",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "budgets",
+                        "1"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"id\": 1,\n  \"eventId\": 1,\n  \"totalAmount\": 15000,\n  \"status\": \"PENDING\",\n  \"lineItems\": [\n    {\n      \"category\": \"Food & Catering\",\n      \"amount\": 10000\n    },\n    {\n      \"category\": \"Certificates & Badges\",\n      \"amount\": 5000\n    }\n  ]\n}"
+                }
+              ]
+            },
+            {
+              "name": "Approve Budget",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"notifyRequester\": true,\n  \"customMessage\": \"Approved by EC executive decision.\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/budgets/:id/approve",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "budgets",
+                    ":id",
+                    "approve"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Budget ID"
+                    }
+                  ]
+                },
+                "description": "Approve budget proposal. Protected: Administrator role."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Budget Approved",
+                  "originalRequest": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"notifyRequester\": true\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/budgets/1/approve",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "budgets",
+                        "1",
+                        "approve"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Budget approved successfully\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Reject Budget",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"comment\": \"Exceeds quarterly allocated event funds.\",\n  \"notifyRequester\": true,\n  \"customMessage\": \"Please revise total amount and resubmit.\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/budgets/:id/reject",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "budgets",
+                    ":id",
+                    "reject"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Budget ID"
+                    }
+                  ]
+                },
+                "description": "Reject budget proposal. Protected: Administrator role."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Budget Rejected",
+                  "originalRequest": {
+                    "method": "PATCH",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"comment\": \"Exceeds funds\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/budgets/1/reject",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "budgets",
+                        "1",
+                        "reject"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Budget rejected\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Record Expenditure",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"category\": \"Food & Catering\",\n  \"amount\": 9500,\n  \"description\": \"Purchase of lunch boxes for participants (Receipt #1042).\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/budgets/:id/expenditures",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "budgets",
+                    ":id",
+                    "expenditures"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Budget ID"
+                    }
+                  ]
+                },
+                "description": "Record actual expense item against approved budget. Protected: Admin/EC Member."
+              },
+              "response": [
+                {
+                  "name": "201 Created - Expenditure Recorded",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"category\": \"Food & Catering\",\n  \"amount\": 9500,\n  \"description\": \"Lunch boxes\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/budgets/1/expenditures",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "budgets",
+                        "1",
+                        "expenditures"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Expenditure recorded successfully\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "List Budget Expenditures",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/budgets/:id/expenditures",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "budgets",
+                    ":id",
+                    "expenditures"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Budget ID"
+                    }
+                  ]
+                },
+                "description": "List recorded expenses for a budget. Protected: Admin/EC Member."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Expenditures List",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/budgets/1/expenditures",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "budgets",
+                        "1",
+                        "expenditures"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "[\n  {\n    \"id\": 1,\n    \"budgetId\": 1,\n    \"category\": \"Food & Catering\",\n    \"amount\": 9500,\n    \"description\": \"Purchase of lunch boxes\"\n  }\n]"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Notifications",
+          "item": [
+            {
+              "name": "Submit Contact Form",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Guest Visitor\",\n  \"email\": \"visitor@example.com\",\n  \"message\": \"Inquiry regarding CSEDU alumni network events and membership.\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/notifications/contact",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "notifications",
+                    "contact"
+                  ]
+                },
+                "description": "Submit public contact form message."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Contact Submitted",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Guest\",\n  \"email\": \"visitor@example.com\",\n  \"message\": \"Inquiry message text here...\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/notifications/contact",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "notifications",
+                        "contact"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Contact message submitted successfully\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Submit Pending Contact",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Applicant Student\",\n  \"email\": \"applicant@csedu.ac.bd\",\n  \"message\": \"Status update request for my pending registration application.\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/notifications/pending-contact",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "notifications",
+                    "pending-contact"
+                  ]
+                },
+                "description": "Submit pending account registration status contact message."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Pending Contact Submitted",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Applicant\",\n  \"email\": \"applicant@csedu.ac.bd\",\n  \"message\": \"Pending registration status...\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/notifications/pending-contact",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "notifications",
+                        "pending-contact"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Pending contact message submitted\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "List My Notifications",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/notifications",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "notifications"
+                  ]
+                },
+                "description": "List notifications for authenticated user."
+              },
+              "response": [
+                {
+                  "name": "200 OK - User Notifications",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/notifications",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "notifications"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "[\n  {\n    \"id\": 1,\n    \"title\": \"Budget Proposal Approved\",\n    \"message\": \"Budget #1 for Annual Hackathon has been approved.\",\n    \"isRead\": false,\n    \"createdAt\": \"2026-07-28T09:00:00.000Z\"\n  }\n]"
+                }
+              ]
+            },
+            {
+              "name": "Mark All Read",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/notifications/read-all",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "notifications",
+                    "read-all"
+                  ]
+                },
+                "description": "Mark all user notifications as read."
+              },
+              "response": [
+                {
+                  "name": "200 OK - All Marked Read",
+                  "originalRequest": {
+                    "method": "PATCH",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/notifications/read-all",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "notifications",
+                        "read-all"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"All notifications marked as read\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Mark Single Notification Read",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/notifications/:id/read",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "notifications",
+                    ":id",
+                    "read"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Notification ID"
+                    }
+                  ]
+                },
+                "description": "Mark single notification as read."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Marked Read",
+                  "originalRequest": {
+                    "method": "PATCH",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/notifications/1/read",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "notifications",
+                        "1",
+                        "read"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Notification marked as read\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Retry Notification Delivery",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/notifications/:id/retry",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "notifications",
+                    ":id",
+                    "retry"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Notification ID"
+                    }
+                  ]
+                },
+                "description": "Retry sending a failed notification. Protected: Administrator role."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Retry Dispatched",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/notifications/1/retry",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "notifications",
+                        "1",
+                        "retry"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Notification retry dispatched\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Delete Notification",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/notifications/:id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "notifications",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "1",
+                      "description": "Notification ID"
+                    }
+                  ]
+                },
+                "description": "Delete notification record."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Notification Deleted",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/notifications/1",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "notifications",
+                        "1"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Notification deleted successfully\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Send Custom Notification",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"recipientType\": \"role\",\n  \"recipientValue\": \"ECMember\",\n  \"deliveryMethod\": \"both\",\n  \"title\": \"Emergency EC Meeting Notice\",\n  \"message\": \"Emergency EC meeting scheduled tomorrow at 5 PM in club office.\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/notifications/send-custom",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "notifications",
+                    "send-custom"
+                  ]
+                },
+                "description": "Send custom notification via email/in_app/both. Protected: Admin/EC Member."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Notification Sent",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"recipientType\": \"role\",\n  \"recipientValue\": \"ECMember\",\n  \"title\": \"Emergency Meeting\",\n  \"message\": \"Details...\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/api/notifications/send-custom",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "notifications",
+                        "send-custom"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Custom notification dispatched to ECMember\"\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Audit Logs",
+          "item": [
+            {
+              "name": "List Audit Logs",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/logs?limit=50",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "logs"
+                  ],
+                  "query": [
+                    {
+                      "key": "actorUserId",
+                      "value": "1",
+                      "disabled": true,
+                      "description": "Filter by acting user ID"
+                    },
+                    {
+                      "key": "actionType",
+                      "value": "USER_ROLE_UPDATE",
+                      "disabled": true,
+                      "description": "Filter by action type string"
+                    },
+                    {
+                      "key": "targetEntity",
+                      "value": "users:5",
+                      "disabled": true,
+                      "description": "Filter by target entity string"
+                    },
+                    {
+                      "key": "startDate",
+                      "value": "2026-07-01T00:00:00Z",
+                      "disabled": true,
+                      "description": "Start ISO date"
+                    },
+                    {
+                      "key": "endDate",
+                      "value": "2026-07-31T23:59:59Z",
+                      "disabled": true,
+                      "description": "End ISO date"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "50",
+                      "description": "Max logs to return (1-1000)"
+                    }
+                  ]
+                },
+                "description": "Retrieve system audit logs. Protected: Requires Administrator role."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Audit Logs List",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/logs?limit=50",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "logs"
+                      ],
+                      "query": [
+                        {
+                          "key": "limit",
+                          "value": "50"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "[\n  {\n    \"id\": 1,\n    \"actorUserId\": 1,\n    \"actionType\": \"USER_ROLE_UPDATE\",\n    \"targetEntity\": \"users:5\",\n    \"details\": {\n      \"newRole\": \"ECMember\"\n    },\n    \"timestamp\": \"2026-07-28T08:30:00.000Z\"\n  }\n]"
+                }
+              ]
+            },
+            {
+              "name": "Purge Audit Logs",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/logs",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "logs"
+                  ]
+                },
+                "description": "Purge old audit logs. Protected: Requires Administrator role."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Logs Purged",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{baseUrl}}/api/logs",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "api",
+                        "logs"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"message\": \"Audit logs purged successfully\"\n}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
