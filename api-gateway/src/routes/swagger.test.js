@@ -7,8 +7,8 @@ describe('Swagger UI and OpenAPI JSON endpoints', () => {
   const app = express();
   app.use(swaggerRouter);
 
-  it('GET /openapi.json should return 200 OK with valid OpenAPI spec JSON', async () => {
-    const res = await request(app).get('/openapi.json');
+  it('GET /openapi.json and /api/openapi.json should return 200 OK with valid OpenAPI spec JSON', async () => {
+    const res = await request(app).get('/api/openapi.json');
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toMatch(/json/);
     expect(res.body.openapi).toBe('3.0.3');
@@ -23,10 +23,14 @@ describe('Swagger UI and OpenAPI JSON endpoints', () => {
     expect(res.body.openapi).toBe('3.0.3');
   });
 
-  it('GET /docs should serve Swagger UI HTML', async () => {
-    const res = await request(app).get('/docs/');
-    expect(res.status).toBe(200);
-    expect(res.text).toContain('swagger-ui');
+  it('GET /docs and /api/docs should serve Swagger UI HTML', async () => {
+    const res1 = await request(app).get('/docs/');
+    expect(res1.status).toBe(200);
+    expect(res1.text).toContain('swagger-ui');
+
+    const res2 = await request(app).get('/api/docs/');
+    expect(res2.status).toBe(200);
+    expect(res2.text).toContain('swagger-ui');
   });
 
   it('GET /api-docs should serve Swagger UI HTML', async () => {

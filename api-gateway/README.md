@@ -11,9 +11,9 @@ the correct microservice.
 
 The API Gateway hosts interactive **Swagger UI** documentation and the OpenAPI 3.0 specification:
 
-- 🌐 **Hosted Swagger UI**: [https://csedusc-formula1.farefin.com/docs](https://csedusc-formula1.farefin.com/docs)
-- 💻 **Local Gateway**: [http://localhost:4000/docs](http://localhost:4000/docs) (or `/api-docs` / `/swagger`)
-- 📄 **Raw OpenAPI JSON Spec**: [https://csedusc-formula1.farefin.com/openapi.json](https://csedusc-formula1.farefin.com/openapi.json) (or `http://localhost:4000/openapi.json`)
+- 🌐 **Hosted Swagger UI**: [https://csedusc-formula1.farefin.com/api/docs](https://csedusc-formula1.farefin.com/api/docs) (or [https://csedusc-formula1.farefin.com/docs](https://csedusc-formula1.farefin.com/docs))
+- 💻 **Local Gateway**: [http://localhost:4000/api/docs](http://localhost:4000/api/docs) (or `http://localhost:4000/docs`)
+- 📄 **Raw OpenAPI JSON Spec**: [https://csedusc-formula1.farefin.com/api/openapi.json](https://csedusc-formula1.farefin.com/api/openapi.json) (or `http://localhost:4000/api/openapi.json`)
 
 ---
 

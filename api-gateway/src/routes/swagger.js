@@ -26,10 +26,13 @@ const serveJson = (_req, res) => {
   res.send(openapiSpec);
 };
 
+router.get('/api/openapi.json', serveJson);
+router.get('/api/swagger.json', serveJson);
 router.get('/openapi.json', serveJson);
 router.get('/swagger.json', serveJson);
 router.get('/docs/openapi.json', serveJson);
 router.get('/api-docs/openapi.json', serveJson);
+router.get('/api/docs/openapi.json', serveJson);
 
 // Swagger UI custom HTML options & styling
 const customOptions = {
@@ -54,7 +57,10 @@ const customOptions = {
   }
 };
 
-// Serve Swagger UI express app
+// Serve Swagger UI express app under /api/docs (for reverse proxies forwarding /api/*) as well as /docs
+router.use('/api/docs', swaggerUi.serveFiles(openapiSpec, customOptions), swaggerUi.setup(openapiSpec, customOptions));
+router.use('/api/api-docs', swaggerUi.serveFiles(openapiSpec, customOptions), swaggerUi.setup(openapiSpec, customOptions));
+router.use('/api/swagger', swaggerUi.serveFiles(openapiSpec, customOptions), swaggerUi.setup(openapiSpec, customOptions));
 router.use('/docs', swaggerUi.serveFiles(openapiSpec, customOptions), swaggerUi.setup(openapiSpec, customOptions));
 router.use('/api-docs', swaggerUi.serveFiles(openapiSpec, customOptions), swaggerUi.setup(openapiSpec, customOptions));
 router.use('/swagger', swaggerUi.serveFiles(openapiSpec, customOptions), swaggerUi.setup(openapiSpec, customOptions));

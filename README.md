@@ -207,9 +207,9 @@ chmod +x run-migrations.sh create-first-admin.sh
 
 Interactive API documentation powered by Swagger UI and OpenAPI 3.0 specification is available live at:
 
-- 🌐 **Hosted Swagger UI**: [https://csedusc-formula1.farefin.com/docs](https://csedusc-formula1.farefin.com/docs)
-- 💻 **Local Gateway Swagger UI**: [http://localhost:4000/docs](http://localhost:4000/docs) (or `/api-docs` / `/swagger`)
-- 📄 **Raw OpenAPI JSON Spec**: [https://csedusc-formula1.farefin.com/openapi.json](https://csedusc-formula1.farefin.com/openapi.json)
+- 🌐 **Hosted Swagger UI**: [https://csedusc-formula1.farefin.com/api/docs](https://csedusc-formula1.farefin.com/api/docs) (or [https://csedusc-formula1.farefin.com/docs](https://csedusc-formula1.farefin.com/docs))
+- 💻 **Local Gateway Swagger UI**: [http://localhost:4000/api/docs](http://localhost:4000/api/docs) (or `http://localhost:4000/docs`)
+- 📄 **Raw OpenAPI JSON Spec**: [https://csedusc-formula1.farefin.com/api/openapi.json](https://csedusc-formula1.farefin.com/api/openapi.json)
 
 ---
 

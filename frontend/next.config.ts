@@ -9,6 +9,25 @@ const nextConfig: NextConfig = {
       { protocol: 'http', hostname: 'localhost' },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/docs',
+        destination: '/api/docs',
+        permanent: false,
+      },
+      {
+        source: '/api-docs',
+        destination: '/api/docs',
+        permanent: false,
+      },
+      {
+        source: '/swagger',
+        destination: '/api/docs',
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
