@@ -7,6 +7,16 @@ the correct microservice.
 
 ---
 
+## Swagger UI & OpenAPI Specification
+
+The API Gateway hosts interactive **Swagger UI** documentation and the OpenAPI 3.0 specification:
+
+- 🌐 **Hosted Swagger UI**: [https://csedusc-formula1.farefin.com/docs](https://csedusc-formula1.farefin.com/docs)
+- 💻 **Local Gateway**: [http://localhost:4000/docs](http://localhost:4000/docs) (or `/api-docs` / `/swagger`)
+- 📄 **Raw OpenAPI JSON Spec**: [https://csedusc-formula1.farefin.com/openapi.json](https://csedusc-formula1.farefin.com/openapi.json) (or `http://localhost:4000/openapi.json`)
+
+---
+
 ## Table of Contents
 
 1. [What is an API Gateway?](#1-what-is-an-api-gateway)

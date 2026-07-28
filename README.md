@@ -203,12 +203,24 @@ chmod +x run-migrations.sh create-first-admin.sh
 
 ---
 
+## Swagger UI API Documentation
+
+Interactive API documentation powered by Swagger UI and OpenAPI 3.0 specification is available live at:
+
+- 🌐 **Hosted Swagger UI**: [https://csedusc-formula1.farefin.com/docs](https://csedusc-formula1.farefin.com/docs)
+- 💻 **Local Gateway Swagger UI**: [http://localhost:4000/docs](http://localhost:4000/docs) (or `/api-docs` / `/swagger`)
+- 📄 **Raw OpenAPI JSON Spec**: [https://csedusc-formula1.farefin.com/openapi.json](https://csedusc-formula1.farefin.com/openapi.json)
+
+---
+
 ## API Gateway Endpoints
 
-Traffic routes through the API Gateway at `http://localhost:4000`:
+Traffic routes through the API Gateway at `http://localhost:4000` (or `https://csedusc-formula1.farefin.com`):
 
 | Endpoint Route | Target Service | Description | Auth Required |
 | :--- | :--- | :--- | :--- |
+| `GET /docs` | `api-gateway` | Interactive Swagger UI API Documentation | No |
+| `GET /openapi.json` | `api-gateway` | OpenAPI 3.0 JSON Specification | No |
 | `POST /api/auth/register` | `ms1-auth` | User account registration | No |
 | `POST /api/auth/login` | `ms1-auth` | User login and token generation | No |
 | `POST /api/auth/refresh` | `ms1-auth` | Refresh access token | No |

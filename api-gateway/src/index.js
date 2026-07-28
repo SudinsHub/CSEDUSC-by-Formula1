@@ -5,6 +5,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import { generalLimiter } from './middleware/rateLimiter.js';
 import proxyRouter from './routes/proxy.js';
+import swaggerRouter from './routes/swagger.js';
 
 const app = express();
 
@@ -12,7 +13,11 @@ const app = express();
 // Global middleware — order matters
 // ---------------------------------------------------------------------------
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  })
+);
 
 const allowedOrigins = config.frontendOrigin.split(',').map(o => o.trim());
 app.use(
@@ -31,12 +36,15 @@ app.use(morgan('combined'));
 app.use(generalLimiter);
 
 // ---------------------------------------------------------------------------
-// Health check — no auth, no extra rate limit, not proxied
+// Health check & Swagger Docs — no auth, no extra rate limit, not proxied
 // ---------------------------------------------------------------------------
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
 });
+
+// Swagger UI & OpenAPI Specification routes
+app.use(swaggerRouter);
 
 // ---------------------------------------------------------------------------
 // Proxy routes

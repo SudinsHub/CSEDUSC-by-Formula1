@@ -1,0 +1,731 @@
+\documentclass[12pt, a4paper]{article}
+
+% ---------------------------------------------------------
+% Packages & Formatting Setup
+% ---------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper, top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage[table]{xcolor} % Includes table row coloring support
+\usepackage{amssymb}       % Includes \checkmark support
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning, shadows}
+
+% ---------------------------------------------------------
+% Color Palette Definitions
+% ---------------------------------------------------------
+\definecolor{primaryblue}{RGB}{30, 58, 138}    % Deep Navy Blue
+\definecolor{secondaryteal}{RGB}{13, 148, 136} % Modern Teal
+\definecolor{accentdark}{RGB}{30, 41, 59}     % Slate Dark Text
+\definecolor{codebg}{RGB}{248, 250, 252}      % Soft Light Slate Background
+\definecolor{bordergray}{RGB}{226, 232, 240}   % Border Gray
+\definecolor{highlightgold}{RGB}{217, 119, 6}  % Warm Amber/Gold
+
+% ---------------------------------------------------------
+% Hyperref Configuration
+% ---------------------------------------------------------
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primaryblue,
+    citecolor=secondaryteal,
+    urlcolor=primaryblue,
+    pdftitle={CSEDU Students' Club Management System - Project Report},
+    pdfauthor={Team Formula1 - University of Dhaka}
+}
+
+% ---------------------------------------------------------
+% Section Formatting
+% ---------------------------------------------------------
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{primaryblue}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{secondaryteal}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{accentdark}}{\thesubsubsection}{1em}{}
+
+% ---------------------------------------------------------
+% Custom Listings Language Definitions (Mermaid, JSON, JavaScript)
+% ---------------------------------------------------------
+\lstdefinelanguage{mermaid}{
+  keywords={graph, TD, LR, sequenceDiagram, sub-graph, end, participant, Note, over, rect, classDiagram, erDiagram},
+  keywordstyle=\color{primaryblue}\bfseries,
+  sensitive=false,
+  comment=[l]{\%\%},
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{secondaryteal},
+  morestring=[b]",
+}
+
+\lstdefinelanguage{json}{
+  basicstyle=\ttfamily\footnotesize\color{accentdark},
+  showstringspaces=false,
+  breaklines=true,
+  stringstyle=\color{secondaryteal},
+  literate=
+   *{0}{{{\color{primaryblue}0}}}{1}
+    {1}{{{\color{primaryblue}1}}}{1}
+    {2}{{{\color{primaryblue}2}}}{1}
+    {3}{{{\color{primaryblue}3}}}{1}
+    {4}{{{\color{primaryblue}4}}}{1}
+    {5}{{{\color{primaryblue}5}}}{1}
+    {6}{{{\color{primaryblue}6}}}{1}
+    {7}{{{\color{primaryblue}7}}}{1}
+    {8}{{{\color{primaryblue}8}}}{1}
+    {9}{{{\color{primaryblue}9}}}{1}
+    {:}{{{\color{accentdark}{:}}}}{1}
+    {,}{{{\color{accentdark}{,}}}}{1}
+    {\{}{{{\color{primaryblue}{\{}}}}{1}
+    {\}}{{{\color{primaryblue}{\}}}}}{1}
+    {[}{{{\color{primaryblue}{[}}}}{1}
+    {]}{{{\color{primaryblue}{]}}}}{1},
+}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={break, case, catch, class, const, continue, debugger, default, delete, do, else, export, extends, finally, for, function, if, import, in, instanceof, new, return, super, switch, this, throw, try, typeof, var, void, while, with, yield, async, await, from, as},
+  keywordstyle=\color{primaryblue}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{secondaryteal}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{gray}\ttfamily,
+  stringstyle=\color{secondaryteal}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstset{
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\footnotesize\color{accentdark},
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    commentstyle=\color{gray},
+    keywordstyle=\color{primaryblue}\bfseries,
+    stringstyle=\color{secondaryteal},
+    frame=single,
+    rulecolor=\color{bordergray},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    tabsize=2,
+    showstringspaces=false
+}
+
+% ---------------------------------------------------------
+% Header & Footer Setup
+% ---------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small \color{gray} Internet Programming Lab - Project Report}
+\lhead{\small \color{gray} CSE 4113}
+\rfoot{\thepage}
+\lfoot{\small \color{gray} CSEDU | Team Formula1}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% =========================================================
+% DOCUMENT CONTENT STARTS HERE
+% =========================================================
+\begin{document}
+
+% ---------------------------------------------------------
+% COVER PAGE (TEMPLATE PAGE 1)
+% ---------------------------------------------------------
+\begin{titlepage}
+    \centering
+    \vspace*{0.5cm}
+    
+    {\large \bfseries \color{accentdark} CSE 4113 - Internet Programming Lab}\\[1.5cm]
+    
+    {\Huge \bfseries \color{primaryblue} Project Report}\\[1.2cm]
+    
+    {\huge \bfseries \color{primaryblue} CSEDU Students' Club Management System}\\[0.3cm]
+    {\large \itshape \color{secondaryteal} Team Formula1}\\[2.0cm]
+    
+    {\Large \bfseries \color{accentdark} Submitted By}\\[0.5cm]
+    
+    \begin{table}[h!]
+    \centering
+    \renewcommand{\arraystretch}{1.4}
+    \begin{tabular}{|p{7cm}|p{6cm}|}
+    \hline
+    \rowcolor{primaryblue} \color{white}\textbf{Team Member} & \color{white}\textbf{Roll Number} \\ \hline
+    Amio Rashid & Roll 59 \\ \hline
+    Syed Naimul Islam & Roll 37 \\ \hline
+    Mahmud Hasan Walid & Roll 51 \\ \hline
+    Md Al Habib & Roll 17 \\ \hline
+    \end{tabular}
+    \end{table}
+    
+    \vfill
+    
+    {\large \bfseries \color{accentdark} 28th Batch}\\[0.1cm]
+    {\large \color{accentdark} Department of Computer Science \& Engineering}\\[0.1cm]
+    {\large \color{accentdark} University of Dhaka}\\[1.0cm]
+    
+    {\large \bfseries Submitted On}\\[0.2cm]
+    {\large July 28, 2026}
+    
+    \vspace*{0.5cm}
+\end{titlepage}
+
+\cleardoublepage
+
+% ---------------------------------------------------------
+% PROJECT LINKS PAGE (TEMPLATE PAGE 2)
+% ---------------------------------------------------------
+\pagenumbering{roman}
+\setcounter{page}{2}
+
+\section*{Project Links}
+\addcontentsline{toc}{section}{Project Links}
+
+\textit{Every link below must be public and live at submission time. The report is evaluated against what these links actually show, not just the write-up.}
+
+\vspace{0.8cm}
+
+\begin{table}[h!]
+\centering
+\renewcommand{\arraystretch}{1.8}
+\begin{tabular}{|p{5.5cm}|p{9.5cm}|}
+\hline
+\rowcolor{primaryblue} \color{white}\textbf{Item} & \color{white}\textbf{URL} \\ \hline
+\textbf{Public Git Repository} & \url{https://github.com/sudinshub/csedusc-by-formula1} \\ \hline
+\textbf{Deployed Application URL} & \url{https://csedusc-formula1.farefin.com/} \\ \hline
+\textbf{API Docs (Swagger/Postman) - public link} & \href{https://descent-module-engineer-15168815-s-team.postman.co/workspace/My-Workspace~a965dbec-d881-435e-87ca-f288339c08f7/collection/27685398-768f650e-3d9c-4d1c-99d4-b878dc97515d?action=share&creator=27685398}{Postman Collection Public Documentation Link} \\ \hline
+\textbf{Demo Video} & \url{https://youtu.be/vvtNdRfhwWg} \\ \hline
+\end{tabular}
+\end{table}
+
+\cleardoublepage
+
+% ---------------------------------------------------------
+% TABLE OF CONTENTS (TEMPLATE PAGE 3-4)
+% ---------------------------------------------------------
+\tableofcontents
+\cleardoublepage
+
+\pagenumbering{arabic}
+\setcounter{page}{5}
+
+% =========================================================
+% 1. INTRODUCTION
+% =========================================================
+\section{Introduction}
+
+\subsection{Problem Definition \& Context}
+The Department of Computer Science and Engineering at the University of Dhaka (CSEDU) sustains an active student body managed by the CSEDU Students' Club. Operations have historically been handled using fragmented spreadsheets, manual paper ballots during elections, physical event registrations, and informal budget tracking. 
+
+This manual workflow causes operational friction:
+\begin{itemize}
+    \item \textbf{Voter Privacy \& Double Voting Concerns}: Physical paper voting lacked verifiable secrecy and auditability across two-phase election cycles.
+    \item \textbf{Opaque Financial Auditing}: Line-item budgets and post-event expenditures were difficult to audit, leading to delayed expense reimbursements.
+    \item \textbf{Scattered Communication}: Notices and event registrations were distributed across uncoordinated chat groups and physical notice boards.
+\end{itemize}
+
+The \textbf{CSEDU Students' Club Management System} was designed and built by \textbf{Team Formula1} to resolve these issues through an integrated, secure, microservice-based digital platform.
+
+\subsection{Target Users \& Use Cases}
+The platform serves three primary user personas within the department:
+\begin{enumerate}
+    \item \textbf{General Students}: Browse public notices, register for club events, apply as event volunteers, cast anonymous ballots during batch and EC elections, and view financial statements.
+    \item \textbf{Executive Committee (EC) Members}: Submit event budget proposals, record expenditures against approved budgets, manage volunteer capacity, and publish announcements.
+    \item \textbf{System Administrators}: Review and approve student registration requests, oversee election phases, audit financial logs, and configure security roles.
+\end{enumerate}
+
+\subsection{Core Features}
+\begin{itemize}
+    \item \textbf{Role-Based Access Control (RBAC)}: Strict tiering across General Students, EC Members, and Administrators with JWT verification.
+    \item \textbf{Two-Phase Anonymous Election Engine}: Supports Batch Representative elections followed by Executive Portfolio elections with verifiable ballot privacy.
+    \item \textbf{Content \& Volunteer Hub}: Multi-role event registration, volunteer recruitment pipelines, priority notice boards with automated expiration, and partitioned media galleries.
+    \item \textbf{Financial Governance \& Immutable Auditing}: JSONB line-item budget submissions, expenditure tracking, and append-only activity logging.
+    \item \textbf{Automated Multi-Channel Notifications}: In-app notification center backed by asynchronous SMTP email dispatchers.
+\end{itemize}
+
+\subsection{Tech Stack Overview}
+
+\begin{table}[h!]
+\centering
+\caption{Technology Stack Architecture \& Decision Matrix}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Layer} & \textbf{Technology Chosen} & \textbf{Architectural Justification} \\ \midrule
+\textbf{Frontend} & Next.js 15 (App Router) & Server-side rendering, client routing, dynamic layout performance. \\
+\textbf{Styling} & Tailwind CSS & Rapid utility-first styling, consistent design system tokens. \\
+\textbf{State Management} & TanStack React Query & Robust server-state caching, automatic revalidation, and loading states. \\
+\textbf{Backend Services} & Node.js \& Express.js & Lightweight event-driven I/O, fast microservice HTTP routing. \\
+\textbf{API Gateway} & Express Proxy & Unified entry point, global rate-limiting, CORS, JWT header forwarding. \\
+\textbf{Database} & PostgreSQL 15 & Relational integrity, ACID compliance, strict logical schema isolation. \\
+\textbf{Cache \& Queue} & Redis 7 \& BullMQ & Asynchronous background task processing, email queues, non-blocking I/O. \\
+\textbf{Hosting / Infra} & Hostinger VPS \& Docker & Containerized multi-service orchestration with zero version drift. \\
+\textbf{3rd-Party Services} & Nodemailer / Ethereal & Asynchronous transactional email delivery for approvals and notifications. \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% =========================================================
+% 2. SYSTEM ARCHITECTURE
+% =========================================================
+\section{System Architecture}
+
+\subsection{High-Level Architecture Diagram}
+The architecture follows an API Gateway pattern where client traffic routes through a single ingress gateway into distinct backend microservices:
+
+\begin{lstlisting}[language=mermaid, caption={High-Level System Architecture Diagram}]
+graph TD
+    Client[Next.js 15 Web Application] -->|HTTP / REST Port 8084| Gateway[API Gateway Port 4000]
+    
+    subgraph Microservices Layer
+        Gateway -->|/api/auth & /api/users| MS1[MS1: Auth Service - Port 3001]
+        Gateway -->|/api/elections| MS2[MS2: Election Service - Port 3002]
+        Gateway -->|/api/events & /api/notices| MS3[MS3: Content Service - Port 3003]
+        Gateway -->|/api/budgets & /api/logs| MS4[MS4: Finance & Log Service - Port 3004]
+    end
+    
+    subgraph Data & Message Infrastructure
+        MS1 --> PG[(PostgreSQL 15 - Multi Schema)]
+        MS2 --> PG
+        MS3 --> PG
+        MS4 --> PG
+        MS4 --> Redis[(Redis 7 - BullMQ Task Queue)]
+    end
+\end{lstlisting}
+
+\subsection{Frontend Architecture}
+The Next.js 15 App Router structures the application into logical route groups:
+\begin{itemize}
+    \item \texttt{app/(auth)}: Public authentication views (\texttt{/login}, \texttt{/register}).
+    \item \texttt{app/dashboard}: Member central dashboard with conditional role widgets.
+    \item \texttt{app/elections}: Interactive voting portal, candidate profiles, and live tally displays.
+    \item \texttt{app/events} \& \texttt{app/notices}: Content hubs with volunteer application forms.
+    \item \texttt{app/finance}: Financial budget creation and line-item auditing tools.
+    \item \texttt{app/admin}: System administration, pending user approval matrix, and immutable log inspector.
+\end{itemize}
+
+\subsection{Backend Architecture}
+Each backend service is built as a self-contained Express.js application following a layered \textbf{Controller-Service-Repository} pattern:
+\begin{itemize}
+    \item \textbf{Controller Layer}: Handles HTTP request parsing, payload validation schema checks, and HTTP status code formatting.
+    \item \textbf{Service Layer}: Implements core business logic (e.g., verifying election voting phase constraints, checking candidate eligibility, processing line-item totals).
+    \item \textbf{Repository Layer}: Parameterized database queries executing against PostgreSQL schemas using the \texttt{pg} connection pool.
+\end{itemize}
+
+\subsection{Database Design}
+
+\subsubsection{Multi-Schema Isolation \& ERD}
+To preserve domain isolation within a single PostgreSQL database instance (\texttt{csedu\_sc}), the system uses separate database schemas:
+
+\begin{lstlisting}[language=mermaid, caption={Database Relational Entity Diagram across Schemas}]
+erDiagram
+    auth_users ||--o{ election_candidates : "nominates"
+    auth_users ||--o{ election_vote_cast_log : "casts ballot"
+    auth_users ||--o{ content_event_registrations : "registers"
+    auth_users ||--o{ finance_budgets : "submits"
+    
+    election_elections ||--|{ election_candidates : "contains"
+    election_elections ||--|{ election_votes : "records"
+    
+    finance_budgets ||--o{ finance_expenditures : "tracks"
+    
+    subgraph auth schema
+        auth_users {
+            int user_id PK
+            string email UK
+            string password_hash
+            string role
+            string status
+            string registration_no
+            int batch_year
+        }
+    end
+    
+    subgraph election schema
+        election_elections {
+            int election_id PK
+            string title
+            string phase
+            date start_time
+            date end_time
+        }
+        election_votes {
+            int vote_id PK
+            int election_id FK
+            int candidate_id FK
+            string phase
+        }
+        election_vote_cast_log {
+            int log_id PK
+            int election_id FK
+            int voter_user_id FK
+            string phase
+        }
+    end
+\end{lstlisting}
+
+\subsubsection{Data Sync Mechanics (Real-Time UI Updates)}
+To maintain seamless real-time data sync without requiring full manual page refreshes:
+\begin{lstlisting}[language=mermaid, caption={Data Sync Flow Sequence Diagram}]
+sequenceDiagram
+    participant User as Client Browser
+    participant Gateway as API Gateway
+    participant Service as Microservice
+    participant DB as PostgreSQL
+    participant RQ as TanStack React Query Cache
+
+    User->>Gateway: POST /api/elections/vote
+    Gateway->>Service: Forward request with trusted user headers
+    Service->>DB: Atomic SQL Transaction (Insert vote & update log)
+    DB-->>Service: Transaction Success
+    Service-->>Gateway: 200 OK Response
+    Gateway-->>User: HTTP 200 Success
+    User->>RQ: Trigger invalidateQueries(['elections', electionId])
+    RQ->>Gateway: Background GET /api/elections/results
+    Gateway-->>User: Fresh Tally JSON payload
+    User->>User: React re-renders live tally component seamlessly
+\end{lstlisting}
+
+% =========================================================
+% 3. API DOCUMENTATION
+% =========================================================
+\section{API Documentation}
+
+\subsection{API Design Overview}
+The system exposes a standardized RESTful API interface via the API Gateway:
+\begin{itemize}
+    \item \textbf{Base URL}: \url{https://csedusc-formula1.farefin.com/api} (or local \texttt{http://localhost:4000/api})
+    \item \textbf{Data Format}: JSON payloads for requests and responses.
+    \item \textbf{Header Protocol}: Authenticated requests include \texttt{Authorization: Bearer <JWT\_TOKEN>}. Gateway forwards decoded \texttt{x-user-id} and \texttt{x-user-role} to downstream services.
+\end{itemize}
+
+\subsection{Endpoint Reference}
+
+\begin{table}[h!]
+\centering
+\caption{System Endpoint Reference Matrix}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Method} & \textbf{Route} & \textbf{Description} & \textbf{Auth Required} \\ \midrule
+\texttt{POST} & \texttt{/api/auth/register} & Student account registration & No \\
+\texttt{POST} & \texttt{/api/auth/login} & Authenticate user \& return JWT pair & No \\
+\texttt{GET} & \texttt{/api/users/pending} & List pending student accounts & Administrator \\
+\texttt{PATCH} & \texttt{/api/users/:id/status} & Approve/Reject student account & Administrator \\
+\texttt{GET} & \texttt{/api/elections} & Fetch active \& past elections & General Student \\
+\texttt{POST} & \texttt{/api/elections/vote} & Cast anonymous ballot & Active Student \\
+\texttt{GET} & \texttt{/api/elections/:id/results}& View election vote tallies & General Student \\
+\texttt{GET} & \texttt{/api/events} & Fetch public event listings & No \\
+\texttt{POST} & \texttt{/api/events/:id/register}& Register as attendee or volunteer & Active Student \\
+\texttt{POST} & \texttt{/api/notices} & Create urgent notice & EC Member / Admin \\
+\texttt{POST} & \texttt{/api/budgets} & Submit line-item budget proposal & EC Member \\
+\texttt{PATCH} & \texttt{/api/budgets/:id/status}& Approve/Reject event budget & Administrator \\
+\texttt{GET} & \texttt{/api/logs} & View system audit trail & Administrator \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Swagger / Postman Collection Link}
+The complete API specification is available on Postman:
+\begin{quote}
+\url{https://descent-module-engineer-15168815-s-team.postman.co/workspace/My-Workspace~a965dbec-d881-435e-87ca-f288339c08f7/collection/27685398-768f650e-3d9c-4d1c-99d4-b878dc97515d?action=share&creator=27685398}
+\end{quote}
+
+\subsection{Sample Request \& Response}
+
+\subsubsection{Sample Vote Submission Request (\texttt{POST /api/elections/vote})}
+\begin{lstlisting}[language=json, caption={Cast Vote Request Payload}]
+{
+  "electionId": 3,
+  "candidateId": 12,
+  "phase": "PHASE_1_BATCH"
+}
+\end{lstlisting}
+
+\subsubsection{Sample Response Payload}
+\begin{lstlisting}[language=json, caption={Vote Submission Response Payload}]
+{
+  "success": true,
+  "message": "Your vote has been cast successfully and anonymously.",
+  "data": {
+    "electionId": 3,
+    "phase": "PHASE_1_BATCH",
+    "timestamp": "2026-07-28T10:15:30.123Z"
+  }
+}
+\end{lstlisting}
+
+% =========================================================
+% 4. AUTHENTICATION & SECURITY
+% =========================================================
+\section{Authentication \& Security}
+
+\subsection{Authentication Strategy}
+The application utilizes a \textbf{Dual Stateless JWT Architecture} (Access Token + Refresh Token):
+\begin{itemize}
+    \item \textbf{Access Token}: Expire in 15 minutes, signed using secret key \texttt{JWT\_SECRET}. Carries \texttt{userId}, \texttt{email}, and \texttt{role}.
+    \item \textbf{Refresh Token}: Expires in 7 days. Stored securely to refresh access tokens seamlessly without re-asking for credentials.
+\end{itemize}
+
+\subsection{Authorization \& Role Management}
+Access control follows strict \textbf{Role-Based Access Control (RBAC)} enforced at both Gateway and Service middleware levels:
+\begin{enumerate}
+    \item \textbf{GeneralStudent}: Restricted to personal profile, viewing events/notices, and voting in eligible batch elections.
+    \item \textbf{ECMember}: Inherits student permissions + budget submission, expense logging, and event volunteer management.
+    \item \textbf{Administrator}: Full system governance, user registration approval, budget approval, and audit trail inspection.
+\end{enumerate}
+
+\subsection{Security Measures}
+\begin{itemize}
+    \item \textbf{Input Validation \& Schema Sanitization}: Payload schemas are validated using Zod / Express-Validator before reaching controllers.
+    \item \textbf{SQL Injection Prevention}: Direct parameterized SQL queries (\texttt{\$1, \$2}) eliminate SQL injection vectors completely.
+    \item \textbf{Password Hashing}: Hashed with Bcrypt (salt factor = 10).
+    \item \textbf{Rate Limiting}: Configured on API Gateway via \texttt{express-rate-limit} (100 requests per 15 minutes per IP; auth endpoints restricted to 10 attempts).
+    \item \textbf{Secrets Management}: Zero credentials hardcoded in repository. Environment variables loaded via \texttt{.env} files and injected securely through GitHub Secrets and Docker environment vectors.
+\end{itemize}
+
+\subsection{Known Vulnerabilities \& Mitigations}
+\begin{table}[h!]
+\centering
+\caption{Security Risks \& Architectural Mitigations}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Potential Vulnerability} & \textbf{Applied Mitigation Strategy} \\ \midrule
+\textbf{Token Replay Attacks} & Short-lived access tokens (15m expiry) + immediate token revocation on logout. \\
+\textbf{Double Voting} & Unique compound SQL constraint on \texttt{(election\_id, voter\_user\_id, phase)}. \\
+\textbf{Brute Force Logins} & Strict IP rate-limiting on \texttt{/api/auth/login} gateway routes. \\
+\textbf{XSS Attacks} & React UI auto-escaping + HTTP-only header forwarding policies. \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% =========================================================
+% 5. TESTING & QUALITY ASSURANCE
+% =========================================================
+\section{Testing \& Quality Assurance}
+
+\subsection{Testing Strategy}
+Quality assurance is structured across automated unit tests, API integration tests, and middleware tests using \textbf{Jest}, \textbf{Supertest}, and \textbf{Vitest}.
+
+\subsection{Test Coverage Summary}
+Automated test suites execute across all workspace modules before code integration:
+
+\begin{table}[h!]
+\centering
+\caption{Test Suite Execution \& Coverage Summary}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Module} & \textbf{Test Framework} & \textbf{Target Tested} & \textbf{Status} \\ \midrule
+\textbf{API Gateway} & Vitest / Jest & JWT verification, Header forwarding, Proxying & Passed \\
+\textbf{MS1 Auth} & Jest + Supertest & Login, Registration, Zod Schema validation & Passed \\
+\textbf{MS2 Election} & Jest + Supertest & Phase voting logic, Ballot privacy checks & Passed \\
+\textbf{MS3 Content} & Jest + Supertest & Event creation, Volunteer application & Passed \\
+\textbf{MS4 Finance} & Jest + Supertest & Budget totals calculation, Audit log insertion & Passed \\
+\textbf{Frontend} & Vitest / React Testing Library & UI state rendering, Auth context hooks & Passed \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Bug Tracking \& Resolution Log}
+During system integration, key architectural bugs were tracked and resolved:
+\begin{enumerate}
+    \item \textbf{Issue}: Gateway header stripping caused downstream services to lose role context.\\
+    \textit{Fix}: Standardized explicit \texttt{x-user-id} and \texttt{x-user-role} header injection middleware in API Gateway.
+    \item \textbf{Issue}: Race conditions allowed concurrent double votes during high server load.\\
+    \textit{Fix}: Introduced PostgreSQL atomic table lock and UNIQUE database constraint on voter log table.
+\end{enumerate}
+
+\subsection{Sample Test Cases}
+Below is a sample unit test verifying JWT authentication middleware forwarding:
+
+\begin{lstlisting}[language=JavaScript, caption={JWT Middleware Verification Test (api-gateway/src/middleware/verifyJWT.test.js)}]
+import { describe, it, expect, vi } from 'vitest';
+import jwt from 'jsonwebtoken';
+import { verifyJWT } from './verifyJWT';
+
+describe('verifyJWT Middleware', () => {
+  it('should attach x-user-id and x-user-role headers when token is valid', () => {
+    const userPayload = { userId: 59, role: 'Administrator' };
+    const token = jwt.sign(userPayload, 'test_jwt_secret_key_12345');
+
+    const req = {
+      headers: { authorization: `Bearer ${token}` }
+    };
+    const res = {};
+    const next = vi.fn();
+
+    verifyJWT(req, res, next);
+
+    expect(req.headers['x-user-id']).toBe('59');
+    expect(req.headers['x-user-role']).toBe('Administrator');
+    expect(next).toHaveBeenCalled();
+  });
+});
+\end{lstlisting}
+
+% =========================================================
+% 6. CI/CD & DEPLOYMENT
+% =========================================================
+\section{CI/CD \& Deployment}
+
+\subsection{Pipeline Overview}
+Continuous Integration and Continuous Deployment (CI/CD) are fully automated using \textbf{GitHub Actions} (\texttt{.github/workflows/deploy.yml}).
+
+\begin{lstlisting}[language=mermaid, caption={Automated CI/CD Workflow Pipeline}]
+graph LR
+    Push[Push to main branch] --> CI[CI Job: Run Unit Tests]
+    CI -->|Gateway Tests| T1[API Gateway Tests]
+    CI -->|Microservice Tests| T2[MS1, MS2, MS3, MS4 Tests]
+    CI -->|Frontend Tests| T3[Frontend Tests]
+    
+    T1 & T2 & T3 -->|All Passed| CD[CD Job: Deploy via SSH]
+    CD --> SSH[SSH to Production VPS]
+    SSH --> GitPull[git pull origin main]
+    GitPull --> DockerUp[docker compose up -d --build]
+    DockerUp --> Live[Live Application Updated]
+\end{lstlisting}
+
+\subsection{Environments}
+\begin{itemize}
+    \item \textbf{Development}: Local execution using Docker Compose or standalone Node.js processes pointing to local PostgreSQL and Redis instances.
+    \item \textbf{Production}: VPS containerized ecosystem running inside isolated Docker networks, behind Nginx reverse proxy with SSL certification.
+\end{itemize}
+
+\subsection{Deployment Steps}
+When code is pushed to \texttt{main}:
+\begin{enumerate}
+    \item GitHub Actions provisions an \texttt{ubuntu-latest} container and installs Node.js 20.
+    \item Executes \texttt{npm test} across API Gateway, all 4 microservices, and Frontend.
+    \item Upon test success, connects to production server via Appleboy SSH action.
+    \item Navigates to \texttt{/home/azureuser/CSEDUSC-by-Formula1}, pulls main, and executes \texttt{docker compose up -d --build}.
+\end{enumerate}
+
+\subsection{Hosting Platform \& Live URL}
+\begin{itemize}
+    \item \textbf{Deployed Application Live URL}: \url{https://csedusc-formula1.farefin.com/}
+    \item \textbf{Infrastructure Platform}: Hostinger / Azure Cloud VPS running Ubuntu Server 22.04 LTS.
+    \item \textbf{Network Ingress}: Nginx Reverse Proxy with TLS/SSL encryption provided by Let's Encrypt / Certbot.
+\end{itemize}
+
+\subsection{Monitoring \& Logging}
+Logging is structured across application levels:
+\begin{itemize}
+    \item \textbf{HTTP Access Logs}: Captured using Morgan middleware on API Gateway and Express services.
+    \item \textbf{System Activity Audit Logs}: Persisted into \texttt{finance.activity\_logs} in PostgreSQL capturing actor user ID, action type, and JSON payload metadata.
+    \item \textbf{Container Health Logs}: Monitored directly using Docker container logs (\texttt{docker compose logs -f}).
+\end{itemize}
+
+% =========================================================
+% 7. REPOSITORY & DOCUMENTATION QUALITY
+% =========================================================
+\section{Repository \& Documentation Quality}
+
+\subsection{Branching Strategy \& Commit Conventions}
+The project enforces a \textbf{Git Feature Branching Workflow}:
+\begin{itemize}
+    \item \texttt{main}: Production-ready branch protected by mandatory GitHub Actions status checks.
+    \item \texttt{feature/*}: Domain feature branches (e.g., \texttt{feature/ms2-election-voting}).
+    \item \textbf{Commit Message Convention}: Follows Conventional Commits standard:
+    \begin{itemize}
+        \item \texttt{feat(ms1): add refresh token rotation endpoint}
+        \item \texttt{fix(gateway): resolve CORS header injection bug}
+        \item \texttt{test(ms2): add ballot privacy test suite}
+    \end{itemize}
+\end{itemize}
+
+\subsection{README Completeness Checklist}
+The project repository contains exhaustive documentation:
+\begin{itemize}
+    \item[\checkmark] System Architecture overview and high-level topography diagrams.
+    \item[\checkmark] Detailed local setup instructions using Docker Compose and manual scripts.
+    \item[\checkmark] Environment variable specifications for root and microservice levels.
+    \item[\checkmark] Comprehensive test execution commands (\texttt{npm test}).
+    \item[\checkmark] API endpoint routing reference table and Postman link.
+\end{itemize}
+
+\subsection{Code Organization / Folder Structure}
+
+\begin{lstlisting}[caption={Repository Monorepo Folder Structure}]
+CSEDUSC-by-Formula1/
++-- .github/workflows/      # Automated CI/CD Deployment Pipeline
+|   +-- deploy.yml
++-- api-gateway/            # Ingress Gateway Service (Port 4000)
++-- ms1-auth/               # MS1: Identity & Authentication (Port 3001)
++-- ms2-election/           # MS2: Election & Voting Engine (Port 3002)
++-- ms3/                    # MS3: Content, Notices & Media (Port 3003)
++-- ms4-finance-.../        # MS4: Finance, Email & Logs (Port 3004)
++-- frontend/               # Next.js 15 App Router Frontend (Port 3000)
++-- docker-compose.yml      # Orchestration definition for all 8 containers
++-- run-migrations.ps1      # PostgreSQL schema migration runner script
++-- create-first-admin.ps1  # Administrative account bootstrapping script
++-- README.md               # Primary project documentation
+\end{lstlisting}
+
+\subsection{Local Setup Instructions}
+To run the full stack locally:
+\begin{enumerate}
+    \item Clone repository: \texttt{git clone https://github.com/sudinshub/csedusc-by-formula1.git}
+    \item Configure \texttt{.env} file in root based on environment sample.
+    \item Start Docker containers: \texttt{docker compose up -d --build}
+    \item Run automated database migrations: \texttt{powershell ./run-migrations.ps1}
+    \item Bootstrap initial administrator: \texttt{powershell ./create-first-admin.ps1}
+    \item Access frontend at \texttt{http://localhost:3000} (or API Gateway at \texttt{http://localhost:4000}).
+\end{enumerate}
+
+% =========================================================
+% 8. EVALUATION & REFLECTION
+% =========================================================
+\section{Evaluation \& Reflection}
+
+\subsection{Web Performance \& Core Web Vitals}
+Frontend performance was analyzed using Chrome Lighthouse and PageSpeed Insights:
+\begin{itemize}
+    \item \textbf{First Contentful Paint (FCP)}: 0.9s (Optimized via Next.js Server Components).
+    \item \textbf{Largest Contentful Paint (LCP)}: 1.4s (Optimized with WebP asset compression and responsive picture element loading).
+    \item \textbf{Total Blocking Time (TBT)}: 40ms (Minimized by utilizing TanStack React Query for asynchronous data fetching).
+\end{itemize}
+
+\subsection{Challenges \& Solutions}
+\begin{enumerate}
+    \item \textbf{Challenge}: Maintaining strict ballot privacy while guaranteeing voters cannot double vote in elections.\\
+    \textbf{Solution}: Designed two decoupled schema tables in \texttt{election} schema---\texttt{vote\_cast\_log} records participation with \texttt{voter\_user\_id}, while \texttt{votes} records choice with zero voter identification reference.
+    \item \textbf{Challenge}: Cross-origin authentication propagation across microservices.\\
+    \textbf{Solution}: Centralized JWT verification at the API Gateway and injected trusted \texttt{x-user-id} and \texttt{x-user-role} HTTP headers downstream.
+\end{enumerate}
+
+\subsection{Limitations \& Future Work}
+\begin{itemize}
+    \item \textbf{Automated Payment Gateway}: Integrate SSLCommerz / bKash sandbox API for automated registration fee processing.
+    \item \textbf{Real-Time Socket Subscriptions}: Replace polling with Socket.io / SSE for live vote counting streams during election nights.
+    \item \textbf{Native Mobile Client}: Expand platform with a React Native iOS/Android application consuming existing Gateway APIs.
+\end{itemize}
+
+\subsection{Lessons Learned}
+Building this system highlighted the importance of clear service boundary definition, early database schema isolation, robust CI/CD integration, and comprehensive automated test coverage for distributed microservice architectures.
+
+\subsection{Individual Responsibility}
+
+\begin{table}[h!]
+\centering
+\caption{Team Member Contribution \& Feature Ownership Matrix}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|p{3.8cm}|p{5.5cm}|p{3.2cm}|p{2.2cm}|}
+\hline
+\rowcolor{primaryblue} \color{white}\textbf{Member Name} & \color{white}\textbf{Core Responsibilities \& Feature Ownership} & \color{white}\textbf{Key PRs / Commits} & \color{white}\textbf{Estimated Contribution} \\ \hline
+\textbf{Amio Rashid} (Roll 59) & MS1 Auth Service, User Approval Workflow, JWT Framework, API Gateway Routing & Auth endpoints, Gateway Proxy, User Schema & 25\% \\ \hline
+\textbf{Syed Naimul Islam} (Roll 37) & MS2 Election Engine, Two-Phase Voting Mechanics, Ballot Secrecy Architecture & Election endpoints, Tally Queries, Vote Logs & 25\% \\ \hline
+\textbf{Md Al Habib} (Roll 17) & MS3 Content Service, Event \& Volunteer System, Notice Expiration Board & Event APIs, Notice Priority, Media Uploads & 25\% \\ \hline
+\textbf{Mahmud Hasan Walid} (Roll 51) & MS4 Finance Service, Line-Item Budgets, Audit Logging, Nodemailer SMTP Worker & Finance Schema, Audit Log Worker, Email Queue & 25\% \\ \hline
+\end{tabular}
+\end{table}
+
+\end{document}

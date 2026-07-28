@@ -1,0 +1,3357 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "CSEDU Students' Club Management System API",
+    "version": "1.0.0",
+    "description": "Comprehensive REST API documentation for CSEDU Students' Club Management System. Powered by Microservices & API Gateway.\n\n**Base URLs:**\n- Production Base URL: `https://csedusc-formula1.farefin.com`\n- Local Gateway: `http://localhost:4000`",
+    "contact": {
+      "name": "Team Formula1",
+      "url": "https://csedusc-formula1.farefin.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://csedusc-formula1.farefin.com",
+      "description": "Production API Gateway"
+    },
+    {
+      "url": "http://localhost:4000",
+      "description": "Local Development Gateway"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Gateway Health Check",
+        "description": "Check operational status and uptime of the API Gateway.",
+        "tags": [
+          "System & Gateway Health"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Health Status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "status": "ok",
+                    "uptime": 142.85
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "summary": "Register User",
+        "description": "Register a new student account. Account starts in PENDING status requiring administrator approval.",
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "201 Created - Registration Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "status": "success",
+                    "message": "User registered successfully",
+                    "data": {
+                      "user": {
+                        "id": 1,
+                        "name": "John Doe",
+                        "email": "student@csedu.ac.bd",
+                        "registrationNo": "2021-1-60-001",
+                        "batchYear": 2021,
+                        "role": "GeneralStudent",
+                        "status": "PENDING"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "name": "John Doe",
+                  "email": "student@csedu.ac.bd",
+                  "password": "SecurePassword123!",
+                  "registrationNo": "2021-1-60-001",
+                  "batchYear": 2021,
+                  "contactNo": "+8801700000000",
+                  "profilePicture": "https://example.com/avatar.jpg"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "User Login",
+        "description": "Authenticate user credentials and receive JWT access token. Rate limited to 10 requests per 15 minutes.",
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Login Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    "user": {
+                      "id": 1,
+                      "name": "John Doe",
+                      "email": "student@csedu.ac.bd",
+                      "role": "GeneralStudent",
+                      "status": "ACTIVE"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "email": "student@csedu.ac.bd",
+                  "password": "SecurePassword123!"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "summary": "Get Current User (Me)",
+        "description": "Get authenticated profile info for the currently logged-in user.",
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - User Profile Details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "user": {
+                      "id": 1,
+                      "name": "John Doe",
+                      "email": "student@csedu.ac.bd",
+                      "registrationNo": "2021-1-60-001",
+                      "batchYear": 2021,
+                      "contactNo": "+8801700000000",
+                      "profilePicture": "https://example.com/avatar.jpg",
+                      "role": "GeneralStudent",
+                      "status": "ACTIVE"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "summary": "User Logout",
+        "description": "Invalidate current JWT session.",
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Logout Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Logged out successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/auth/forgot-password": {
+      "post": {
+        "summary": "Forgot Password",
+        "description": "Request a password reset email.",
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Password Reset Email Sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Password reset instructions sent to email"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "email": "student@csedu.ac.bd"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/reset-password": {
+      "post": {
+        "summary": "Reset Password",
+        "description": "Reset password using token from reset email.",
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Password Reset Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Password updated successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "token": "reset_token_example_123",
+                  "newPassword": "NewSecurePassword123!"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "summary": "Refresh Token",
+        "description": "Issue new access token using a valid refresh token.",
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Token Refreshed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "token": "new_jwt_access_token_example"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "refreshToken": "sample_refresh_token_xyz"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "summary": "List Users",
+        "description": "List all users. Protected: Requires Administrator or ECMember role.",
+        "tags": [
+          "User Management"
+        ],
+        "parameters": [
+          {
+            "name": "role",
+            "in": "query",
+            "required": false,
+            "description": "Filter by user role (GeneralStudent, ECMember, Administrator)",
+            "schema": {
+              "type": "string",
+              "default": "GeneralStudent"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Filter by account status (PENDING, ACTIVE, REJECTED, REVOKED)",
+            "schema": {
+              "type": "string",
+              "default": "ACTIVE"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Users List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "users": [
+                      {
+                        "id": 1,
+                        "name": "John Doe",
+                        "email": "student@csedu.ac.bd",
+                        "registrationNo": "2021-1-60-001",
+                        "batchYear": 2021,
+                        "role": "GeneralStudent",
+                        "status": "ACTIVE"
+                      }
+                    ],
+                    "pagination": {
+                      "page": 1,
+                      "limit": 20,
+                      "total": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/users/{userId}": {
+      "get": {
+        "summary": "Get User By ID",
+        "description": "Get user details by ID. Protected: Requires Administrator role.",
+        "tags": [
+          "User Management"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "User ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - User Details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "user": {
+                      "id": 1,
+                      "name": "John Doe",
+                      "email": "student@csedu.ac.bd",
+                      "registrationNo": "2021-1-60-001",
+                      "batchYear": 2021,
+                      "contactNo": "+8801700000000",
+                      "role": "GeneralStudent",
+                      "status": "ACTIVE"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/users/profile": {
+      "patch": {
+        "summary": "Update Own Profile",
+        "description": "Update authenticated user's own profile info.",
+        "tags": [
+          "User Management"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Profile Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Profile updated successfully",
+                    "user": {
+                      "id": 1,
+                      "name": "John Doe",
+                      "contactNo": "+8801711111111"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "email": "updated.email@csedu.ac.bd",
+                  "contactNo": "+8801711111111",
+                  "profilePicture": "https://example.com/new_avatar.jpg"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Own Account",
+        "description": "Permanently delete/deactivate logged-in user account.",
+        "tags": [
+          "User Management"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Account Deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Account deleted successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/users/activate-pending": {
+      "patch": {
+        "summary": "Activate Pending Users",
+        "description": "Bulk activate all pending user accounts. Protected: Requires Administrator role.",
+        "tags": [
+          "User Management"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Accounts Activated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Activated 5 pending user accounts"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/users/{userId}/status": {
+      "patch": {
+        "summary": "Update User Status",
+        "description": "Update status of a specific user (ACTIVE, REJECTED, REVOKED). Protected: Requires Administrator role.",
+        "tags": [
+          "User Management"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "Target User ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Status Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "User status updated successfully",
+                    "user": {
+                      "id": 1,
+                      "status": "ACTIVE"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "status": "ACTIVE",
+                  "reason": "Verified student identification"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/{userId}/role": {
+      "patch": {
+        "summary": "Update User Role",
+        "description": "Promote or change user role to ECMember or Administrator. Protected: Requires Administrator role.",
+        "tags": [
+          "User Management"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "Target User ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Role Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "User role updated successfully",
+                    "user": {
+                      "id": 1,
+                      "role": "ECMember"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "role": "ECMember"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/elections": {
+      "get": {
+        "summary": "List Elections",
+        "description": "Get all elections.",
+        "tags": [
+          "Election CRUD"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Elections List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": [
+                    {
+                      "id": 1,
+                      "title": "CSEDU Executive Committee Election 2026",
+                      "phase": 1,
+                      "rules": "One vote per student",
+                      "maxVotesPerUser": 1,
+                      "startTime": "2026-08-01T00:00:00Z",
+                      "endTime": "2026-08-02T00:00:00Z",
+                      "batchStartYear": 2020,
+                      "batchEndYear": 2024,
+                      "representativesPerBatch": 2
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "Create Election",
+        "description": "Create a new election. Protected: Requires Administrator or ECMember role.",
+        "tags": [
+          "Election CRUD"
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "201 Created - Election Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Election created successfully",
+                    "election": {
+                      "id": 1,
+                      "title": "CSEDU Executive Committee Election 2026",
+                      "phase": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "title": "CSEDU Executive Committee Election 2026",
+                  "phase": 1,
+                  "rules": "One vote per student per category.",
+                  "maxVotesPerUser": 1,
+                  "startTime": "2026-08-01T09:00:00Z",
+                  "endTime": "2026-08-02T17:00:00Z",
+                  "batchStartYear": 2020,
+                  "batchEndYear": 2024,
+                  "representativesPerBatch": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/elections/{id}": {
+      "get": {
+        "summary": "Get Election By ID",
+        "description": "Get specific election details by ID.",
+        "tags": [
+          "Election CRUD"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Election ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Election Details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "id": 1,
+                    "title": "CSEDU Executive Committee Election 2026",
+                    "phase": 1,
+                    "rules": "One vote per student",
+                    "maxVotesPerUser": 1,
+                    "startTime": "2026-08-01T09:00:00Z",
+                    "endTime": "2026-08-02T17:00:00Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "patch": {
+        "summary": "Update Election",
+        "description": "Update election details. Protected: Requires Administrator or ECMember role.",
+        "tags": [
+          "Election CRUD"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Election ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Election Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Election updated successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "title": "CSEDU EC Election 2026 (Updated Rules)",
+                  "rules": "Updated guidelines for voting"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Election",
+        "description": "Delete an election. Protected: Requires Administrator role.",
+        "tags": [
+          "Election CRUD"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Election ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Election Deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Election deleted successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/elections/{id}/transition": {
+      "post": {
+        "summary": "Transition to Phase 2",
+        "description": "Transition election to Phase 2. Protected: Requires Administrator or ECMember role.",
+        "tags": [
+          "Election CRUD"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Election ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Transition Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Election transitioned to Phase 2 successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "startTime": "2026-08-10T09:00:00Z",
+                  "endTime": "2026-08-11T17:00:00Z",
+                  "designations": [
+                    {
+                      "name": "President",
+                      "elect_count": 1
+                    },
+                    {
+                      "name": "General Secretary",
+                      "elect_count": 1
+                    }
+                  ],
+                  "candidates": [
+                    5,
+                    6,
+                    7
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/elections/{id}/candidates": {
+      "get": {
+        "summary": "List Candidates",
+        "description": "List candidates for an election.",
+        "tags": [
+          "Candidates & Nominations"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Election ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Candidates List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": [
+                    {
+                      "id": 1,
+                      "electionId": 1,
+                      "userId": 5,
+                      "post": "President",
+                      "bio": "Dedicated to enhancing student programming initiatives.",
+                      "status": "approved"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "Add Candidate",
+        "description": "Add a candidate to an election. Protected: Admin/EC Member.",
+        "tags": [
+          "Candidates & Nominations"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Election ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "201 Created - Candidate Added",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Candidate added successfully",
+                    "candidate": {
+                      "id": 1,
+                      "electionId": 1,
+                      "userId": 5,
+                      "post": "President"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "userId": 5,
+                  "post": "President",
+                  "bio": "Dedicated to enhancing student programming initiatives."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/elections/{id}/candidates/{candidateId}": {
+      "patch": {
+        "summary": "Update Candidate Info",
+        "description": "Update candidate post or bio.",
+        "tags": [
+          "Candidates & Nominations"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Election ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          },
+          {
+            "name": "candidateId",
+            "in": "path",
+            "required": true,
+            "description": "Candidate ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Candidate Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Candidate updated successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "post": "Vice President",
+                  "bio": "Updated vision for club events."
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove Candidate",
+        "description": "Remove a candidate from election.",
+        "tags": [
+          "Candidates & Nominations"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Election ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          },
+          {
+            "name": "candidateId",
+            "in": "path",
+            "required": true,
+            "description": "Candidate ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Candidate Removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Candidate removed successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/elections/{id}/candidates/{candidateId}/status": {
+      "patch": {
+        "summary": "Update Candidate Status",
+        "description": "Approve or reject candidate status (pending, approved, rejected).",
+        "tags": [
+          "Candidates & Nominations"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Election ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          },
+          {
+            "name": "candidateId",
+            "in": "path",
+            "required": true,
+            "description": "Candidate ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Status Approved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Candidate status updated to approved"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "status": "approved"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/elections/{id}/apply": {
+      "post": {
+        "summary": "Apply Self-Nomination",
+        "description": "Submit self-nomination or application for a designation in election.",
+        "tags": [
+          "Candidates & Nominations"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Election ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "201 Created - Nomination Submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Nomination application submitted successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "bio": "Active member in previous club activities.",
+                  "designation": "General Secretary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/elections/{id}/vote": {
+      "post": {
+        "summary": "Cast Vote",
+        "description": "Cast vote for candidate(s). Rate limited (20 req/min).",
+        "tags": [
+          "Voting & Results"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Election ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Vote Recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Vote recorded successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "candidateIds": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/elections/{id}/results": {
+      "get": {
+        "summary": "Get Election Results",
+        "description": "Retrieve tally and results for election.",
+        "tags": [
+          "Voting & Results"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Election ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Election Results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "electionId": 1,
+                    "results": [
+                      {
+                        "candidateId": 1,
+                        "post": "President",
+                        "voteCount": 42
+                      },
+                      {
+                        "candidateId": 2,
+                        "post": "Vice President",
+                        "voteCount": 38
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/elections/{id}/phase1-winners": {
+      "get": {
+        "summary": "Get Phase 1 Winners",
+        "description": "Get winning candidates from Phase 1 election.",
+        "tags": [
+          "Voting & Results"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Election ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Phase 1 Winners",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "electionId": 1,
+                    "winners": [
+                      {
+                        "userId": 5,
+                        "voteCount": 42
+                      },
+                      {
+                        "userId": 6,
+                        "voteCount": 39
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/events": {
+      "get": {
+        "summary": "List Events",
+        "description": "Get all events.",
+        "tags": [
+          "Events"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Events List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": [
+                    {
+                      "id": 1,
+                      "title": "CSEDU Annual Hackathon 2026",
+                      "description": "36-hour competitive programming event.",
+                      "event_date": "2026-09-15T09:00:00Z",
+                      "location": "Curzon Hall, DU",
+                      "volunteers_needed": 10,
+                      "registration_fee": 200,
+                      "banner_image_id": 1
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "Create Event",
+        "description": "Create a new event. Protected: ECMember, Administrator.",
+        "tags": [
+          "Events"
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "201 Created - Event Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Event created successfully",
+                    "event": {
+                      "id": 1,
+                      "title": "CSEDU Annual Hackathon 2026"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "title": "CSEDU Annual Hackathon 2026",
+                  "description": "36-hour competitive programming event.",
+                  "event_date": "2026-09-15T09:00:00.000Z",
+                  "location": "Curzon Hall, DU",
+                  "volunteers_needed": 10,
+                  "registration_fee": 200,
+                  "banner_image_id": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/events/{id}": {
+      "get": {
+        "summary": "Get Event By ID",
+        "description": "Get specific event details by ID.",
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Event ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Event Details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "id": 1,
+                    "title": "CSEDU Annual Hackathon 2026",
+                    "description": "36-hour competitive programming event.",
+                    "event_date": "2026-09-15T09:00:00Z",
+                    "location": "Curzon Hall, DU"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "patch": {
+        "summary": "Update Event",
+        "description": "Update event details. Protected: ECMember, Administrator.",
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Event ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Event Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Event updated successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "location": "Auditorium, Department of CSE",
+                  "volunteers_needed": 15
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Cancel Event",
+        "description": "Cancel/delete event. Protected: ECMember, Administrator.",
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Event ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Event Cancelled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Event cancelled successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/events/{id}/registrations": {
+      "get": {
+        "summary": "List Event Registrations",
+        "description": "List all user registrations for an event. Protected: Admin/EC Member.",
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Event ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Registrations List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": [
+                    {
+                      "registrationId": 1,
+                      "eventId": 1,
+                      "userId": 1,
+                      "registeredAt": "2026-08-01T10:00:00Z"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/events/{id}/register": {
+      "post": {
+        "summary": "Register For Event",
+        "description": "Register current user for an event.",
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Event ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "201 Created - Registration Successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Registered for event successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/events/{id}/volunteer": {
+      "post": {
+        "summary": "Apply As Volunteer",
+        "description": "Apply as a volunteer for an event.",
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Event ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "201 Created - Volunteer Applied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Volunteer application submitted successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/events/{id}/volunteers/{vid}": {
+      "patch": {
+        "summary": "Manage Volunteer Status",
+        "description": "Approve or reject volunteer application. Protected: Admin/EC Member.",
+        "tags": [
+          "Events"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Event ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          },
+          {
+            "name": "vid",
+            "in": "path",
+            "required": true,
+            "description": "Volunteer Application ID",
+            "schema": {
+              "type": "string",
+              "default": "10"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Volunteer Status Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Volunteer application status updated"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "status": "approved"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notices": {
+      "get": {
+        "summary": "List Notices",
+        "description": "List all published notices.",
+        "tags": [
+          "Notices"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Notices List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": [
+                    {
+                      "id": 1,
+                      "title": "Club Membership Renewal",
+                      "content": "All general members must renew their membership for 2026-2027.",
+                      "priority": "urgent",
+                      "expiry_date": "2026-09-01T23:59:59.000Z",
+                      "attachments": [
+                        1,
+                        2
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "Publish Notice",
+        "description": "Publish a notice. Protected: Admin/EC Member.",
+        "tags": [
+          "Notices"
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "201 Created - Notice Published",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Notice published successfully",
+                    "notice": {
+                      "id": 1,
+                      "title": "Club Membership Renewal"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "title": "Club Membership Renewal",
+                  "content": "All general members must renew their membership for 2026-2027.",
+                  "priority": "urgent",
+                  "expiry_date": "2026-09-01T23:59:59.000Z",
+                  "attachments": [
+                    1,
+                    2
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notices/{id}": {
+      "get": {
+        "summary": "Get Notice By ID",
+        "description": "Get notice details by ID.",
+        "tags": [
+          "Notices"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Notice ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Notice Details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "id": 1,
+                    "title": "Club Membership Renewal",
+                    "content": "All general members must renew their membership for 2026-2027.",
+                    "priority": "urgent"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "patch": {
+        "summary": "Update Notice",
+        "description": "Update notice. Protected: Admin/EC Member.",
+        "tags": [
+          "Notices"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Notice ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Notice Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Notice updated successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "priority": "normal"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Notice",
+        "description": "Delete notice. Protected: Admin/EC Member.",
+        "tags": [
+          "Notices"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Notice ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Notice Deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Notice deleted successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/gallery": {
+      "get": {
+        "summary": "List Gallery Items",
+        "description": "List all gallery entries/albums.",
+        "tags": [
+          "Gallery"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Gallery List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": [
+                    {
+                      "id": 1,
+                      "title": "Freshers Orientation 2025",
+                      "content": "Photos from Freshers reception ceremony.",
+                      "images": [
+                        1,
+                        2,
+                        3
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "Create Gallery Item",
+        "description": "Create gallery entry. Protected: Admin/EC Member.",
+        "tags": [
+          "Gallery"
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "201 Created - Gallery Item Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Gallery item created successfully",
+                    "gallery": {
+                      "id": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "title": "Freshers Orientation 2025",
+                  "content": "Photos from Freshers reception ceremony.",
+                  "images": [
+                    1,
+                    2,
+                    3
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/gallery/{id}": {
+      "get": {
+        "summary": "Get Gallery Item By ID",
+        "description": "Get gallery item details.",
+        "tags": [
+          "Gallery"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Gallery ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Gallery Item Details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "id": 1,
+                    "title": "Freshers Orientation 2025",
+                    "content": "Photos from Freshers reception ceremony.",
+                    "images": [
+                      1,
+                      2,
+                      3
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      },
+      "patch": {
+        "summary": "Update Gallery Item",
+        "description": "Update gallery item. Protected: Admin/EC Member.",
+        "tags": [
+          "Gallery"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Gallery ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Gallery Item Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Gallery item updated successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "title": "Freshers Orientation 2025 (Updated Title)"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Gallery Item",
+        "description": "Delete gallery item. Protected: Admin/EC Member.",
+        "tags": [
+          "Gallery"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Gallery ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Gallery Item Deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Gallery item removed successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/media": {
+      "get": {
+        "summary": "List Media Files",
+        "description": "List uploaded media records.",
+        "tags": [
+          "Media"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Media List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": [
+                    {
+                      "id": 1,
+                      "filename": "banner.png",
+                      "mimetype": "image/png",
+                      "path": "/uploads/2026/07/banner.png"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/media/{id}/file": {
+      "get": {
+        "summary": "Stream File By ID",
+        "description": "Stream binary file content by ID.",
+        "tags": [
+          "Media"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Media ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "status": "success"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/media/file/{year}/{month}/{filename}": {
+      "get": {
+        "summary": "Stream File By Path",
+        "description": "Stream binary file content by path.",
+        "tags": [
+          "Media"
+        ],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "description": "Year folder",
+            "schema": {
+              "type": "string",
+              "default": "2026"
+            }
+          },
+          {
+            "name": "month",
+            "in": "path",
+            "required": true,
+            "description": "Month folder",
+            "schema": {
+              "type": "string",
+              "default": "07"
+            }
+          },
+          {
+            "name": "filename",
+            "in": "path",
+            "required": true,
+            "description": "Target filename",
+            "schema": {
+              "type": "string",
+              "default": "banner.png"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "status": "success"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/media/upload-public": {
+      "post": {
+        "summary": "Upload Public Media",
+        "description": "Upload public media file.",
+        "tags": [
+          "Media"
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "201 Created - Media Uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Media file uploaded successfully",
+                    "media": {
+                      "id": 1,
+                      "filename": "1722150000000-image.png"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "File upload"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/media/upload": {
+      "post": {
+        "summary": "Upload Media (Protected)",
+        "description": "Upload media file. Protected: Admin/EC Member.",
+        "tags": [
+          "Media"
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "201 Created - Media Uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Media file uploaded successfully",
+                    "media": {
+                      "id": 2,
+                      "filename": "1722150000000-doc.pdf"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "File upload"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/media/{id}": {
+      "delete": {
+        "summary": "Delete Media File",
+        "description": "Delete media record and underlying storage file. Protected: Admin/EC Member.",
+        "tags": [
+          "Media"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Media ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Media Deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Media file deleted successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/budgets": {
+      "get": {
+        "summary": "List Budget Proposals",
+        "description": "List budget proposals. Protected: Admin/EC Member.",
+        "tags": [
+          "Budget & Finance"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Budgets List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": [
+                    {
+                      "id": 1,
+                      "eventId": 1,
+                      "totalAmount": 15000,
+                      "status": "PENDING",
+                      "lineItems": [
+                        {
+                          "category": "Food & Catering",
+                          "amount": 10000
+                        },
+                        {
+                          "category": "Certificates & Badges",
+                          "amount": 5000
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Submit Budget Proposal",
+        "description": "Submit budget proposal. Protected: Admin/EC Member.",
+        "tags": [
+          "Budget & Finance"
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "201 Created - Budget Submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Budget proposal submitted successfully",
+                    "budget": {
+                      "id": 1,
+                      "eventId": 1,
+                      "totalAmount": 15000,
+                      "status": "PENDING"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "eventId": 1,
+                  "totalAmount": 15000,
+                  "lineItems": [
+                    {
+                      "category": "Food & Catering",
+                      "amount": 10000
+                    },
+                    {
+                      "category": "Certificates & Badges",
+                      "amount": 5000
+                    }
+                  ],
+                  "notifyAdmins": true,
+                  "adminMessage": "Urgent budget proposal for upcoming Hackathon event."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/budgets/{id}": {
+      "get": {
+        "summary": "Get Budget By ID",
+        "description": "Get budget details. Protected: Admin/EC Member.",
+        "tags": [
+          "Budget & Finance"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Budget ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Budget Details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "id": 1,
+                    "eventId": 1,
+                    "totalAmount": 15000,
+                    "status": "PENDING",
+                    "lineItems": [
+                      {
+                        "category": "Food & Catering",
+                        "amount": 10000
+                      },
+                      {
+                        "category": "Certificates & Badges",
+                        "amount": 5000
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/budgets/{id}/approve": {
+      "patch": {
+        "summary": "Approve Budget",
+        "description": "Approve budget proposal. Protected: Administrator role.",
+        "tags": [
+          "Budget & Finance"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Budget ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Budget Approved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Budget approved successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "notifyRequester": true,
+                  "customMessage": "Approved by EC executive decision."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/budgets/{id}/reject": {
+      "patch": {
+        "summary": "Reject Budget",
+        "description": "Reject budget proposal. Protected: Administrator role.",
+        "tags": [
+          "Budget & Finance"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Budget ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Budget Rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Budget rejected"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "comment": "Exceeds quarterly allocated event funds.",
+                  "notifyRequester": true,
+                  "customMessage": "Please revise total amount and resubmit."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/budgets/{id}/expenditures": {
+      "post": {
+        "summary": "Record Expenditure",
+        "description": "Record actual expense item against approved budget. Protected: Admin/EC Member.",
+        "tags": [
+          "Budget & Finance"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Budget ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "201 Created - Expenditure Recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Expenditure recorded successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "category": "Food & Catering",
+                  "amount": 9500,
+                  "description": "Purchase of lunch boxes for participants (Receipt #1042)."
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Budget Expenditures",
+        "description": "List recorded expenses for a budget. Protected: Admin/EC Member.",
+        "tags": [
+          "Budget & Finance"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Budget ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Expenditures List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": [
+                    {
+                      "id": 1,
+                      "budgetId": 1,
+                      "category": "Food & Catering",
+                      "amount": 9500,
+                      "description": "Purchase of lunch boxes"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/notifications/contact": {
+      "post": {
+        "summary": "Submit Contact Form",
+        "description": "Submit public contact form message.",
+        "tags": [
+          "Notifications"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Contact Submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Contact message submitted successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "name": "Guest Visitor",
+                  "email": "visitor@example.com",
+                  "message": "Inquiry regarding CSEDU alumni network events and membership."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications/pending-contact": {
+      "post": {
+        "summary": "Submit Pending Contact",
+        "description": "Submit pending account registration status contact message.",
+        "tags": [
+          "Notifications"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Pending Contact Submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Pending contact message submitted"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "name": "Applicant Student",
+                  "email": "applicant@csedu.ac.bd",
+                  "message": "Status update request for my pending registration application."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications": {
+      "get": {
+        "summary": "List My Notifications",
+        "description": "List notifications for authenticated user.",
+        "tags": [
+          "Notifications"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - User Notifications",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": [
+                    {
+                      "id": 1,
+                      "title": "Budget Proposal Approved",
+                      "message": "Budget #1 for Annual Hackathon has been approved.",
+                      "isRead": false,
+                      "createdAt": "2026-07-28T09:00:00.000Z"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/notifications/read-all": {
+      "patch": {
+        "summary": "Mark All Read",
+        "description": "Mark all user notifications as read.",
+        "tags": [
+          "Notifications"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - All Marked Read",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "All notifications marked as read"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/notifications/{id}/read": {
+      "patch": {
+        "summary": "Mark Single Notification Read",
+        "description": "Mark single notification as read.",
+        "tags": [
+          "Notifications"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Notification ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Marked Read",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Notification marked as read"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/notifications/{id}/retry": {
+      "post": {
+        "summary": "Retry Notification Delivery",
+        "description": "Retry sending a failed notification. Protected: Administrator role.",
+        "tags": [
+          "Notifications"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Notification ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Retry Dispatched",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Notification retry dispatched"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/notifications/{id}": {
+      "delete": {
+        "summary": "Delete Notification",
+        "description": "Delete notification record.",
+        "tags": [
+          "Notifications"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Notification ID",
+            "schema": {
+              "type": "string",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Notification Deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Notification deleted successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/notifications/send-custom": {
+      "post": {
+        "summary": "Send Custom Notification",
+        "description": "Send custom notification via email/in_app/both. Protected: Admin/EC Member.",
+        "tags": [
+          "Notifications"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Notification Sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Custom notification dispatched to ECMember"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "recipientType": "role",
+                  "recipientValue": "ECMember",
+                  "deliveryMethod": "both",
+                  "title": "Emergency EC Meeting Notice",
+                  "message": "Emergency EC meeting scheduled tomorrow at 5 PM in club office."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/logs": {
+      "get": {
+        "summary": "List Audit Logs",
+        "description": "Retrieve system audit logs. Protected: Requires Administrator role.",
+        "tags": [
+          "Audit Logs"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Max logs to return (1-1000)",
+            "schema": {
+              "type": "string",
+              "default": "50"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 OK - Audit Logs List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": [
+                    {
+                      "id": 1,
+                      "actorUserId": 1,
+                      "actionType": "USER_ROLE_UPDATE",
+                      "targetEntity": "users:5",
+                      "details": {
+                        "newRole": "ECMember"
+                      },
+                      "timestamp": "2026-07-28T08:30:00.000Z"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Purge Audit Logs",
+        "description": "Purge old audit logs. Protected: Requires Administrator role.",
+        "tags": [
+          "Audit Logs"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200 OK - Logs Purged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "message": "Audit logs purged successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Enter your JWT access token (obtained from POST /api/auth/login or /api/auth/register)"
+      }
+    }
+  }
+}
